@@ -54,6 +54,33 @@ int main() {
 
         ws_client.SendText(json_message);
 
+        AudioProcess audio_processor;
+        std::queue<std::vector<int16_t>> audio_queue_ = audio_processor.loadAudioFromFile("../test_audio/test.pcm", frame_duration);
+        
+        while(!audio_queue_.empty())
+        {
+            std::vector<int16_t> pcm_frame = audio_queue_.front();
+            audio_queue_.pop();
+
+            uint8_t opus_data[1536];
+            size_t opus_data_size;
+
+            if (audio_processor.encode(pcm_frame, opus_data, opus_data_size)) {
+                // 打包
+                BinProtocol* packed_frame = audio_processor.PackBinFrame(opus_data, opus_data_size);
+
+                if (packed_frame) {
+                    // 发送
+                    ws_client.SendBinary(reinterpret_cast<uint8_t*>(packed_frame), sizeof(BinProtocol) + opus_data_size);
+                } else {
+                    audio_processor.Log("Packing failed", audio_processor.ERROR);
+                }
+            } else {
+                audio_processor.Log("Encoding failed", audio_processor.ERROR);
+            }
+        }
+        std::cerr << "finish" << std::endl;
+
     }
     // 等待 WebSocket 线程结束
     ws_thread.join();
