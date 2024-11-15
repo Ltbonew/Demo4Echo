@@ -23,6 +23,16 @@ WebSocketClient::WebSocketClient(const std::string& address, int port, const std
     connection_hdl_ = con->get_handle();
 }
 
+WebSocketClient::~WebSocketClient() {
+    if (is_connected_) {
+        try {
+            ws_client_.close(connection_hdl_, websocketpp::close::status::going_away, "Client is being destroyed");
+        } catch (const std::exception& e) {
+            std::cerr << "Error closing connection: " << e.what() << std::endl;
+        }
+    }
+}
+
 // 日志记录方法
 void WebSocketClient::Log(const std::string& message) {
     ws_client_.get_alog().write(websocketpp::log::alevel::app, message);
