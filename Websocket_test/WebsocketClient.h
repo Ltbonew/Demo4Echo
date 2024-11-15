@@ -8,6 +8,7 @@
 #include <map>
 #include <iostream>  
 
+// 用于打包opus二进制数据的协议
 struct BinProtocol {
     uint16_t version;
     uint16_t type;
@@ -21,13 +22,47 @@ public:
     using close_callback_t = std::function<void()>;
 
     WebSocketClient(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& protocolVersion);
+    ~WebSocketClient();
+
+    /**
+     * 连接到 WebSocket 服务器。
+     */
     void Connect();
+
+    /**
+     * 发送文本消息。
+     * 
+     * @param message 要发送的消息。
+     */
     void SendText(const std::string& message);
+
+    /**
+     * 发送二进制数据。
+     * 
+     * @param data 要发送的数据。
+     * @param size 数据大小。
+     */
     void SendBinary(const uint8_t* data, size_t size);
     
+    /**
+     * 设置接收到消息的回调函数
+     */
     void SetMessageCallback(message_callback_t callback);
-    void SetCloseCallback(close_callback_t callback); // 设置关闭回调
-    void Log(const std::string& message); // 日志记录方法
+
+    /**
+     * 设置关闭的回调函数
+     */
+    void SetCloseCallback(close_callback_t callback);
+
+    /**
+     * Log a message.
+     * @param message The message to log.
+     */
+    void Log(const std::string& message); 
+
+    /**
+     * check if the client is connected
+     */
     bool IsConnected() const { return is_connected_; }
 
 private:
@@ -42,7 +77,7 @@ private:
 
     void on_open(websocketpp::connection_hdl hdl);
     void on_message(websocketpp::connection_hdl hdl, client_t::message_ptr msg);
-    void on_close(websocketpp::connection_hdl hdl);  // 处理关闭事件
+    void on_close(websocketpp::connection_hdl hdl); 
 };
 
 #endif // WEBSOCKETCLIENT_H
