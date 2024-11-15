@@ -172,3 +172,33 @@ BinProtocol* AudioProcess::PackBinFrame(const uint8_t* payload, size_t payload_s
     
     return pack;
 }
+
+bool AudioProcess::UnpackBinFrame(const uint8_t* packed_data, size_t packed_data_size, BinProtocol& unpacked_frame) {
+    // 检查输入数据的有效性
+    if (packed_data_size < sizeof(BinProtocol) - sizeof(uint8_t)) {
+        Log("Packed data size is too small", ERROR);
+        return false;
+    }
+
+    // 计算 payload 的大小
+    const BinProtocol* bin_frame = reinterpret_cast<const BinProtocol*>(packed_data);
+    size_t payload_size = ntohl(bin_frame->payload_size);
+
+    // 检查总数据大小是否匹配
+    if (packed_data_size < sizeof(BinProtocol) - sizeof(uint8_t) + payload_size) {
+        Log("Packed data size does not match payload size", ERROR);
+        return false;
+    }
+
+    // 计算总大小
+    size_t total_size = sizeof(BinProtocol) - sizeof(uint8_t) + payload_size;
+
+    // 动态分配内存
+    unpacked_frame = *reinterpret_cast<const BinProtocol*>(new uint8_t[total_size]);
+    unpacked_frame.version = ntohs(bin_frame->version);
+    unpacked_frame.type = ntohs(bin_frame->type);
+    unpacked_frame.payload_size = payload_size;
+    std::copy(bin_frame->payload, bin_frame->payload + payload_size, unpacked_frame.payload);
+
+    return true;
+}
