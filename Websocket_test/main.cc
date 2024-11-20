@@ -54,7 +54,7 @@ int main() {
 
         ws_client.SendText(json_message);
 
-        AudioProcess audio_processor;
+        AudioProcess audio_processor(sample_rate, channels);
         std::queue<std::vector<int16_t>> audio_queue_ = audio_processor.loadAudioFromFile("../test_audio/test.pcm", frame_duration);
         
         while(!audio_queue_.empty())

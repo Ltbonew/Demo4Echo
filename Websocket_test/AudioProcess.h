@@ -7,16 +7,19 @@
 #include <condition_variable>
 #include <opus/opus.h>
 #include <cstdint>
+#include <thread>
+#include <portaudio.h>
 #include "WebsocketClient.h"
 
 class AudioProcess {
 public:
-    AudioProcess();
+    // 构造函数，传入录音参数
+    AudioProcess(int sample_rate = 16000, int channels = 1);
     ~AudioProcess();
 
     // 日志记录等级
     enum LogLevel { INFO, ERROR };
-    
+
     /**
      * AudioProcessor Log a message.
      * 
@@ -25,11 +28,19 @@ public:
      */
     void Log(const std::string& message, LogLevel level = INFO);
 
-    // 录音方法
+    // 
     bool startRecording();
+
+    //
     void stopRecording();
 
-    std::vector<int16_t> getRecordedAudio();
+    /**
+     * get recorded audio data
+     * 
+     * @param recordedData The recorded audio data.
+     * @return true if recorded audio data is available, false is empty.
+     */
+    bool AudioProcess::getRecordedAudio(std::vector<int16_t>& recordedData);
 
     /**
      * Load audio data from a file and split it into frames.
@@ -41,7 +52,23 @@ public:
     std::queue<std::vector<int16_t>> loadAudioFromFile(const std::string& filename, int frame_duration_ms);
 
     /**
-     * encode a PCM frame to Opus
+     * Save any queue of audio data to a PCM file.
+     * 
+     * @param filename The path to the PCM file.
+     * @param audioQueue The queue containing audio data.
+     */
+    void saveToPCMFile(const std::string& filename, const std::queue<std::vector<int16_t>>& audioQueue);
+
+    /**
+     * Save recorded audio to a PCM file.
+     * 
+     * @param filename The path to the PCM file.
+     */
+    void saveToPCMFile(const std::string& filename);
+
+
+    /**
+     * Encode a PCM frame to Opus
      *
      * @param [in] pcm_frame The PCM frame to encode.
      * @param [out] opus_data The Opus data.
@@ -51,7 +78,7 @@ public:
     bool encode(const std::vector<int16_t>& pcm_frame, uint8_t* opus_data, size_t& opus_data_size);
 
     /**
-     * decode Opus data to PCM frame
+     * Decode Opus data to PCM frame
      * 
      * @param [in] opus_data The Opus data to decode.
      * @param [in] opus_data_size The size of the Opus data.
@@ -80,10 +107,12 @@ public:
     bool UnpackBinFrame(const uint8_t* packed_data, size_t packed_data_size, BinProtocol& unpacked_frame);
 
 private:
-
-    // 录音设备和线程的相关数据
-    std::mutex audio_mutex;
-    std::condition_variable audio_condition;
+    // PortAudio 回调函数
+    static int recordCallback(const void *inputBuffer, void *outputBuffer,
+                              unsigned long framesPerBuffer,
+                              const PaStreamCallbackTimeInfo* timeInfo,
+                              PaStreamCallbackFlags statusFlags,
+                              void *userData);
 
     // Opus 编码器的状态
     OpusEncoder* encoder;
@@ -94,6 +123,13 @@ private:
     int sample_rate;
     // 通道数
     int channels;
+
+    // 录音相关
+    std::queue<std::vector<int16_t>> recordedAudioQueue;
+    std::mutex recordedAudioMutex;
+    std::condition_variable recordedAudioCV;
+    bool isRecording;
+    PaStream* stream;
 
     // 初始化编码器、解码器
     bool initializeOpus();
