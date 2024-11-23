@@ -40,7 +40,7 @@ public:
      * @param recordedData The recorded audio data.
      * @return true if recorded audio data is available, false is empty.
      */
-    bool AudioProcess::getRecordedAudio(std::vector<int16_t>& recordedData);
+    bool getRecordedAudio(std::vector<int16_t>& recordedData);
 
     /**
      * Load audio data from a file and split it into frames.

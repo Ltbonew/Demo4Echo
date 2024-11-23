@@ -8,7 +8,7 @@ Application::Application(const std::string& address, int port, const std::string
       frame_duration_(frame_duration) {
     // 设置接收到消息的回调函数
     ws_client_.SetMessageCallback([this](const std::string& message) {
-        client_state_.Log("Received message: " + message); // 使用 client_state_ 的 Log 方法
+        ws_client_.Log("Received message: " + message);
     });
 
     // 添加状态
@@ -26,10 +26,24 @@ void Application::Run() {
 
     while (!ws_client_.IsConnected()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        client_state_.Log("Waiting for connection..."); // 使用 client_state_ 的 Log 方法
+        ws_client_.Log("Waiting for connection..."); // 使用 client_state_ 的 Log 方法
     }
 
     if (ws_client_.IsConnected()) {
+
+        std::string json_message = 
+        R"({
+            "type": "hello",
+            "audio_params": {
+                "format": "opus",
+                "sample_rate": )" + std::to_string(sample_rate_) + R"(,
+                "channels": )" + std::to_string(channels_) + R"(,
+                "frame_duration": )" + std::to_string(frame_duration_) + R"(
+            }
+        })";
+
+        ws_client_.SendText(json_message);
+
         // 设置初始状态
         client_state_.SetInitialState("idle");
 
@@ -41,7 +55,7 @@ void Application::Run() {
 void Application::IdleState() {
     std::string json_message = R"({"type": "new_state", "state": "idle"})";
     ws_client_.SendText(json_message);
-    std::cout << "In Idle state.\n";
+    client_state_.Log("Into Idle state.");
     // 模拟 KWS 识别到唤醒词
     std::this_thread::sleep_for(std::chrono::seconds(2));
     client_state_.Log("Wakeword detected, transitioning to Listening state."); // 使用 client_state_ 的 Log 方法
@@ -51,7 +65,7 @@ void Application::IdleState() {
 void Application::ListeningState() {
     std::string json_message = R"({"type": "new_state", "state": "listening"})";
     ws_client_.SendText(json_message);
-    std::cout << "In Listening state.\n";
+    client_state_.Log("Into Listening state.");
 
     AudioProcess audio_processor(sample_rate_, channels_);
     std::queue<std::vector<int16_t>> audio_queue_ = audio_processor.loadAudioFromFile("../test_audio/test.pcm", frame_duration_);
@@ -78,30 +92,21 @@ void Application::ListeningState() {
         }
     }
 
-    std::cerr << "finish sending audio\n";
-
-    // 模拟 VAD 识别到说话中断
-    std::this_thread::sleep_for(std::chrono::seconds(5));
-    std::string vad_end_message = R"({"type": "vad", "state": "end"})";
-    ws_client_.SendText(vad_end_message);
-
-    // 模拟服务器发送识别结果
-    std::string asr_result_message = R"({"type": "asr", "text": "这是识别出的文本"})";
-    ws_client_.SendText(asr_result_message);
-
+    // 模拟 VAD 识别到说话中断, 收到了服务器的Json消息
     client_state_.Log("VAD end detected, transitioning to Think state."); // 使用 client_state_ 的 Log 方法
+    while(1);
     client_state_.TransitionTo("think");
 }
 
 void Application::ThinkState() {
     std::string json_message = R"({"type": "new_state", "state": "think"})";
     ws_client_.SendText(json_message);
-    std::cout << "In Think state.\n";
+    client_state_.Log("Into Think state.");
 
     // 模拟思考过程
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
-    // 模拟服务器发送文子到 LLM 并生成语音
+    // 模拟服务器发送text到 LLM 并生成语音
     std::string llm_response_message = R"({"type": "llm", "text": "这是LLM生成的响应"})";
     ws_client_.SendText(llm_response_message);
 
@@ -112,7 +117,7 @@ void Application::ThinkState() {
 void Application::SpeakingState() {
     std::string json_message = R"({"type": "new_state", "state": "speaking"})";
     ws_client_.SendText(json_message);
-    std::cout << "In Speaking state.\n";
+    client_state_.Log("Into Speaking state.");
 
     // 模拟播放语音
     std::this_thread::sleep_for(std::chrono::seconds(2));
