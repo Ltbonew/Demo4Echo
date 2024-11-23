@@ -27,5 +27,5 @@ void StateMachine::TransitionTo(const std::string& state_name) {
 }
 
 void StateMachine::Log(const std::string& message) {
-    std::cout << "StateMachine: " << message << std::endl; // 你可以选择使用 std::cerr 或其他日志系统
+    std::cout << "[StateMachine]: " << message << std::endl; // 你可以选择使用 std::cerr 或其他日志系统
 }
