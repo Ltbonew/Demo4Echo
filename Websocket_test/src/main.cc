@@ -1,4 +1,4 @@
-#include "Application.h"
+#include "../inc/Application.h"
 
 int main() {
     // 定义server地址、端口和鉴权头

@@ -1,4 +1,4 @@
-#include "StateMachine.h"
+#include "../inc/StateMachine.h"
 #include <iostream>
 
 StateMachine::StateMachine()

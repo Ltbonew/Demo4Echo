@@ -1,4 +1,4 @@
-#include "Application.h"
+#include "../inc/Application.h"
 
 Application::Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& protocolVersion, int sample_rate, int channels, int frame_duration)
     : ws_client_(address, port, token, deviceId, protocolVersion),

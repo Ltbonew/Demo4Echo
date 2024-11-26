@@ -1,4 +1,4 @@
-#include "AudioProcess.h"
+#include "../inc/AudioProcess.h"
 #include <iostream>
 #include <fstream>
 

@@ -34,11 +34,11 @@ link_directories(
 
 # Add the source files
 add_executable(EchoBrian
-    main.cc
-    AudioProcess.cc
-    WebsocketClient.cc
-    Application.cc
-    StateMachine.cc
+    src/main.cc
+    src/AudioProcess.cc
+    src/WebsocketClient.cc
+    src/Application.cc
+    src/StateMachine.cc
 )
 
 # Link libraries for opus and websocketpp
