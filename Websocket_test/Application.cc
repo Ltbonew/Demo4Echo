@@ -66,7 +66,7 @@ void Application::ListeningState() {
     std::string json_message = R"({"type": "new_state", "state": "listening"})";
     ws_client_.SendText(json_message);
     client_state_.Log("Into Listening state.");
-
+    while(1);
     AudioProcess audio_processor(sample_rate_, channels_);
     std::queue<std::vector<int16_t>> audio_queue_ = audio_processor.loadAudioFromFile("../test_audio/test.pcm", frame_duration_);
 
@@ -94,7 +94,6 @@ void Application::ListeningState() {
 
     // 模拟 VAD 识别到说话中断, 收到了服务器的Json消息
     client_state_.Log("VAD end detected, transitioning to Think state."); // 使用 client_state_ 的 Log 方法
-    while(1);
     client_state_.TransitionTo("think");
 }
 

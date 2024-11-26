@@ -1,7 +1,7 @@
 #include "Application.h"
 
 int main() {
-    // 定义地址、端口和鉴权头
+    // 定义server地址、端口和鉴权头
     std::string address = "192.168.211.1";
     int port = 8765;
     std::string token = "123456";
