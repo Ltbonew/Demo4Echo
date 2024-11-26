@@ -1,6 +1,7 @@
-
 import asyncio
-from WebsocketServer import start_server
+from WebsocketServer import WebSocketServer
 
+# 运行服务器
 if __name__ == "__main__":
-    asyncio.run(start_server())
+    server = WebSocketServer()
+    asyncio.run(server.start_server())
