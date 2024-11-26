@@ -1,5 +1,10 @@
 import struct
 from pyogg import OpusEncoder, OpusDecoder
+import logging
+
+# 配置日志
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class AudioProcessor:
     HEADER_FORMAT = "!HHI"  # 版本 (2 字节) + 类型 (2 字节) + 负载大小 (4 字节)
@@ -39,17 +44,17 @@ class AudioProcessor:
         :return: BinProtocol 对象或 None
         """
         if len(data) < self.HEADER_SIZE:
-            print("Data too short to contain BinProtocol header")
+            logger.error("Data too short to contain BinProtocol header")
             return None
 
         version, type, payload_size = struct.unpack(self.HEADER_FORMAT, data[:self.HEADER_SIZE])
         if len(data) < self.HEADER_SIZE + payload_size:
-            print("Data size does not match payload_size")
+            logger.error("Data size does not match payload_size")
             return None
 
         payload = data[self.HEADER_SIZE:self.HEADER_SIZE + payload_size]
         if len(payload) != payload_size:
-            print("Payload size mismatch")
+            logger.error("Payload size mismatch")
             return None
 
         return (version, type, payload)
@@ -61,7 +66,7 @@ class AudioProcessor:
         :return: 编码后的 Opus 数据 (字节)
         """
         if len(pcm_data) % (self.frame_size * 2) != 0:
-            print("PCM data size is not a multiple of the frame size")
+            logger.error("PCM data size is not a multiple of the frame size")
             return None
 
         opus_data = b''
@@ -137,4 +142,3 @@ class AudioProcessor:
         """
         with open(file_path, 'wb') as f:
             f.write(pcm_data)
-
