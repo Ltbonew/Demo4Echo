@@ -9,7 +9,7 @@ int main() {
     std::string protocolVersion = "1";
     int sample_rate = 16000;
     int channels = 1;
-    int frame_duration = 20;
+    int frame_duration = 40;
 
     // 创建 Application 实例
     Application app(address, port, token, deviceId, protocolVersion, sample_rate, channels, frame_duration);
