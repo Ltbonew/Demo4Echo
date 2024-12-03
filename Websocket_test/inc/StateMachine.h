@@ -12,6 +12,7 @@ public:
     void SetInitialState(const std::string& state_name);
     void TransitionTo(const std::string& state_name);
     void Log(const std::string& message); // 新增的 Log 方法
+    std::string GetCurrentState() const;
 
 private:
     std::string current_state_;
