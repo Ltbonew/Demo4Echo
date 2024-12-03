@@ -1,4 +1,5 @@
 #include "../inc/Application.h"
+#include <json/json.h>
 
 Application::Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& protocolVersion, int sample_rate, int channels, int frame_duration)
     : ws_client_(address, port, token, deviceId, protocolVersion),
@@ -8,7 +9,7 @@ Application::Application(const std::string& address, int port, const std::string
       frame_duration_(frame_duration) {
     // 设置接收到消息的回调函数
     ws_client_.SetMessageCallback([this](const std::string& message) {
-        ws_client_.Log("Received message: " + message);
+        HandleMessage(message);
     });
 
     // 添加状态
@@ -16,6 +17,29 @@ Application::Application(const std::string& address, int port, const std::string
     client_state_.AddState("listening", [this]() { ListeningState(); });
     client_state_.AddState("think", [this]() { ThinkState(); });
     client_state_.AddState("speaking", [this]() { SpeakingState(); });
+}
+
+void Application::HandleMessage(const std::string& message) {
+    Json::Value root;
+    Json::Reader reader;
+
+    // 解析 JSON 字符串
+    bool parsingSuccessful = reader.parse(message, root);
+    if (!parsingSuccessful) {
+        ws_client_.Log("Error parsing message: " + reader.getFormattedErrorMessages());
+        return;
+    }
+
+    // 获取 JSON 对象中的值
+    const Json::Value type = root["type"];
+    const Json::Value state = root["state"];
+
+    // 检查 JSON 对象的值
+    if (type.isString() && type.asString() == "vad" &&
+        state.isString() && state.asString() == "end") {
+        client_state_.Log("Received VAD end message, transitioning to Think state.");
+        client_state_.TransitionTo("think");
+    }
 }
 
 void Application::Run() {
@@ -53,52 +77,53 @@ void Application::Run() {
 }
 
 void Application::IdleState() {
-    std::string json_message = R"({"type": "new_state", "state": "idle"})";
+    std::string json_message = R"({"type": "state", "state": "idle"})";
     ws_client_.SendText(json_message);
     client_state_.Log("Into Idle state.");
     // 模拟 KWS 识别到唤醒词
     std::this_thread::sleep_for(std::chrono::seconds(2));
-    client_state_.Log("Wakeword detected, transitioning to Listening state."); // 使用 client_state_ 的 Log 方法
+    client_state_.Log("Wakeword detected, transitioning to Listening state.");
     client_state_.TransitionTo("listening");
 }
 
 void Application::ListeningState() {
-    std::string json_message = R"({"type": "new_state", "state": "listening"})";
+    std::string json_message = R"({"type": "state", "state": "listening"})";
     ws_client_.SendText(json_message);
     client_state_.Log("Into Listening state.");
-    while(1);
+
     AudioProcess audio_processor(sample_rate_, channels_);
-    std::queue<std::vector<int16_t>> audio_queue_ = audio_processor.loadAudioFromFile("../test_audio/test.pcm", frame_duration_);
+    std::queue<std::vector<int16_t>> audio_queue_ = audio_processor.loadAudioFromFile("../test_audio/out_chock2inmid.pcm", frame_duration_);
 
-    while (!audio_queue_.empty()) {
-        std::vector<int16_t> pcm_frame = audio_queue_.front();
-        audio_queue_.pop();
+    while (client_state_.GetCurrentState() == "listening") {
+        if(!audio_queue_.empty()) {
+            std::vector<int16_t> pcm_frame = audio_queue_.front();
+            audio_queue_.pop();
 
-        uint8_t opus_data[1536];
-        size_t opus_data_size;
+            uint8_t opus_data[1536];
+            size_t opus_data_size;
 
-        if (audio_processor.encode(pcm_frame, opus_data, opus_data_size)) {
-            // 打包
-            BinProtocol* packed_frame = audio_processor.PackBinFrame(opus_data, opus_data_size);
+            if (audio_processor.encode(pcm_frame, opus_data, opus_data_size)) {
+                // 打包
+                BinProtocol* packed_frame = audio_processor.PackBinFrame(opus_data, opus_data_size);
 
-            if (packed_frame) {
-                // 发送
-                ws_client_.SendBinary(reinterpret_cast<uint8_t*>(packed_frame), sizeof(BinProtocol) + opus_data_size);
+                if (packed_frame) {
+                    // 发送
+                    ws_client_.SendBinary(reinterpret_cast<uint8_t*>(packed_frame), sizeof(BinProtocol) + opus_data_size);
+                } else {
+                    audio_processor.Log("Packing failed", audio_processor.ERROR);
+                }
             } else {
-                audio_processor.Log("Packing failed", audio_processor.ERROR);
+                audio_processor.Log("Encoding failed", audio_processor.ERROR);
             }
-        } else {
-            audio_processor.Log("Encoding failed", audio_processor.ERROR);
         }
     }
 
-    // 模拟 VAD 识别到说话中断, 收到了服务器的Json消息
-    client_state_.Log("VAD end detected, transitioning to Think state."); // 使用 client_state_ 的 Log 方法
+    client_state_.Log("VAD end detected, transitioning to Think state.");
     client_state_.TransitionTo("think");
 }
 
 void Application::ThinkState() {
-    std::string json_message = R"({"type": "new_state", "state": "think"})";
+    std::string json_message = R"({"type": "state", "state": "think"})";
     ws_client_.SendText(json_message);
     client_state_.Log("Into Think state.");
 
@@ -114,7 +139,7 @@ void Application::ThinkState() {
 }
 
 void Application::SpeakingState() {
-    std::string json_message = R"({"type": "new_state", "state": "speaking"})";
+    std::string json_message = R"({"type": "state", "state": "speaking"})";
     ws_client_.SendText(json_message);
     client_state_.Log("Into Speaking state.");
 

@@ -18,6 +18,7 @@ public:
     void Run();
 
 private:
+    void HandleMessage(const std::string& message);
     void IdleState();
     void ListeningState();
     void ThinkState();
