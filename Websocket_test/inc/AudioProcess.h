@@ -18,7 +18,7 @@ public:
     ~AudioProcess();
 
     // 日志记录等级
-    enum LogLevel { INFO, ERROR };
+    enum LogLevel { INFO, ERROR, WARNING };
 
     /**
      * AudioProcessor Log a message.
@@ -28,14 +28,17 @@ public:
      */
     void Log(const std::string& message, LogLevel level = INFO);
 
-    // 
+    // 启动录音
     bool startRecording();
 
-    //
-    void stopRecording();
+    // 停止录音
+    bool stopRecording();
+
+    // 清空录音队列
+    void clearRecordedAudioQueue();
 
     /**
-     * get recorded audio data
+     * get recorded audio data from recordedAudioQueue.
      * 
      * @param recordedData The recorded audio data.
      * @return true if recorded audio data is available, false is empty.

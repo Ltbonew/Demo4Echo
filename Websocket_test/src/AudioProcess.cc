@@ -11,14 +11,32 @@ AudioProcess::AudioProcess(int sample_rate, int channels) : sample_rate(sample_r
 
 AudioProcess::~AudioProcess() {
     cleanupOpus();
+    clearRecordedAudioQueue();
     if (isRecording) {
         stopRecording();
     }
 }
 
 void AudioProcess::Log(const std::string& message, LogLevel level) {
-    std::string prefix = (level == ERROR) ? "[ERROR] " : "[INFO] ";
-    std::cout << "[AudioProcess]" << prefix << message << std::endl;
+    // 根据日志级别选择前缀
+    std::string prefix;
+    switch (level) {
+        case LogLevel::INFO:
+            prefix = "[INFO] ";
+            break;
+        case LogLevel::WARNING:
+            prefix = "[WARNING] ";
+            break;
+        case LogLevel::ERROR:
+            prefix = "[ERROR] ";
+            break;
+        default:
+            prefix = "[UNKNOWN] ";
+            break;
+    }
+
+    // 输出日志信息
+    std::cout << "[AudioProcess] " << prefix << message << std::endl;
 }
 
 bool AudioProcess::initializeOpus() {
@@ -51,6 +69,12 @@ void AudioProcess::cleanupOpus() {
 }
 
 bool AudioProcess::startRecording() {
+
+    if (isRecording) {
+        Log("Already recording. Cannot start again.", WARNING);
+        return false;
+    }
+
     PaError err;
 
     // 初始化 PortAudio
@@ -102,19 +126,27 @@ bool AudioProcess::startRecording() {
     return true;
 }
 
-void AudioProcess::stopRecording() {
+bool AudioProcess::stopRecording() {
+
+    if (!isRecording) {
+        Log("Not recording. Nothing to stop.", WARNING);
+        return false;
+    }
+
     PaError err;
 
     // 停止录制
     err = Pa_StopStream(stream);
     if (err != paNoError) {
         Log("Error stopping stream: " + std::string(Pa_GetErrorText(err)), ERROR);
+        return false;
     }
 
     // 关闭音频流
     err = Pa_CloseStream(stream);
     if (err != paNoError) {
         Log("Error closing stream: " + std::string(Pa_GetErrorText(err)), ERROR);
+        return false;
     }
 
     // 释放 PortAudio 资源
@@ -122,6 +154,7 @@ void AudioProcess::stopRecording() {
 
     isRecording = false;
     Log("Recording stopped.", INFO);
+    return true;
 }
 
 bool AudioProcess::getRecordedAudio(std::vector<int16_t>& recordedData) {
@@ -137,6 +170,12 @@ bool AudioProcess::getRecordedAudio(std::vector<int16_t>& recordedData) {
     return true;
 }
 
+void AudioProcess::clearRecordedAudioQueue() {
+    std::lock_guard<std::mutex> lock(recordedAudioMutex);
+    std::queue<std::vector<int16_t>> empty;
+    std::swap(recordedAudioQueue, empty);
+}
+
 int AudioProcess::recordCallback(const void *inputBuffer, void *outputBuffer,
                                  unsigned long framesPerBuffer,
                                  const PaStreamCallbackTimeInfo* timeInfo,
@@ -149,11 +188,18 @@ int AudioProcess::recordCallback(const void *inputBuffer, void *outputBuffer,
     AudioProcess* audioProcess = static_cast<AudioProcess*>(userData);
     const int16_t* input = static_cast<const int16_t*>(inputBuffer);
 
-    std::vector<int16_t> frame(framesPerBuffer);
-    std::copy(input, input + framesPerBuffer, frame.begin());
+    std::vector<int16_t> frame(framesPerBuffer * audioProcess->channels);
+    std::copy(input, input + framesPerBuffer * audioProcess->channels, frame.begin());
 
     {
         std::lock_guard<std::mutex> lock(audioProcess->recordedAudioMutex);
+
+        // 检查队列长度是否超过 750
+        if (audioProcess->recordedAudioQueue.size() >= 750) {
+            audioProcess->recordedAudioQueue.pop(); // 移除最旧的帧
+        }
+
+        // 添加新的帧
         audioProcess->recordedAudioQueue.push(frame);
     }
     audioProcess->recordedAudioCV.notify_one();
@@ -164,7 +210,7 @@ int AudioProcess::recordCallback(const void *inputBuffer, void *outputBuffer,
 std::queue<std::vector<int16_t>> AudioProcess::loadAudioFromFile(const std::string& filename, int frame_duration_ms) {
     std::ifstream infile(filename, std::ios::binary);
     if (!infile) {
-        std::cerr << "Failed to open file: " << filename << std::endl;
+        Log("Failed to open file: " + filename, ERROR);
         return {};
     }
 
@@ -181,7 +227,7 @@ std::queue<std::vector<int16_t>> AudioProcess::loadAudioFromFile(const std::stri
     infile.read(reinterpret_cast<char*>(audio_data.data()), fileSize);
 
     if (!infile) {
-        std::cerr << "Error reading file: " << filename << std::endl;
+        Log("Error reading file: " + filename, ERROR);
         return {};
     }
 
@@ -278,7 +324,7 @@ BinProtocol* AudioProcess::PackBinFrame(const uint8_t* payload, size_t payload_s
     // Allocate memory for BinaryProtocol + payload
     auto pack = (BinProtocol*)malloc(sizeof(BinProtocol) + payload_size);
     if (!pack) {
-        std::cerr << "Memory allocation failed" << std::endl;
+        Log("Memory allocation failed", ERROR);
         return nullptr;
     }
 
