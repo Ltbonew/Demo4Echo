@@ -1,5 +1,4 @@
 #include "../inc/Application.h"
-#include <json/json.h>
 
 Application::Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& protocolVersion, int sample_rate, int channels, int frame_duration)
     : ws_client_(address, port, token, deviceId, protocolVersion),
@@ -15,31 +14,55 @@ Application::Application(const std::string& address, int port, const std::string
     // 添加状态
     client_state_.AddState("idle", [this]() { IdleState(); });
     client_state_.AddState("listening", [this]() { ListeningState(); });
-    client_state_.AddState("think", [this]() { ThinkState(); });
+    client_state_.AddState("thinking", [this]() { ThinkState(); });
     client_state_.AddState("speaking", [this]() { SpeakingState(); });
 }
 
+// 处理接收到的消息
 void Application::HandleMessage(const std::string& message) {
     Json::Value root;
     Json::Reader reader;
-
     // 解析 JSON 字符串
     bool parsingSuccessful = reader.parse(message, root);
     if (!parsingSuccessful) {
         ws_client_.Log("Error parsing message: " + reader.getFormattedErrorMessages());
         return;
     }
-
     // 获取 JSON 对象中的值
     const Json::Value type = root["type"];
-    const Json::Value state = root["state"];
-
-    // 检查 JSON 对象的值
-    if (type.isString() && type.asString() == "vad" &&
-        state.isString() && state.asString() == "end") {
-        client_state_.Log("Received VAD end message, transitioning to Think state.");
-        client_state_.TransitionTo("think");
+    if (type.isString()) {
+        std::string typeStr = type.asString();
+        if (typeStr == "vad") {
+            HandleVADMessage(root);
+        } else if (typeStr == "asr") {
+            HandleASRMessage(root);
+        }
     }
+}
+
+// 处理 VAD 消息
+void Application::HandleVADMessage(const Json::Value& root) {
+    const Json::Value state = root["state"];
+    if (state.isString()) {
+        std::string stateStr = state.asString();
+        if (stateStr == "no_speech") {
+            ws_client_.Log("Received VAD no_speech message.");
+            client_state_.TransitionTo("idle");
+        } 
+    }
+}
+
+// 处理 ASR 消息
+void Application::HandleASRMessage(const Json::Value& root) {
+    const Json::Value text = root["text"];
+    if (text.isString()) {
+        std::string textStr = text.asString();
+        ws_client_.Log("Received ASR text: " + textStr);
+        // 可以在这里进行进一步的处理
+    } else {
+        ws_client_.Log("Invalid ASR text value.");
+    }
+    client_state_.TransitionTo("thinking");
 }
 
 void Application::Run() {
@@ -118,14 +141,16 @@ void Application::ListeningState() {
         }
     }
 
-    client_state_.Log("VAD end detected, transitioning to Think state.");
-    client_state_.TransitionTo("think");
+    client_state_.Log("VAD end detected, transitioning to thinking state.");
+    client_state_.TransitionTo("thinking");
 }
 
 void Application::ThinkState() {
-    std::string json_message = R"({"type": "state", "state": "think"})";
+    std::string json_message = R"({"type": "state", "state": "thinking"})";
     ws_client_.SendText(json_message);
-    client_state_.Log("Into Think state.");
+    client_state_.Log("Into thinking state.");
+
+    while(1);
 
     // 模拟思考过程
     std::this_thread::sleep_for(std::chrono::seconds(2));

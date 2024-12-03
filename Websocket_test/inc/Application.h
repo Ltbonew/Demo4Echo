@@ -4,6 +4,7 @@
 #include "WebsocketClient.h"
 #include "StateMachine.h"
 #include "AudioProcess.h"
+#include <json/json.h>
 #include <string>
 #include <queue>
 #include <vector>
@@ -18,6 +19,8 @@ public:
     void Run();
 
 private:
+    void HandleVADMessage(const Json::Value& root);
+    void HandleASRMessage(const Json::Value& root);
     void HandleMessage(const std::string& message);
     void IdleState();
     void ListeningState();
