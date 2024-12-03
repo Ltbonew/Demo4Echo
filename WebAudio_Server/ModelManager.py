@@ -1,8 +1,13 @@
 from funasr import AutoModel
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
 
+# 初始化模型管理器路径
+vad_model = "./FunAudioLLM/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch"
+asr_model = "./FunAudioLLM/iic/SenseVoiceSmall"
+remote_code = "./FunAudioLLM/SenseVoice/model.py"
+
 class ModelManager:
-    def __init__(self, vad_model_dir, asr_model_dir, remote_code_dir, device="cuda:0"):
+    def __init__(self, vad_model_dir=vad_model, asr_model_dir=asr_model, remote_code_dir=remote_code, device="cuda:0"):
         # 初始化 VAD 模型
         self.vad_model = AutoModel(
             model=vad_model_dir,
@@ -11,6 +16,7 @@ class ModelManager:
             vad_kwargs={"max_single_segment_time": 500},
             disable_update=True
         )
+        self.vad_cache = {}
 
         # 初始化 ASR 模型
         self.asr_model = AutoModel(
@@ -21,28 +27,24 @@ class ModelManager:
             disable_update=True
         )
 
-    def run_vad(self, pcm_data, sample_rate):
-        """
-        运行 VAD 模型
-        :param pcm_data: PCM 音频数据 (字节)
-        :param sample_rate: 采样率
-        :return: 是否仍在说话 (布尔值)
-        """
-        segments = self.vad_model(pcm_data, sample_rate)
-        for segment in segments:
-            start, end, _ = segment
-            if end - start >= 240:  # VAD 推理的片段长度（毫秒）
-                return True  # 说话仍在继续
-        return False  # 说话中断
+    # VAD init
+    def VAD_cache_clean(self):
+        self.vad_cache = {}
 
-    def run_asr(self, pcm_data, sample_rate):
+    # VAD
+    def VAD_Detection(self, speech_chunk, chunk_size=200):
         """
-        运行 ASR 模型
-        :param pcm_data: PCM 音频数据 (字节)
-        :param sample_rate: 采样率
-        :return: 转录结果 (字符串)
+        [[beg, -1]]：表示只检测到起始点。
+        [[-1, end]]：表示只检测到结束点。
+        []：表示既没有检测到起始点，也没有检测到结束点 输出结果单位为毫秒，从起始点开始的绝对时间
         """
-        transcription = self.asr_model(pcm_data, sample_rate)
-        # 后处理转录结果
-        processed_transcription = rich_transcription_postprocess(transcription)
-        return processed_transcription
+        res = self.vad_model.generate(input=speech_chunk, cache=self.vad_cache, is_final=False, chunk_size=chunk_size)
+        if len(res[0]["value"]):
+            start = res[0]["value"][0][0]
+            end = res[0]["value"][0][1]
+            return start, end
+        return None, None
+
+    def ASR_generate_text(self, audio_buffer):
+        res = self.asr_model.generate(input=audio_buffer, cache={}, language='auto', use_itn=True)
+        return rich_transcription_postprocess(res[0]['text'])

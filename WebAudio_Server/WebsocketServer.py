@@ -43,7 +43,7 @@ class WebSocketServer:
         # 执行鉴权，若不通过则关闭连接
         authenticated = await self.authenticate(headers)
         if not authenticated:
-            await websocket.send(json.dumps({"type": "error", "message": "Authentication failed"}))
+            await websocket.send(json.dumps({"type": "auth", "message": "Authentication failed"}))
             await websocket.close(reason="Authentication failed")
             logger.error("Authentication failed for client")
             return
@@ -54,7 +54,7 @@ class WebSocketServer:
 
         # 向客户端发送成功响应
         response = {
-            "type": "hello",
+            "type": "auth",
             "message": "Client authenticated",
         }
         await websocket.send(json.dumps(response))

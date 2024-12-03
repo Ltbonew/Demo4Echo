@@ -2,6 +2,11 @@ import struct
 from pyogg import OpusEncoder, OpusDecoder
 import logging
 
+# 默认音频配置参数
+SAMPLE_RATE = 16000
+CHANNELS = 1
+FRAME_DURATION_MS = 40
+
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -10,11 +15,15 @@ class AudioProcessor:
     HEADER_FORMAT = "!HHI"  # 版本 (2 字节) + 类型 (2 字节) + 负载大小 (4 字节)
     HEADER_SIZE = struct.calcsize(HEADER_FORMAT)
 
-    def __init__(self, sample_rate=16000, channels=1, frame_duration_ms=20):
+    def __init__(self, sample_rate=SAMPLE_RATE, channels=CHANNELS, frame_duration_ms=FRAME_DURATION_MS):
         self.sample_rate = sample_rate
         self.channels = channels
         self.frame_duration_ms = frame_duration_ms
         self.frame_size = sample_rate // 1000 * frame_duration_ms
+
+        # 检查帧持续时间是否为 Opus 支持的值
+        if self.frame_duration_ms not in [2.5, 5, 10, 20, 40, 60]:
+            raise ValueError("Frame duration must be one of 2.5, 5, 10, 20, 40, or 60 ms.")
 
         # 初始化 Opus 编解码器
         self.encoder = OpusEncoder()
@@ -114,15 +123,12 @@ class AudioProcessor:
         self.decoder.set_sampling_frequency(sample_rate)
         self.decoder.set_channels(channels)
 
-    def load_audio_from_file(self, file_path, frame_duration_ms=None):
+    def load_audio_from_file(self, file_path):
         """
         从文件中加载 PCM 音频数据
         :param file_path: PCM 文件路径
-        :param frame_duration_ms: 每帧的持续时间（可选）
         :return: 音频数据队列
         """
-        if frame_duration_ms is not None:
-            self.set_audio_params(self.sample_rate, self.channels, frame_duration_ms)
 
         with open(file_path, 'rb') as f:
             pcm_data = f.read()
@@ -142,3 +148,10 @@ class AudioProcessor:
         """
         with open(file_path, 'wb') as f:
             f.write(pcm_data)
+
+    def get_audio_params(self):
+        """
+        获取当前音频参数
+        :return: 采样率, 声道数, 每帧持续时间
+        """
+        return self.sample_rate, self.channels, self.frame_duration_ms
