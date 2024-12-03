@@ -28,7 +28,7 @@ WebSocketClient::~WebSocketClient() {
         try {
             ws_client_.close(connection_hdl_, websocketpp::close::status::going_away, "Client is being destroyed");
         } catch (const std::exception& e) {
-            std::cerr << "Error closing connection: " << e.what() << std::endl;
+            Log("Error closing connection: " + std::string(e.what()));
         }
     }
 }
