@@ -14,37 +14,55 @@ WebSocketClient::WebSocketClient(const std::string& address, int port, const std
     headers_["Device-Id"] = deviceId;
     headers_["Protocol-Version"] = protocolVersion;
 
-    websocketpp::lib::error_code ec;
-    client_t::connection_ptr con = ws_client_.get_connection(uri_, ec);
-    if (ec) {
-        ws_client_.get_alog().write(websocketpp::log::alevel::fail, "Could not create connection: " + ec.message());
-        return;
-    }
-    connection_hdl_ = con->get_handle();
 }
 
 WebSocketClient::~WebSocketClient() {
-    if (is_connected_) {
-        try {
-            ws_client_.close(connection_hdl_, websocketpp::close::status::going_away, "Client is being destroyed");
-        } catch (const std::exception& e) {
-            Log("Error closing connection: " + std::string(e.what()));
-        }
-    }
+    Close();
+    Terminate();
 }
 
 // 日志记录方法
-void WebSocketClient::Log(const std::string& message) {
-    ws_client_.get_alog().write(websocketpp::log::alevel::app, message);
-    // std::cout << "[WebSocketClient] " << message << std::endl; // 记录日志
+void WebSocketClient::Log(const std::string& message, LogLevel level) {
+    // 根据日志级别选择前缀
+    std::string prefix;
+    switch (level) {
+        case LogLevel::INFO:
+            prefix = "[INFO] ";
+            break;
+        case LogLevel::WARNING:
+            prefix = "[WARNING] ";
+            break;
+        case LogLevel::ERROR:
+            prefix = "[ERROR] ";
+            break;
+        default:
+            prefix = "[UNKNOWN] ";
+            break;
+    }
+
+    // 输出日志信息
+    std::cout << "[WebSocketClient] " << prefix << message << std::endl;
+}
+
+// 会独立运行run()的，主要是避免阻塞
+void WebSocketClient::Run() {
+    ws_client_.start_perpetual();
+    thread_ = std::make_shared<std::thread>([this]() {
+        ws_client_.run();
+        Log("WebSocket client thread ended.", LogLevel::INFO);
+    });
 }
 
 // 连接函数
 void WebSocketClient::Connect() {
+    if (is_connected_) {
+        Log("Already connected.", LogLevel::INFO);
+        return;
+    }
     websocketpp::lib::error_code ec;
     client_t::connection_ptr con = ws_client_.get_connection(uri_, ec);
     if (ec) {
-        ws_client_.get_alog().write(websocketpp::log::alevel::fail, "Could not create connection: " + ec.message());
+        Log("Could not create connection: " + ec.message(), LogLevel::ERROR);
         return;
     }
 
@@ -53,8 +71,26 @@ void WebSocketClient::Connect() {
     }
     connection_hdl_ = con->get_handle();
     ws_client_.connect(con);
-    ws_client_.run();
-    is_connected_ = false;
+}
+
+void WebSocketClient::Terminate() {
+    try {
+        ws_client_.stop_perpetual();
+        thread_->join();
+    }
+    catch (const websocketpp::exception& e) {
+        // 捕获并处理异常
+        std::cerr << "WebSocket Exception: " << e.what() << std::endl;
+    }
+}
+
+void WebSocketClient::Close() {
+    try {
+        ws_client_.close(connection_hdl_, websocketpp::close::status::going_away, "Client is being destroyed");
+    } catch (const std::exception& e) {
+        Log("Error closing connection: " + std::string(e.what()), LogLevel::ERROR);
+    }
+    
 }
 
 // 发送文本消息
@@ -66,7 +102,6 @@ void WebSocketClient::SendText(const std::string& message) {
 void WebSocketClient::SendBinary(const uint8_t* data, size_t size) {
     ws_client_.send(connection_hdl_, data, size, websocketpp::frame::opcode::binary);
 }
-
 
 // 设置消息回调
 void WebSocketClient::SetMessageCallback(message_callback_t callback) {
@@ -81,7 +116,7 @@ void WebSocketClient::SetCloseCallback(close_callback_t callback) {
 // 连接打开的回调
 void WebSocketClient::on_open(websocketpp::connection_hdl hdl) {
     connection_hdl_ = hdl;
-    ws_client_.get_alog().write(websocketpp::log::alevel::app, "Connection established!");
+    Log("Connection established.", LogLevel::INFO);
     is_connected_ = true;
 }
 
@@ -94,8 +129,9 @@ void WebSocketClient::on_message(websocketpp::connection_hdl hdl, client_t::mess
 
 // 连接关闭的回调
 void WebSocketClient::on_close(websocketpp::connection_hdl hdl) {
-    ws_client_.get_alog().write(websocketpp::log::alevel::app, "Connection closed!");
+    Log("Connection closed.", LogLevel::INFO);
     if (on_close_) {  // 调用用户设置的关闭回调
         on_close_();
     }
+    is_connected_ = false;
 }

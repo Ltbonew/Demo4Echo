@@ -7,6 +7,8 @@
 #include <functional>
 #include <map>
 #include <iostream>  
+#include <thread>
+#include <memory>
 
 // 用于打包opus二进制数据的协议
 struct BinProtocol {
@@ -25,9 +27,24 @@ public:
     ~WebSocketClient();
 
     /**
-     * 连接到 WebSocket 服务器。
+     * 运行 WebSocket 客户端
+     */
+    void Run();
+
+    /**
+     * 设置 WebSocket 连接服务器
      */
     void Connect();
+
+    /**
+     * 断开连接
+     */
+    void Close();
+
+    /**
+     * 停止 WebSocket 客户端
+     */
+    void Terminate();
 
     /**
      * 发送文本消息。
@@ -54,11 +71,13 @@ public:
      */
     void SetCloseCallback(close_callback_t callback);
 
+    enum LogLevel { INFO, ERROR, WARNING };
     /**
      * Log a message.
      * @param message The message to log.
      */
-    void Log(const std::string& message); 
+    void Log(const std::string& message, LogLevel level = INFO);
+    
 
     /**
      * check if the client is connected
@@ -68,6 +87,7 @@ public:
 private:
     using client_t = websocketpp::client<websocketpp::config::asio_client>;
     client_t ws_client_;
+    websocketpp::lib::shared_ptr<websocketpp::lib::thread> thread_;
     websocketpp::connection_hdl connection_hdl_;
     std::map<std::string, std::string> headers_;
     message_callback_t on_message_;
