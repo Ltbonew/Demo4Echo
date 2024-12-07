@@ -1,35 +1,72 @@
 #include "../inc/StateMachine.h"
 #include <iostream>
 
-StateMachine::StateMachine()
-    : current_state_("") {}
+StateMachine::StateMachine(int initialState)
+    : currentState_(initialState) {
+        Log("State machine created.");
+    }
 
-void StateMachine::AddState(const std::string& state_name, const std::function<void()>& state_function) {
-    states_[state_name] = state_function;
+StateMachine::~StateMachine() {
+    Log("State machine destroyed.");
 }
 
-void StateMachine::SetInitialState(const std::string& state_name) {
-    if (states_.find(state_name) != states_.end()) {
-        current_state_ = state_name;
-        states_[current_state_]();
-    } else {
-        Log("Initial state '" + state_name + "' not found.");
+void StateMachine::RegisterState(int state, EnterFunc_t on_enter, ExitFunc_t on_exit) {
+    stateActions_[state] = std::make_pair(on_enter, on_exit);
+}
+
+void StateMachine::RegisterTransition(int from, int event, int to) {
+    transitions_[from][event] = to;
+}
+
+bool StateMachine::HandleEvent(int event) {
+    auto& possibleTransitions = transitions_[currentState_];
+    if (possibleTransitions.find(event) == possibleTransitions.end()) {
+        std::cerr << "Event not handled in current state." << std::endl;
+        return false;
+    }
+
+    int nextState = possibleTransitions[event];
+    ChangeState(nextState);
+    return true;
+}
+
+int StateMachine::GetCurrentState() const {
+    return currentState_;
+}
+
+void StateMachine::ChangeState(int newState) {
+    // Call exit function for the current state if it exists
+    if (stateActions_.find(currentState_) != stateActions_.end()) {
+        stateActions_[currentState_].second();
+    }
+
+    // Update the current state
+    currentState_ = newState;
+
+    // Call enter function for the new state if it exists
+    if (stateActions_.find(currentState_) != stateActions_.end()) {
+        stateActions_[currentState_].first();
     }
 }
 
-void StateMachine::TransitionTo(const std::string& state_name) {
-    if (states_.find(state_name) != states_.end()) {
-        current_state_ = state_name;
-        states_[current_state_]();
-    } else {
-        Log("State '" + state_name + "' not found.");
+void StateMachine::Log(const std::string& message, LogLevel level) {
+    // 根据日志级别选择前缀
+    std::string prefix;
+    switch (level) {
+        case LogLevel::INFO:
+            prefix = "[INFO] ";
+            break;
+        case LogLevel::WARNING:
+            prefix = "[WARNING] ";
+            break;
+        case LogLevel::ERROR:
+            prefix = "[ERROR] ";
+            break;
+        default:
+            prefix = "[UNKNOWN] ";
+            break;
     }
-}
 
-std::string StateMachine::GetCurrentState() const {
-    return current_state_;
-}
-
-void StateMachine::Log(const std::string& message) {
-    std::cout << "[StateMachine] " << message << std::endl; // 你可以选择使用 std::cerr 或其他日志系统
+    // 输出日志信息
+    std::cout << "[StateMachine] " << prefix << message << std::endl;
 }
