@@ -19,7 +19,7 @@ Application::Application(const std::string& address, int port, const std::string
 }
 
 // 处理接websocket收到的消息并返回事件号
-int Application::handle_message(const std::string& message) {
+Application::AppEvent_t_ Application::handle_message(const std::string& message) {
     Json::Value root;
     Json::Reader reader;
     // 解析 JSON 字符串
@@ -39,11 +39,11 @@ int Application::handle_message(const std::string& message) {
         }
     }
     ws_client_.Log("not event message type: " + message, WebSocketClient::LogLevel::WARNING);
-    return NULL;
+    return -1;
 }
 
 // 处理 VAD 消息
-int Application::handle_vad_message(const Json::Value& root) {
+Application::AppEvent_t_ Application::handle_vad_message(const Json::Value& root) {
     const Json::Value state = root["state"];
     if (state.isString()) {
         std::string stateStr = state.asString();
@@ -53,10 +53,11 @@ int Application::handle_vad_message(const Json::Value& root) {
             return static_cast<int>(AppEvent::vad_end);
         } 
     }
+    return -1;
 }
 
 // 处理 ASR 消息
-int Application::handle_asr_message(const Json::Value& root) {
+Application::AppEvent_t_ Application::handle_asr_message(const Json::Value& root) {
     const Json::Value text = root["text"];
     if (text.isString()) {
         std::string textStr = text.asString();
@@ -109,69 +110,59 @@ void Application::speaking_exit() {
     client_state_.Log("speaking exit.");
 }
 
-// void Application::ListeningState() {
-//     std::string json_message = R"({"type": "state", "state": "listening"})";
-//     ws_client_.SendText(json_message);
-//     client_state_.Log("Into Listening state.");
+void Application::idleState_run() {
+    // 模拟检测到唤醒词
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    // 发生唤醒事件
+    client_state_.Log("Wake detected.");
+    eventQueue_.Enqueue(static_cast<int>(AppEvent::wake_detected));
+    // 关闭录音
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+}
 
-//     AudioProcess audio_processor(sample_rate_, channels_);
-//     std::queue<std::vector<int16_t>> audio_queue_ = audio_processor.loadAudioFromFile("../test_audio/out_chock2inmid.pcm", frame_duration_);
+void Application::listeningState_run() {
 
-//     while (client_state_.GetCurrentState() == "listening") {
-//         if(!audio_queue_.empty()) {
-//             std::vector<int16_t> pcm_frame = audio_queue_.front();
-//             audio_queue_.pop();
+    AudioProcess audio_processor(sample_rate_, channels_);
+    std::queue<std::vector<int16_t>> audio_queue_ = audio_processor.loadAudioFromFile("../test_audio/out_chock2inmid.pcm", frame_duration_);
 
-//             uint8_t opus_data[1536];
-//             size_t opus_data_size;
+    while (client_state_.GetCurrentState() == static_cast<int>(AppState::listening)) {
+        if(!audio_queue_.empty()) {
+            std::vector<int16_t> pcm_frame = audio_queue_.front();
+            audio_queue_.pop();
 
-//             if (audio_processor.encode(pcm_frame, opus_data, opus_data_size)) {
-//                 // 打包
-//                 BinProtocol* packed_frame = audio_processor.PackBinFrame(opus_data, opus_data_size);
+            uint8_t opus_data[1536];
+            size_t opus_data_size;
 
-//                 if (packed_frame) {
-//                     // 发送
-//                     ws_client_.SendBinary(reinterpret_cast<uint8_t*>(packed_frame), sizeof(BinProtocol) + opus_data_size);
-//                 } else {
-//                     audio_processor.Log("Packing failed", audio_processor.ERROR);
-//                 }
-//             } else {
-//                 audio_processor.Log("Encoding failed", audio_processor.ERROR);
-//             }
-//         }
-//     }
-//     client_state_.RequestTransitTo("thinking");
-// }
+            if (audio_processor.encode(pcm_frame, opus_data, opus_data_size)) {
+                // 打包
+                BinProtocol* packed_frame = audio_processor.PackBinFrame(opus_data, opus_data_size);
 
-// void Application::ThinkState() {
-//     std::string json_message = R"({"type": "state", "state": "thinking"})";
-//     ws_client_.SendText(json_message);
-//     client_state_.Log("Into thinking state.");
+                if (packed_frame) {
+                    // 发送
+                    ws_client_.SendBinary(reinterpret_cast<uint8_t*>(packed_frame), sizeof(BinProtocol) + opus_data_size);
+                } else {
+                    audio_processor.Log("Packing failed", audio_processor.ERROR);
+                }
+            } else {
+                audio_processor.Log("Encoding failed", audio_processor.ERROR);
+            }
+        }
+    }
+}
 
-//     while(1);
+void Application::thinkingState_run() {
 
-//     // 模拟思考过程
-//     std::this_thread::sleep_for(std::chrono::seconds(2));
+    while(1);
 
-//     // 模拟服务器发送text到 LLM 并生成语音
-//     std::string llm_response_message = R"({"type": "llm", "text": "这是LLM生成的响应"})";
-//     ws_client_.SendText(llm_response_message);
+}
 
-//     client_state_.Log("LLM response received, transitioning to Speaking state."); // 使用 client_state_ 的 Log 方法
-//     client_state_.TransitionTo("speaking");
-// }
+void Application::speakingState_run() {
 
-// void Application::SpeakingState() {
-//     std::string json_message = R"({"type": "state", "state": "speaking"})";
-//     ws_client_.SendText(json_message);
-//     client_state_.Log("Into Speaking state.");
+    // 模拟播放语音
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
-//     // 模拟播放语音
-//     std::this_thread::sleep_for(std::chrono::seconds(2));
-
-//     client_state_.Log("Speaking finished, transitioning to Idle state."); // 使用 client_state_ 的 Log 方法
-//     client_state_.TransitionTo("idle");
-// }
+    client_state_.Log("Speaking finished, transitioning to Idle state."); // 使用 client_state_ 的 Log 方法
+}
 
 
 void Application::Run() {
@@ -244,17 +235,16 @@ void Application::Run() {
     std::thread AIAudio_thread([this]() {
         while(true) {
             if(client_state_.GetCurrentState() == static_cast<int>(AppState::idle)) {
-                // 模拟检测到唤醒词
-                std::this_thread::sleep_for(std::chrono::seconds(2));
-                // 发生唤醒事件
-                client_state_.Log("Wake detected.");
-                eventQueue_.Enqueue(static_cast<int>(AppEvent::wake_detected));
-                // 关闭录音
-                std::this_thread::sleep_for(std::chrono::seconds(2));
+                idleState_run();
             }
-            if(client_state_.GetCurrentState() == static_cast<int>(AppState::listening)){
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                client_state_.Log("listening...");
+            else if(client_state_.GetCurrentState() == static_cast<int>(AppState::listening)){
+                listeningState_run();
+            }
+            else if(client_state_.GetCurrentState() == static_cast<int>(AppState::thinking)){
+                thinkingState_run();
+            }
+            else if(client_state_.GetCurrentState() == static_cast<int>(AppState::speaking)){
+                speakingState_run();
             }
         }
     });

@@ -68,13 +68,14 @@ public:
     void Run();
 
 private:
+    using AppEvent_t_ = int;
     void EnqueueMessage(const std::string& message);
     std::string DequeueMessage();
 
     
-    int handle_message(const std::string& message);
-    int handle_vad_message(const Json::Value& root);
-    int handle_asr_message(const Json::Value& root);
+    AppEvent_t_ handle_message(const std::string& message);
+    AppEvent_t_ handle_vad_message(const Json::Value& root);
+    AppEvent_t_ handle_asr_message(const Json::Value& root);
 
     void idle_enter();
     void idle_exit();
@@ -84,6 +85,12 @@ private:
     void thinking_exit();
     void speaking_enter();
     void speaking_exit();
+
+    void idleState_run();
+    void listeningState_run();
+    void thinkingState_run();
+    void speakingState_run();
+
 
     WebSocketClient ws_client_;
     StateMachine client_state_; // 更改成员变量名称
