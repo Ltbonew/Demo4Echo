@@ -13,6 +13,7 @@ class StateMachine {
 public:
     StateMachine(int initialState);
     ~StateMachine();
+    void Initialize();
 
     void RegisterState(int state, EnterFunc_t on_enter, ExitFunc_t on_exit);
     void RegisterTransition(int from, int event, int to);

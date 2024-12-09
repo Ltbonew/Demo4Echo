@@ -10,6 +10,13 @@ StateMachine::~StateMachine() {
     Log("State machine destroyed.");
 }
 
+void StateMachine::Initialize() {
+        // 调用初始状态的 enter 回调
+        if (stateActions_.find(currentState_) != stateActions_.end()) {
+            stateActions_[currentState_].first();
+        }
+    }
+
 void StateMachine::RegisterState(int state, EnterFunc_t on_enter, ExitFunc_t on_exit) {
     stateActions_[state] = std::make_pair(on_enter, on_exit);
 }
@@ -21,7 +28,7 @@ void StateMachine::RegisterTransition(int from, int event, int to) {
 bool StateMachine::HandleEvent(int event) {
     auto& possibleTransitions = transitions_[currentState_];
     if (possibleTransitions.find(event) == possibleTransitions.end()) {
-        std::cerr << "Event not handled in current state." << std::endl;
+        Log("Event not handled in current state.", LogLevel::ERROR);
         return false;
     }
 
