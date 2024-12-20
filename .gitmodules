@@ -2,3 +2,7 @@
 	path = WebAudio_Server/FunAudioLLM/SenseVoice
 	url = https://github.com/FunAudioLLM/SenseVoice.git
 	branch = main
+[submodule "WebAudio_Server/FunAudioLLM/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch"]
+	path = WebAudio_Server/FunAudioLLM/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch
+	url = https://www.modelscope.cn/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch.git
+	branch = master
