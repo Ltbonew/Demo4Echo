@@ -9,3 +9,4 @@
 [submodule "WebAudio_Server/FunAudioLLM/iic/SenseVoiceSmall"]
 	path = WebAudio_Server/FunAudioLLM/iic/SenseVoiceSmall
 	url = https://www.modelscope.cn/iic/SenseVoiceSmall.git
+	branch = master
