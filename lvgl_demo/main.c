@@ -30,8 +30,8 @@ static void lv_linux_disp_init(void)
 #elif LV_USE_SDL
 static void lv_linux_disp_init(void)
 {
-    const int width = atoi(getenv("LV_SDL_VIDEO_WIDTH") ? : "800");
-    const int height = atoi(getenv("LV_SDL_VIDEO_HEIGHT") ? : "480");
+    const int width = atoi(getenv("LV_SDL_VIDEO_WIDTH") ? : "320");
+    const int height = atoi(getenv("LV_SDL_VIDEO_HEIGHT") ? : "240");
 
     lv_sdl_window_create(width, height);
 }
