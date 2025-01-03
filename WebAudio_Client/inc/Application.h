@@ -69,9 +69,6 @@ public:
 
 private:
     using AppEvent_t_ = int;
-    void EnqueueMessage(const std::string& message);
-    std::string DequeueMessage();
-
     
     AppEvent_t_ handle_message(const std::string& message);
     AppEvent_t_ handle_vad_message(const Json::Value& root);

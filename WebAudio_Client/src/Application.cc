@@ -1,4 +1,5 @@
 #include "../inc/Application.h"
+#include "../inc/user_log.h"
 
 Application::Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& protocolVersion, int sample_rate, int channels, int frame_duration)
     : ws_client_(address, port, token, deviceId, protocolVersion),
@@ -25,7 +26,7 @@ Application::AppEvent_t_ Application::handle_message(const std::string& message)
     // 解析 JSON 字符串
     bool parsingSuccessful = reader.parse(message, root);
     if (!parsingSuccessful) {
-        ws_client_.Log("Error parsing message: " + reader.getFormattedErrorMessages(), WebSocketClient::LogLevel::ERROR);
+        USER_LOG_WARN("Error parsing message: %s", reader.getFormattedErrorMessages().c_str());
         return static_cast<int>(AppEvent::fault);
     }
     // 获取 JSON 对象中的值
@@ -38,7 +39,7 @@ Application::AppEvent_t_ Application::handle_message(const std::string& message)
             return handle_asr_message(root);
         }
     }
-    ws_client_.Log("not event message type: " + message, WebSocketClient::LogLevel::WARNING);
+    USER_LOG_WARN("not event message type: %s", message.c_str());
     return -1;
 }
 
@@ -61,9 +62,9 @@ Application::AppEvent_t_ Application::handle_asr_message(const Json::Value& root
     const Json::Value text = root["text"];
     if (text.isString()) {
         std::string textStr = text.asString();
-        ws_client_.Log("Received ASR text: " + textStr);
+        USER_LOG_INFO("Received ASR text: %s", textStr.c_str());
     } else {
-        ws_client_.Log("Invalid ASR text value.", WebSocketClient::LogLevel::ERROR);
+        USER_LOG_WARN("Invalid ASR text value.");
     }
     return static_cast<int>(AppEvent::asr_received);
 }
@@ -71,50 +72,50 @@ Application::AppEvent_t_ Application::handle_asr_message(const Json::Value& root
 void Application::idle_enter() {
     std::string json_message = R"({"type": "state", "state": "idle"})";
     ws_client_.SendText(json_message);
-    client_state_.Log("Into Idle state.");
+    USER_LOG_INFO("Into Idle state.");
     // 开启录音
     
 }
 
 void Application::idle_exit() {
-    client_state_.Log("idle exit.");
+    USER_LOG_INFO("Idle exit.");
 }
 
 void Application::listening_enter() {
     std::string json_message = R"({"type": "state", "state": "listening"})";
     ws_client_.SendText(json_message);
-    client_state_.Log("Into listening state.");
+    USER_LOG_INFO("Into listening state.");
 }
 
 void Application::listening_exit() {
-    client_state_.Log("listening exit.");
+    USER_LOG_INFO("Listening exit.");
 }
 
 void Application::thinking_enter() {
     std::string json_message = R"({"type": "state", "state": "thinking"})";
     ws_client_.SendText(json_message);
-    client_state_.Log("Into thinking state.");
+    USER_LOG_INFO("Into thinking state.");
 }
 
 void Application::thinking_exit() {
-    client_state_.Log("thinking exit.");
+    USER_LOG_INFO("Thinking exit.");
 }
 
 void Application::speaking_enter() {
     std::string json_message = R"({"type": "state", "state": "speaking"})";
     ws_client_.SendText(json_message);
-    client_state_.Log("Into speaking state.");
+    USER_LOG_INFO("Into speaking state.");
 }
 
 void Application::speaking_exit() {
-    client_state_.Log("speaking exit.");
+    USER_LOG_INFO("Speaking exit.");
 }
 
 void Application::idleState_run() {
     // 模拟检测到唤醒词
     std::this_thread::sleep_for(std::chrono::seconds(2));
     // 发生唤醒事件
-    client_state_.Log("Wake detected.");
+    USER_LOG_INFO("Wake detected.");
     eventQueue_.Enqueue(static_cast<int>(AppEvent::wake_detected));
     // 关闭录音
     std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -141,10 +142,10 @@ void Application::listeningState_run() {
                     // 发送
                     ws_client_.SendBinary(reinterpret_cast<uint8_t*>(packed_frame), sizeof(BinProtocol) + opus_data_size);
                 } else {
-                    audio_processor.Log("Packing failed", audio_processor.ERROR);
+                    USER_LOG_WARN("Audio Packing failed");
                 }
             } else {
-                audio_processor.Log("Encoding failed", audio_processor.ERROR);
+                USER_LOG_WARN("Audio Encoding failed");
             }
         }
     }
@@ -160,8 +161,7 @@ void Application::speakingState_run() {
 
     // 模拟播放语音
     std::this_thread::sleep_for(std::chrono::seconds(2));
-
-    client_state_.Log("Speaking finished, transitioning to Idle state."); // 使用 client_state_ 的 Log 方法
+    USER_LOG_INFO("Speaking finished, transitioning to Idle state.");
 }
 
 
