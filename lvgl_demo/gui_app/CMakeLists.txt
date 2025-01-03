@@ -1,18 +1,10 @@
-# 添加页面文件夹路径
-# add_subdirectory(page_manager)
-# add_subdirectory(home_page)
-# add_subdirectory(settings_page)
-# add_subdirectory(about_page)
-# add_subdirectory(common)
 
-# # 定义 GUI_APP_SOURCES
-# file(GLOB GUI_APP_SOURCES
-#     page_manager/*.c
-#     home_page/*.c
-#     settings_page/*.c
-#     about_page/*.c
-#     common/*.c
-# )
+file(GLOB_RECURSE GUI_APP_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.c"  # 查找当前目录及子目录中的所有 .c 文件
+)
 
-# # 将这些文件添加到主项目中
-# target_sources(main PRIVATE ${GUI_APP_SOURCES})
+# 定义 utils 模块为一个静态库
+add_library(gui_app STATIC ${GUI_APP_SOURCES})
+
+# 设置 utils 的头文件路径
+target_include_directories(gui_app PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

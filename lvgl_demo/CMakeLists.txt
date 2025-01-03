@@ -24,6 +24,7 @@ add_executable(main ${MAIN_SOURCES})
 # 链接自定义的文件夹库
 target_link_libraries(
     main 
+    gui_app
     utils
 )
 
