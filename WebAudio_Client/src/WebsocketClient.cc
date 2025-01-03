@@ -8,6 +8,8 @@ WebSocketClient::WebSocketClient(const std::string& address, int port, const std
     ws_client_.set_open_handler(bind(&WebSocketClient::on_open, this, std::placeholders::_1));
     ws_client_.set_message_handler(bind(&WebSocketClient::on_message, this, std::placeholders::_1, std::placeholders::_2));
     ws_client_.set_close_handler(bind(&WebSocketClient::on_close, this, std::placeholders::_1)); // 设置关闭处理器
+    ws_client_.set_access_channels(websocketpp::log::alevel::none); // 设置日志级别
+    ws_client_.set_error_channels(websocketpp::log::elevel::warn); // 设置日志级别
 
     uri_ = "ws://" + address + ":" + std::to_string(port);
 
