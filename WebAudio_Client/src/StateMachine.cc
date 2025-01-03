@@ -1,13 +1,14 @@
 #include "../inc/StateMachine.h"
+#include "../inc/user_log.h"
 #include <iostream>
 
 StateMachine::StateMachine(int initialState)
     : currentState_(initialState) {
-        Log("State machine created.");
+        USER_LOG_INFO("State machine created.");
     }
 
 StateMachine::~StateMachine() {
-    Log("State machine destroyed.");
+    USER_LOG_INFO("State machine destroyed.");
 }
 
 void StateMachine::Initialize() {
@@ -28,7 +29,7 @@ void StateMachine::RegisterTransition(int from, int event, int to) {
 bool StateMachine::HandleEvent(int event) {
     auto& possibleTransitions = transitions_[currentState_];
     if (possibleTransitions.find(event) == possibleTransitions.end()) {
-        Log("Event not handled in current state.", LogLevel::ERROR);
+        USER_LOG_ERROR("Event not handled in current state.");
         return false;
     }
 
@@ -54,26 +55,4 @@ void StateMachine::ChangeState(int newState) {
     if (stateActions_.find(currentState_) != stateActions_.end()) {
         stateActions_[currentState_].first();
     }
-}
-
-void StateMachine::Log(const std::string& message, LogLevel level) {
-    // 根据日志级别选择前缀
-    std::string prefix;
-    switch (level) {
-        case LogLevel::INFO:
-            prefix = "[INFO] ";
-            break;
-        case LogLevel::WARNING:
-            prefix = "[WARNING] ";
-            break;
-        case LogLevel::ERROR:
-            prefix = "[ERROR] ";
-            break;
-        default:
-            prefix = "[UNKNOWN] ";
-            break;
-    }
-
-    // 输出日志信息
-    std::cout << "[StateMachine] " << prefix << message << std::endl;
 }

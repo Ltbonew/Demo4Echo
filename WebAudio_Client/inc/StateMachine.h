@@ -21,9 +21,6 @@ public:
 
     int GetCurrentState() const;
 
-    enum LogLevel { INFO, ERROR, WARNING };
-    void Log(const std::string& message, LogLevel level = INFO);
-
 private:
     void ChangeState(int newState);
 
