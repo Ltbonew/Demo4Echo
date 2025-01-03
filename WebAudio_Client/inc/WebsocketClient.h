@@ -69,15 +69,7 @@ public:
     /**
      * 设置关闭的回调函数
      */
-    void SetCloseCallback(close_callback_t callback);
-
-    enum LogLevel { INFO, ERROR, WARNING };
-    /**
-     * Log a message.
-     * @param message The message to log.
-     */
-    void Log(const std::string& message, LogLevel level = INFO);
-    
+    void SetCloseCallback(close_callback_t callback);    
 
     /**
      * check if the client is connected

@@ -1,4 +1,5 @@
 #include "../inc/WebsocketClient.h"
+#include "../inc/user_log.h"
 #include <websocketpp/common/asio.hpp>
 
 // WebSocketClient 构造函数
@@ -21,48 +22,25 @@ WebSocketClient::~WebSocketClient() {
     Terminate();
 }
 
-// 日志记录方法
-void WebSocketClient::Log(const std::string& message, LogLevel level) {
-    // 根据日志级别选择前缀
-    std::string prefix;
-    switch (level) {
-        case LogLevel::INFO:
-            prefix = "[INFO] ";
-            break;
-        case LogLevel::WARNING:
-            prefix = "[WARNING] ";
-            break;
-        case LogLevel::ERROR:
-            prefix = "[ERROR] ";
-            break;
-        default:
-            prefix = "[UNKNOWN] ";
-            break;
-    }
-
-    // 输出日志信息
-    std::cout << "[WebSocketClient] " << prefix << message << std::endl;
-}
-
 // 会独立运行run()的，主要是避免阻塞
 void WebSocketClient::Run() {
     ws_client_.start_perpetual();
     thread_ = std::make_shared<std::thread>([this]() {
         ws_client_.run();
-        Log("WebSocket client thread ended.", LogLevel::INFO);
+        USER_LOG_INFO("WebSocket client thread ended.");
     });
 }
 
 // 连接函数
 void WebSocketClient::Connect() {
     if (is_connected_) {
-        Log("Already connected.", LogLevel::INFO);
+        USER_LOG_INFO("Already connected.");
         return;
     }
     websocketpp::lib::error_code ec;
     client_t::connection_ptr con = ws_client_.get_connection(uri_, ec);
     if (ec) {
-        Log("Could not create connection: " + ec.message(), LogLevel::ERROR);
+        USER_LOG_ERROR("Could not create connection: %s", ec.message().c_str());
         return;
     }
 
@@ -80,7 +58,7 @@ void WebSocketClient::Terminate() {
     }
     catch (const websocketpp::exception& e) {
         // 捕获并处理异常
-        std::cerr << "WebSocket Exception: " << e.what() << std::endl;
+        USER_LOG_ERROR("WebSocket Exception: %s", e.what());
     }
 }
 
@@ -88,7 +66,7 @@ void WebSocketClient::Close() {
     try {
         ws_client_.close(connection_hdl_, websocketpp::close::status::going_away, "Client is being destroyed");
     } catch (const std::exception& e) {
-        Log("Error closing connection: " + std::string(e.what()), LogLevel::ERROR);
+        USER_LOG_ERROR("Error closing connection: %s", e.what());
     }
     
 }
@@ -116,7 +94,7 @@ void WebSocketClient::SetCloseCallback(close_callback_t callback) {
 // 连接打开的回调
 void WebSocketClient::on_open(websocketpp::connection_hdl hdl) {
     connection_hdl_ = hdl;
-    Log("Connection established.", LogLevel::INFO);
+    USER_LOG_INFO("Connection established.");
     is_connected_ = true;
 }
 
@@ -129,7 +107,7 @@ void WebSocketClient::on_message(websocketpp::connection_hdl hdl, client_t::mess
 
 // 连接关闭的回调
 void WebSocketClient::on_close(websocketpp::connection_hdl hdl) {
-    Log("Connection closed.", LogLevel::INFO);
+    USER_LOG_INFO("Connection closed.");
     if (on_close_) {  // 调用用户设置的关闭回调
         on_close_();
     }
