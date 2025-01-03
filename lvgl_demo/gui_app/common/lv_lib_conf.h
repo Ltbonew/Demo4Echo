@@ -1,6 +1,10 @@
 #ifndef LV_LIB_CONF_H
 #define LV_LIB_CONF_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../../lvgl/lvgl.h"
 
 /*=========================
@@ -39,7 +43,10 @@
 /* Page Manager module configuration */
 #if LV_USE_LIB_PAGE_MANAGER
   // Add specific configurations for PAGE_MANAGER if needed
-  #include "stack/lv_lib_stack.h"
+#endif
+
+#ifdef __cplusplus
+} /*extern "C"*/
 #endif
 
 #endif // LV_LIB_CONF_H

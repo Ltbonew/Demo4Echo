@@ -1,7 +1,9 @@
 #ifndef LV_LIB_TEMPLATE_H
 #define LV_LIB_TEMPLATE_H
 
-#if LV_USE_LIB_PAGE_MANAGER != 0
+#include "../lv_lib_conf.h"
+
+#if LV_USE_LIB_TEMPLATE 
 
 #include "lvgl.h"
 

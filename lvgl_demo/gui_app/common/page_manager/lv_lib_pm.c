@@ -28,7 +28,7 @@ void lv_lib_pm_Init(lv_lib_pm_t *manager) {
     if (!manager) return;
 
     // 初始化页面栈
-    lv_lib_stack_init(&manager->page_stack, 10); // 设定页面栈的容量为 10
+    lv_lib_stack_init(&manager->page_stack, 5); // 设定页面栈的容量为 5
     manager->current_page = NULL;  // 没有当前页面
     manager->cur_depth = 0;        // 当前深度为 0
 }
@@ -47,6 +47,49 @@ void lv_lib_pm_Deinit(lv_lib_pm_t *manager) {
     lv_lib_stack_destroy(&manager->page_stack);
     manager->current_page = NULL; // 清空当前页面
     manager->cur_depth = 0;       // 重置深度
+}
+
+
+/**
+ * @brief 创建页面
+ * 
+ * 创建一个页面并返回页面指针
+ * 
+ * @param name     页面名称
+ * @param init     页面初始化函数
+ * @param deinit   页面销毁函数
+ * @param page_obj 页面对象
+ * @return         创建的页面指针，如果创建失败则返回 NULL
+ */
+lv_lib_pm_page_t* lv_lib_pm_CreatePage(const char *name, void (*init)(void), void (*deinit)(void), lv_obj_t *page_obj) {
+    if (!name || !init) {
+        LV_LOG_WARN("PageManager: Invalid parameters for creating a page.");
+        return NULL;
+    }
+
+    lv_lib_pm_page_t *page = (lv_lib_pm_page_t *)malloc(sizeof(lv_lib_pm_page_t));
+    if (!page) {
+        LV_LOG_WARN("PageManager: Failed to allocate memory for the page.");
+        return NULL;
+    }
+
+    // 分配并复制页面名称
+    page->name = (char *)malloc(strlen(name) + 1);
+    if (!page->name) {
+        free(page);
+        LV_LOG_WARN("PageManager: Failed to allocate memory for the page name.");
+        return NULL;
+    }
+    strcpy(page->name, name);
+
+    // 设置页面的初始化和销毁函数
+    page->init = init;
+    page->deinit = deinit;
+
+    // 设置页面的主要对象
+    page->page_obj = page_obj;
+
+    return page;
 }
 
 /**
@@ -86,10 +129,10 @@ void lv_lib_pm_OpenPage(lv_lib_pm_t *manager, lv_lib_pm_page_t *page, char *name
             // 如果找到了页面，打开它
             lv_lib_pm_OpenPage(manager, found_page, NULL); // 递归调用打开页面
         } else {
-            LV_LOG_INFO("Page with name '%s' not found.\n", name);
+            LV_LOG_WARN("Page with name '%s' not found.\n", name);
         }
     } else {
-        LV_LOG_INFO("Both page and name are NULL. Cannot open page.\n");
+        LV_LOG_WARN("Both page and name are NULL. Cannot open page.\n");
     }
 }
 
@@ -105,7 +148,7 @@ void lv_lib_pm_OpenPrePage(lv_lib_pm_t *manager) {
 
     // 如果栈为空，表示没有历史页面，无法返回
     if (lv_lib_stack_is_empty(&manager->page_stack)) {
-        LV_LOG_INFO("No previous page to return to.\n");
+        LV_LOG_WARN("No previous page to return to.\n");
         return;
     }
 
@@ -158,7 +201,7 @@ void lv_lib_pm_ReturnToBottom(lv_lib_pm_t *manager) {
     // 获取栈底页面
     lv_lib_pm_page_t *bottom_page = (lv_lib_pm_page_t *)manager->page_stack.stack[0].data;
     if (!bottom_page) {
-        LV_LOG_INFO("No pages in stack.\n");
+        LV_LOG_WARN("No pages in stack.\n");
         return;  // 如果栈中没有页面，直接返回
     }
 

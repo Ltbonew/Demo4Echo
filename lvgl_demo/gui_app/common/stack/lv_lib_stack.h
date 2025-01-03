@@ -7,8 +7,9 @@ extern "C" {
 
 #include "../lv_lib_conf.h"
 
-#if LV_USE_LIB_STACK != 0
+#if LV_USE_LIB_STACK
 
+#include "../stack/lv_lib_stack.h"
 #include <stdio.h>
 #include <stdlib.h>
 
