@@ -17,17 +17,6 @@ public:
     AudioProcess(int sample_rate = 16000, int channels = 1);
     ~AudioProcess();
 
-    // 日志记录等级
-    enum LogLevel { INFO, ERROR, WARNING };
-
-    /**
-     * AudioProcessor Log a message.
-     * 
-     * @param message The message to log.
-     * @param level The log level.
-     */
-    void Log(const std::string& message, LogLevel level = INFO);
-
     // 启动录音
     bool startRecording();
 

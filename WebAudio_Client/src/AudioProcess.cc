@@ -1,11 +1,12 @@
 #include "../inc/AudioProcess.h"
+#include "../inc/user_log.h"
 #include <iostream>
 #include <fstream>
 
 
 AudioProcess::AudioProcess(int sample_rate, int channels) : sample_rate(sample_rate), channels(channels), encoder(nullptr), decoder(nullptr), isRecording(false), stream(nullptr) {
     if (!initializeOpus()) {
-        Log("Failed to initialize Opus encoder/decoder.", ERROR);
+        USER_LOG_ERROR("Failed to initialize Opus encoder/decoder.");
     }
 }
 
@@ -17,42 +18,20 @@ AudioProcess::~AudioProcess() {
     }
 }
 
-void AudioProcess::Log(const std::string& message, LogLevel level) {
-    // 根据日志级别选择前缀
-    std::string prefix;
-    switch (level) {
-        case LogLevel::INFO:
-            prefix = "[INFO] ";
-            break;
-        case LogLevel::WARNING:
-            prefix = "[WARNING] ";
-            break;
-        case LogLevel::ERROR:
-            prefix = "[ERROR] ";
-            break;
-        default:
-            prefix = "[UNKNOWN] ";
-            break;
-    }
-
-    // 输出日志信息
-    std::cout << "[AudioProcess] " << prefix << message << std::endl;
-}
-
 bool AudioProcess::initializeOpus() {
     int error;
 
     // 初始化 Opus 编码器
     encoder = opus_encoder_create(sample_rate, channels, OPUS_APPLICATION_VOIP, &error);
     if (error != OPUS_OK) {
-        Log("Opus encoder initialization failed: " + std::string(opus_strerror(error)), ERROR);
+        USER_LOG_ERROR("Opus encoder initialization failed: %s", opus_strerror(error));
         return false;
     }
 
     // 初始化 Opus 解码器
     decoder = opus_decoder_create(sample_rate, channels, &error);
     if (error != OPUS_OK) {
-        Log("Opus decoder initialization failed: " + std::string(opus_strerror(error)), ERROR);
+        USER_LOG_ERROR("Opus decoder initialization failed: %s", opus_strerror(error));
         opus_encoder_destroy(encoder);
         return false;
     }
@@ -71,7 +50,7 @@ void AudioProcess::cleanupOpus() {
 bool AudioProcess::startRecording() {
 
     if (isRecording) {
-        Log("Already recording. Cannot start again.", WARNING);
+        USER_LOG_WARN("Already recording. Cannot start again.");
         return false;
     }
 
@@ -80,7 +59,7 @@ bool AudioProcess::startRecording() {
     // 初始化 PortAudio
     err = Pa_Initialize();
     if (err != paNoError) {
-        Log("PortAudio error: " + std::string(Pa_GetErrorText(err)), ERROR);
+        USER_LOG_ERROR("PortAudio error: %s", Pa_GetErrorText(err));
         return false;
     }
 
@@ -88,7 +67,7 @@ bool AudioProcess::startRecording() {
     PaStreamParameters inputParameters;
     inputParameters.device = Pa_GetDefaultInputDevice();
     if (inputParameters.device == paNoDevice) {
-        Log("No default input device found.", ERROR);
+        USER_LOG_ERROR("No default input device found.");
         Pa_Terminate();
         return false;
     }
@@ -107,7 +86,7 @@ bool AudioProcess::startRecording() {
                         recordCallback,
                         this);
     if (err != paNoError) {
-        Log("Error opening stream: " + std::string(Pa_GetErrorText(err)), ERROR);
+        USER_LOG_ERROR("Error opening stream: %s", Pa_GetErrorText(err));
         Pa_Terminate();
         return false;
     }
@@ -115,21 +94,21 @@ bool AudioProcess::startRecording() {
     // 开始录制
     err = Pa_StartStream(stream);
     if (err != paNoError) {
-        Log("Error starting stream: " + std::string(Pa_GetErrorText(err)), ERROR);
+        USER_LOG_ERROR("Error starting stream: %s", Pa_GetErrorText(err));
         Pa_CloseStream(stream);
         Pa_Terminate();
         return false;
     }
 
     isRecording = true;
-    Log("Recording started.", INFO);
+    USER_LOG_INFO("Recording started.");
     return true;
 }
 
 bool AudioProcess::stopRecording() {
 
     if (!isRecording) {
-        Log("Not recording. Nothing to stop.", WARNING);
+        USER_LOG_WARN("Not recording. Nothing to stop.");
         return false;
     }
 
@@ -138,14 +117,14 @@ bool AudioProcess::stopRecording() {
     // 停止录制
     err = Pa_StopStream(stream);
     if (err != paNoError) {
-        Log("Error stopping stream: " + std::string(Pa_GetErrorText(err)), ERROR);
+        USER_LOG_ERROR("Error stopping stream: %s", Pa_GetErrorText(err));
         return false;
     }
 
     // 关闭音频流
     err = Pa_CloseStream(stream);
     if (err != paNoError) {
-        Log("Error closing stream: " + std::string(Pa_GetErrorText(err)), ERROR);
+        USER_LOG_ERROR("Error closing stream: %s", Pa_GetErrorText(err));
         return false;
     }
 
@@ -153,7 +132,7 @@ bool AudioProcess::stopRecording() {
     Pa_Terminate();
 
     isRecording = false;
-    Log("Recording stopped.", INFO);
+    USER_LOG_INFO("Recording stopped.");
     return true;
 }
 
@@ -210,7 +189,7 @@ int AudioProcess::recordCallback(const void *inputBuffer, void *outputBuffer,
 std::queue<std::vector<int16_t>> AudioProcess::loadAudioFromFile(const std::string& filename, int frame_duration_ms) {
     std::ifstream infile(filename, std::ios::binary);
     if (!infile) {
-        Log("Failed to open file: " + filename, ERROR);
+        USER_LOG_ERROR("Failed to open file: %s", filename.c_str());
         return {};
     }
 
@@ -227,7 +206,7 @@ std::queue<std::vector<int16_t>> AudioProcess::loadAudioFromFile(const std::stri
     infile.read(reinterpret_cast<char*>(audio_data.data()), fileSize);
 
     if (!infile) {
-        Log("Error reading file: " + filename, ERROR);
+        USER_LOG_ERROR("Error reading file: %s", filename.c_str());
         return {};
     }
 
@@ -252,7 +231,7 @@ std::queue<std::vector<int16_t>> AudioProcess::loadAudioFromFile(const std::stri
 void AudioProcess::saveToPCMFile(const std::string& filename, const std::queue<std::vector<int16_t>>& audioQueue) {
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
-        Log("Failed to open file: " + filename, ERROR);
+        USER_LOG_ERROR("Failed to open file: %s", filename.c_str());
         return;
     }
 
@@ -266,7 +245,7 @@ void AudioProcess::saveToPCMFile(const std::string& filename, const std::queue<s
     }
 
     file.close();
-    Log("Saved recording to " + filename, INFO);
+    USER_LOG_INFO("Saved recording to %s", filename.c_str());
 }
 
 void AudioProcess::saveToPCMFile(const std::string& filename) {
@@ -276,14 +255,14 @@ void AudioProcess::saveToPCMFile(const std::string& filename) {
 
 bool AudioProcess::encode(const std::vector<int16_t>& pcm_frame, uint8_t* opus_data, size_t& opus_data_size) {
     if (!encoder) {
-        Log("Encoder not initialized", ERROR);
+        USER_LOG_ERROR("Encoder not initialized");
         return false;
     }
 
     int frame_size = pcm_frame.size();
 
     if (frame_size <= 0) {
-        Log("Invalid PCM frame size: " + std::to_string(frame_size), ERROR);
+        USER_LOG_ERROR("Invalid PCM frame size: %d", frame_size);
         return false;
     }
 
@@ -291,7 +270,7 @@ bool AudioProcess::encode(const std::vector<int16_t>& pcm_frame, uint8_t* opus_d
     int encoded_bytes_size = opus_encode(encoder, pcm_frame.data(), frame_size, opus_data, 2048); // max 2048 bytes
 
     if (encoded_bytes_size < 0) {
-        Log("Encoding failed: " + std::string(opus_strerror(encoded_bytes_size)), ERROR);
+        USER_LOG_ERROR("Encoding failed: %s", opus_strerror(encoded_bytes_size));
         return false;
     }
 
@@ -301,7 +280,7 @@ bool AudioProcess::encode(const std::vector<int16_t>& pcm_frame, uint8_t* opus_d
 
 bool AudioProcess::decode(const uint8_t* opus_data, size_t opus_data_size, std::vector<int16_t>& pcm_frame) {
     if (!decoder) {
-        Log("Decoder not initialized", ERROR);
+        USER_LOG_ERROR("Decoder not initialized");
         return false;
     }
 
@@ -312,7 +291,7 @@ bool AudioProcess::decode(const uint8_t* opus_data, size_t opus_data_size, std::
     int decoded_samples = opus_decode(decoder, opus_data, static_cast<int>(opus_data_size), pcm_frame.data(), frame_size, 0);
 
     if (decoded_samples < 0) {
-        Log("Decoding failed: " + std::string(opus_strerror(decoded_samples)), ERROR);
+        USER_LOG_ERROR("Decoding failed: %s", opus_strerror(decoded_samples));
         return false;
     }
 
@@ -324,7 +303,7 @@ BinProtocol* AudioProcess::PackBinFrame(const uint8_t* payload, size_t payload_s
     // Allocate memory for BinaryProtocol + payload
     auto pack = (BinProtocol*)malloc(sizeof(BinProtocol) + payload_size);
     if (!pack) {
-        Log("Memory allocation failed", ERROR);
+        USER_LOG_ERROR("Memory allocation failed");
         return nullptr;
     }
 
@@ -342,7 +321,7 @@ BinProtocol* AudioProcess::PackBinFrame(const uint8_t* payload, size_t payload_s
 bool AudioProcess::UnpackBinFrame(const uint8_t* packed_data, size_t packed_data_size, BinProtocol& unpacked_frame) {
     // 检查输入数据的有效性
     if (packed_data_size < sizeof(BinProtocol) - sizeof(uint8_t)) {
-        Log("Packed data size is too small", ERROR);
+        USER_LOG_ERROR("Packed data size is too small");
         return false;
     }
 
@@ -352,7 +331,7 @@ bool AudioProcess::UnpackBinFrame(const uint8_t* packed_data, size_t packed_data
 
     // 检查总数据大小是否匹配
     if (packed_data_size < sizeof(BinProtocol) - sizeof(uint8_t) + payload_size) {
-        Log("Packed data size does not match payload size", ERROR);
+        USER_LOG_ERROR("Packed data size does not match payload size");
         return false;
     }
 
