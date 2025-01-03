@@ -171,7 +171,7 @@ void Application::Run() {
     ws_client_.Connect();
     // 必须等待连接建立
     while(!ws_client_.IsConnected()) {
-        std::this_thread::sleep_for(std::chrono::seconds(10));
+        std::this_thread::sleep_for(std::chrono::seconds(5));
         ws_client_.Connect();
     }
     
