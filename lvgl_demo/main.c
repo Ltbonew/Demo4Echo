@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "gui_app/common/lv_lib.h"
+
 static const char *getenv_default(const char *name, const char *dflt)
 {
     return getenv(name) ? : dflt;
@@ -45,6 +47,70 @@ static void lv_linux_indev_init(void)
 #error Unsupported configuration
 #endif
 
+lv_lib_pm_t page_manager;
+
+static void btn1_event_handler(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+
+    if(code == LV_EVENT_CLICKED) {
+        LV_LOG_USER("Clicked");
+        lv_lib_pm_OpenPage(&page_manager, NULL, "Page2");
+    }
+    else if(code == LV_EVENT_VALUE_CHANGED) {
+        LV_LOG_USER("Toggled");
+    }
+}
+
+void page1_init(void)
+{
+    lv_obj_t *ui_Page1 = lv_obj_create(NULL);
+    lv_obj_t * btn1 = lv_btn_create(ui_Page1);
+    lv_obj_add_event_cb(btn1, btn1_event_handler, LV_EVENT_ALL, NULL);
+    lv_obj_align(btn1, LV_ALIGN_CENTER, 0, -40);
+
+    lv_obj_t* label = lv_label_create(btn1);
+    lv_label_set_text(label, "Button1");
+    lv_obj_center(label);
+
+    // load page
+    lv_scr_load_anim(ui_Page1, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 100, 0, true);
+}
+
+void page1_deinit(void)
+{
+    return;
+}
+
+void page2_init(void)
+{
+    lv_obj_t *ui_Page2 = lv_obj_create(NULL);
+    lv_obj_t * btn1 = lv_btn_create(ui_Page2);
+    lv_obj_align(btn1, LV_ALIGN_CENTER, 0, -40);
+
+    lv_obj_t* label = lv_label_create(btn1);
+    lv_label_set_text(label, "Button2");
+    lv_obj_center(label);
+
+    // load page
+    lv_scr_load_anim(ui_Page2, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 100, 0, true);
+}
+
+void page2_deinit(void)
+{
+    return;
+}
+
+void lv_demo_test()
+{   
+    
+    lv_lib_pm_Init(&page_manager);
+    lv_lib_pm_page_t *pm_page1 = lv_lib_pm_CreatePage(&page_manager, "Page1", page1_init, page1_deinit, NULL);
+    lv_lib_pm_page_t *pm_page2 = lv_lib_pm_CreatePage(&page_manager, "Page2", page2_init, page2_deinit, NULL);
+    lv_lib_pm_OpenPage(&page_manager, pm_page1, "Page1");
+
+}
+
 int main(void)
 {
     lv_init();
@@ -55,9 +121,9 @@ int main(void)
     lv_linux_indev_init();
 
     /*Create a Demo*/
-    lv_demo_widgets();
+    // lv_demo_widgets();
     // lv_demo_widgets_start_slideshow();
-
+    lv_demo_test();
     /*Handle LVGL tasks*/
     while(1) {
         lv_timer_handler();
