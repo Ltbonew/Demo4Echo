@@ -3,16 +3,16 @@
 #include <stdlib.h>
 
 lv_lib_pm_page_t* _getPage(const lv_lib_pm_t *manager, const char *name) {
-    if (!manager || !name) return NULL;
+    if (!manager || !name || !manager->all_pages) return NULL;
 
-    // 遍历栈中的每个页面，查找名称匹配的页面
-    for (int i = manager->page_stack.top; i >= 0; i--) {
-        lv_lib_pm_page_t *page = (lv_lib_pm_page_t *)manager->page_stack.stack[i].data;
+    // 遍历所有页面，查找名称匹配的页面
+    for (int i = 0; i < manager->num_pages; i++) {
+        lv_lib_pm_page_t *page = manager->all_pages[i];
         if (page && page->name && strcmp(page->name, name) == 0) {
             return page;
         }
     }
-    
+
     // 若未找到，返回 NULL
     return NULL;
 }
@@ -25,10 +25,13 @@ lv_lib_pm_page_t* _getPage(const lv_lib_pm_t *manager, const char *name) {
  * @param manager 指向页面管理器的指针
  */
 void lv_lib_pm_Init(lv_lib_pm_t *manager) {
-    if (!manager) return;
+    if (!manager) {
+        LV_LOG_WARN("Invalid parameters for init a page.");
+        return;
+    }
 
     // 初始化页面栈
-    lv_lib_stack_init(&manager->page_stack, 5); // 设定页面栈的容量为 5
+    lv_lib_stack_init(&manager->page_stack, LV_PM_MAX_PAGE_HISTORY); // 设定页面栈的容量为
     manager->current_page = NULL;  // 没有当前页面
     manager->cur_depth = 0;        // 当前深度为 0
 }
@@ -41,7 +44,10 @@ void lv_lib_pm_Init(lv_lib_pm_t *manager) {
  * @param manager 指向页面管理器的指针
  */
 void lv_lib_pm_Deinit(lv_lib_pm_t *manager) {
-    if (!manager) return;
+    if (!manager) {
+        LV_LOG_WARN("Invalid parameters for deinit a page.");
+        return;
+    }
 
     // 销毁页面栈
     lv_lib_stack_destroy(&manager->page_stack);
@@ -55,18 +61,26 @@ void lv_lib_pm_Deinit(lv_lib_pm_t *manager) {
  * 
  * 创建一个页面并返回页面指针
  * 
+ * @param manager  页面管理器
  * @param name     页面名称
  * @param init     页面初始化函数
  * @param deinit   页面销毁函数
  * @param page_obj 页面对象
  * @return         创建的页面指针，如果创建失败则返回 NULL
  */
-lv_lib_pm_page_t* lv_lib_pm_CreatePage(const char *name, void (*init)(void), void (*deinit)(void), lv_obj_t *page_obj) {
-    if (!name || !init) {
+lv_lib_pm_page_t* lv_lib_pm_CreatePage(lv_lib_pm_t *manager, const char *name, void (*init)(void), void (*deinit)(void), lv_obj_t *page_obj) {
+    if (!manager || !name || !init || !deinit) {
         LV_LOG_WARN("PageManager: Invalid parameters for creating a page.");
         return NULL;
     }
 
+    // 检查是否已有同名的页面
+    if (_getPage(manager, name)) {
+        LV_LOG_WARN("PageManager: A page with the name '%s' already exists.", name);
+        return NULL;
+    }
+
+    // 分配内存创建页面
     lv_lib_pm_page_t *page = (lv_lib_pm_page_t *)malloc(sizeof(lv_lib_pm_page_t));
     if (!page) {
         LV_LOG_WARN("PageManager: Failed to allocate memory for the page.");
@@ -85,9 +99,17 @@ lv_lib_pm_page_t* lv_lib_pm_CreatePage(const char *name, void (*init)(void), voi
     // 设置页面的初始化和销毁函数
     page->init = init;
     page->deinit = deinit;
-
-    // 设置页面的主要对象
     page->page_obj = page_obj;
+    // 将页面添加到所有页面列表
+    if (manager->num_pages < LV_PM_MAX_PAGES) {  // 假设你设置了最大页面数
+        LV_LOG_INFO("Page created");
+        manager->all_pages[manager->num_pages++] = page;
+    } else {
+        LV_LOG_WARN("PageManager: Maximum number of pages reached.");
+        free(page->name);
+        free(page);
+        return NULL;
+    }
 
     return page;
 }
@@ -167,7 +189,7 @@ void lv_lib_pm_OpenPrePage(lv_lib_pm_t *manager) {
     }
 
     manager->cur_depth--; // 减少当前页面深度
-    LV_LOG_INFO("Returned to previous page, depth: %d ", manager->cur_depth);
+    LV_LOG_INFO("Returned to previous page, depth: %d .", manager->cur_depth);
 }
 
 /**
