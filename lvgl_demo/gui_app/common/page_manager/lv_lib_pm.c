@@ -129,10 +129,10 @@ void lv_lib_pm_OpenPage(lv_lib_pm_t *manager, lv_lib_pm_page_t *page, char *name
             // 如果找到了页面，打开它
             lv_lib_pm_OpenPage(manager, found_page, NULL); // 递归调用打开页面
         } else {
-            LV_LOG_WARN("Page with name '%s' not found.\n", name);
+            LV_LOG_WARN("Page with name '%s' not found.", name);
         }
     } else {
-        LV_LOG_WARN("Both page and name are NULL. Cannot open page.\n");
+        LV_LOG_WARN("Both page and name are NULL. Cannot open page.");
     }
 }
 
@@ -148,7 +148,7 @@ void lv_lib_pm_OpenPrePage(lv_lib_pm_t *manager) {
 
     // 如果栈为空，表示没有历史页面，无法返回
     if (lv_lib_stack_is_empty(&manager->page_stack)) {
-        LV_LOG_WARN("No previous page to return to.\n");
+        LV_LOG_WARN("No previous page to return to.");
         return;
     }
 
@@ -167,7 +167,7 @@ void lv_lib_pm_OpenPrePage(lv_lib_pm_t *manager) {
     }
 
     manager->cur_depth--; // 减少当前页面深度
-    LV_LOG_INFO("Returned to previous page, depth: %d\n", manager->cur_depth);
+    LV_LOG_INFO("Returned to previous page, depth: %d ", manager->cur_depth);
 }
 
 /**
@@ -201,7 +201,7 @@ void lv_lib_pm_ReturnToBottom(lv_lib_pm_t *manager) {
     // 获取栈底页面
     lv_lib_pm_page_t *bottom_page = (lv_lib_pm_page_t *)manager->page_stack.stack[0].data;
     if (!bottom_page) {
-        LV_LOG_WARN("No pages in stack.\n");
+        LV_LOG_WARN("No pages in stack.");
         return;  // 如果栈中没有页面，直接返回
     }
 
@@ -217,5 +217,5 @@ void lv_lib_pm_ReturnToBottom(lv_lib_pm_t *manager) {
     }
 
     manager->cur_depth = 1; // 当前深度恢复为 1, 因为只保留了栈底页面
-    LV_LOG_INFO("Returned to bottom page.\n");
+    LV_LOG_INFO("Returned to bottom page.");
 }
