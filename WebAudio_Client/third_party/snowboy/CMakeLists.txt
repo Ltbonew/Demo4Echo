@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
-# Set the project name
-project(DemoSnowboy)
+# Option to choose target architecture
+option(TARGET_ARM "Build for ARM architecture" OFF)
 
 # Find the architecture
 if(TARGET_ARM)
@@ -16,6 +16,9 @@ else()
     set(SNOWBOY_LIBRARY "${CMAKE_SOURCE_DIR}/lib/ubuntu64/libsnowboy-detect.a")
     message(STATUS "Building for x86 native architecture.")
 endif()
+
+# Set the project name
+project(DemoSnowboy)
 
 add_compile_definitions(_GLIBCXX_USE_CXX11_ABI=0)
 
@@ -33,8 +36,22 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 确保链接必要的数学库
-find_package(BLAS REQUIRED)
-find_package(LAPACK REQUIRED)
+if(TARGET_ARM)
+    # 对于 ARM 目标，明确查找 OpenBLAS
+    find_package(OpenBLAS REQUIRED)
+
+    if(OpenBLAS_FOUND)
+        set(BLAS_LIBRARIES ${OpenBLAS_LIBRARIES})
+        set(LAPACK_LIBRARIES ${OpenBLAS_LIBRARIES})  # OpenBLAS 包含 LAPACK 实现
+        set(BLAS_INCLUDE_DIRS ${OpenBLAS_INCLUDE_DIR})
+    endif()
+else()
+    # 对于非 ARM 目标，使用通用的 BLAS 和 LAPACK 查找
+    find_package(BLAS REQUIRED)
+    find_package(LAPACK REQUIRED)
+endif()
+# 将找到的库添加到目标
+include_directories(${BLAS_INCLUDE_DIRS})
 target_link_libraries(demo2 ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
 add_custom_target(clean-all
