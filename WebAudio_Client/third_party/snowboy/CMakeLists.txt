@@ -29,7 +29,7 @@ add_executable(demo2 demo2.cc)
 target_link_libraries(demo2 ${SNOWBOY_LIBRARY})
 
 # Additional flags and options
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 确保链接必要的数学库
