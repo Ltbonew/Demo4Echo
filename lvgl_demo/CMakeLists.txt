@@ -1,4 +1,24 @@
 cmake_minimum_required(VERSION 3.10)
+
+# Option to choose target architecture
+option(TARGET_ARM "Build for ARM architecture" OFF)
+
+# If building for ARM, set the toolchain file before anything else
+if(TARGET_ARM)
+    if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+        set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake" CACHE FILEPATH "Default toolchain file for ARM builds")
+        message(STATUS "No toolchain file specified; using default: ${CMAKE_TOOLCHAIN_FILE}")
+    endif()
+    message(STATUS "Building for ARM using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
+else()
+    message(STATUS "Building for x86 native architecture.")
+endif()
+
+if(TARGET_ARM)
+    # 设置交叉编译环境下 pkg-config 使用的路径
+    set(ENV{PKG_CONFIG_PATH} "${CMAKE_SYSROOT}/usr/lib/pkgconfig")
+endif()
+
 project(lvgl)
 
 set(CMAKE_C_STANDARD 99)#C99 # lvgl officially support C99 and above
