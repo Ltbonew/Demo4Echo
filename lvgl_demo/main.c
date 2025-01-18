@@ -13,6 +13,14 @@ static const char *getenv_default(const char *name, const char *dflt)
     return getenv(name) ? : dflt;
 }
 
+#if LV_USE_EVDEV
+static void lv_linux_indev_init(void)
+{
+    lv_indev_t * touch;
+    touch = lv_evdev_create(LV_INDEV_TYPE_POINTER, "/dev/input/event0");
+}
+#endif
+
 #if LV_USE_LINUX_FBDEV
 static void lv_linux_disp_init(void)
 {
