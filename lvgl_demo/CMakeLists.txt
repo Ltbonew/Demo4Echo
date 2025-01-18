@@ -30,6 +30,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 add_subdirectory(lvgl)          # LVGL 核心模块
 add_subdirectory(gui_app)       # GUI_APP 应用模块
 add_subdirectory(utils)         # 公共工具模块
+add_subdirectory(common)         # common
 
 # Include 配置头文件路径
 target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR})
@@ -46,6 +47,7 @@ target_link_libraries(
     main 
     gui_app
     utils
+    common
 )
 
 include(${CMAKE_CURRENT_LIST_DIR}/lvgl/tests/FindLibDRM.cmake)
