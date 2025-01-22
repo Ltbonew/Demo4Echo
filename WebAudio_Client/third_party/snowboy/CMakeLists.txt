@@ -27,13 +27,17 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 # Add executable
 add_executable(demo2 demo2.cc)
+add_executable(demo1 demo1.cc AudioProcess.cc)
 
 # Link libraries
 target_link_libraries(demo2 ${SNOWBOY_LIBRARY})
+target_link_libraries(demo1 ${SNOWBOY_LIBRARY})
 
 # Additional flags and options
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(PkgConfig REQUIRED)
 
 # 确保链接必要的数学库
 if(TARGET_ARM)
@@ -45,14 +49,19 @@ if(TARGET_ARM)
         set(LAPACK_LIBRARIES ${OpenBLAS_LIBRARIES})  # OpenBLAS 包含 LAPACK 实现
         set(BLAS_INCLUDE_DIRS ${OpenBLAS_INCLUDE_DIR})
     endif()
+    pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
+    pkg_check_modules(OPUS REQUIRED opus)
 else()
     # 对于非 ARM 目标，使用通用的 BLAS 和 LAPACK 查找
     find_package(BLAS REQUIRED)
     find_package(LAPACK REQUIRED)
+    pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
+    pkg_check_modules(OPUS REQUIRED opus)
 endif()
 # 将找到的库添加到目标
 include_directories(${BLAS_INCLUDE_DIRS})
 target_link_libraries(demo2 ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+target_link_libraries(demo1 ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${PORTAUDIO_LIBRARIES} ${OPUS_LIBRARIES})
 
 add_custom_target(clean-all
     COMMAND find "${CMAKE_BINARY_DIR}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
