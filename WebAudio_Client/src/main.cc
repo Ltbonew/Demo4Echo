@@ -26,8 +26,10 @@ int main(int argc, char* argv[]) {
         int channels = 1;
         int frame_duration = 40;
 
+        // 创建 AudioProcess 实例
+        AudioProcess audio_processor(sample_rate, channels);
         // 创建 Application 实例
-        Application app(address, port, token, deviceId, protocolVersion, sample_rate, channels, frame_duration);
+        Application app(address, port, token, deviceId, protocolVersion, frame_duration, audio_processor);
 
         // 运行应用程序
         app.Run();
