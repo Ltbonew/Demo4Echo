@@ -20,6 +20,9 @@ public:
     int get_sample_rate() const { return sample_rate; }
     int get_channels() const { return channels; }
 
+    // check if recorded audio queue is empty
+    bool recordedQueueIsEmpty() const { return recordedAudioQueue.empty(); }
+
     // 启动录音
     bool startRecording();
 
