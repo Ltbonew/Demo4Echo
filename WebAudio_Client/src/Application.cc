@@ -91,6 +91,10 @@ void Application::listening_enter() {
 
 void Application::listening_exit() {
     USER_LOG_INFO("Listening exit.");
+    // clear recorded audio queue
+    audio_processor_.clearRecordedAudioQueue();
+    // stop录音
+    audio_processor_.stopRecording();
 }
 
 void Application::thinking_enter() {
@@ -114,39 +118,38 @@ void Application::speaking_exit() {
 }
 
 void Application::idleState_run() {
+    USER_LOG_INFO("Idle state run.");
     SnowboyDetect* detector = SnowboyDetectConstructor("third_party/snowboy/resources/common.res",
                                                      "third_party/snowboy/resources/models/echo.pmdl");
     SnowboyDetectSetSensitivity(detector, "0.5");
     SnowboyDetectSetAudioGain(detector, 1);
     SnowboyDetectApplyFrontend(detector, false);
     std::vector<int16_t> data;
-    while(1) {
-        // 模拟检测到唤醒词
-        audio_processor_.getRecordedAudio(data);
-        int result = SnowboyDetectRunDetection(detector, data.data(), data.size(), false);
-        if (result > 0) {
-            // 发生唤醒事件
-            USER_LOG_INFO("Wake detected.");
-            eventQueue_.Enqueue(static_cast<int>(AppEvent::wake_detected));
-            break;
+    while (client_state_.GetCurrentState() == static_cast<int>(AppState::idle)) {
+        if(audio_processor_.getRecordedAudio(data)) {
+            // 检测唤醒词
+            int result = SnowboyDetectRunDetection(detector, data.data(), data.size(), false);
+            if (result > 0) {
+                // 发生唤醒事件
+                USER_LOG_INFO("Wake detected.");
+                eventQueue_.Enqueue(static_cast<int>(AppEvent::wake_detected));
+                break;
+            }
         }
     }
     SnowboyDetectDestructor(detector);
 }
 
 void Application::listeningState_run() {
-    while(1);
-    std::queue<std::vector<int16_t>> audio_queue_ = audio_processor_.loadAudioFromFile("../test_audio/out_chock2inmid.pcm", frame_duration_);
-
+    USER_LOG_INFO("Listening state run.");
     while (client_state_.GetCurrentState() == static_cast<int>(AppState::listening)) {
-        if(!audio_queue_.empty()) {
-            std::vector<int16_t> pcm_frame = audio_queue_.front();
-            audio_queue_.pop();
-
+        std::vector<int16_t> audio_frame;
+        if(audio_processor_.getRecordedAudio(audio_frame)) {
+            // 编码
             uint8_t opus_data[1536];
             size_t opus_data_size;
 
-            if (audio_processor_.encode(pcm_frame, opus_data, opus_data_size)) {
+            if (audio_processor_.encode(audio_frame, opus_data, opus_data_size)) {
                 // 打包
                 BinProtocol* packed_frame = audio_processor_.PackBinFrame(opus_data, opus_data_size);
 
@@ -164,7 +167,8 @@ void Application::listeningState_run() {
 }
 
 void Application::thinkingState_run() {
-
+    USER_LOG_INFO("Thinking state run.");
+    while(1);
 
 }
 
@@ -246,17 +250,27 @@ void Application::Run() {
     
     std::thread state_run_thread([this]() {
         while(true) {
-            if(client_state_.GetCurrentState() == static_cast<int>(AppState::idle)) {
-                idleState_run();
-            }
-            else if(client_state_.GetCurrentState() == static_cast<int>(AppState::listening)){
-                listeningState_run();
-            }
-            else if(client_state_.GetCurrentState() == static_cast<int>(AppState::thinking)){
-                thinkingState_run();
-            }
-            else if(client_state_.GetCurrentState() == static_cast<int>(AppState::speaking)){
-                speakingState_run();
+            // check current state and run corresponding state function
+            switch (client_state_.GetCurrentState())
+            {
+                case static_cast<int>(AppState::idle):
+                    idleState_run();
+                    break;
+                
+                case static_cast<int>(AppState::listening):
+                    listeningState_run();
+                    break;
+
+                case static_cast<int>(AppState::thinking):
+                    thinkingState_run();
+                    break;
+
+                case static_cast<int>(AppState::speaking):
+                    speakingState_run();
+                    break;
+
+                default:
+                    break;
             }
         }
     });
