@@ -36,6 +36,8 @@ pkg_check_modules(OPUS REQUIRED opus)
 pkg_check_modules(JSONCPP REQUIRED jsoncpp)
 find_package(WEBSOCKETPP REQUIRED)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/snowboy)
+
 # Include directories
 include_directories(
     ${OPUS_INCLUDE_DIRS}
@@ -59,6 +61,7 @@ target_link_libraries(WebAudioClient
     ${PORTAUDIO_LIBRARIES}
     ${JSONCPP_LIBRARIES}
     ${WEBSOCKETPP_LIBRARIES}
+    snowboy-detect-c-wrapper
 )
 
 # Custom command to clean up generated files
