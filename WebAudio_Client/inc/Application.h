@@ -4,7 +4,7 @@
 #include "WebsocketClient.h"
 #include "StateMachine.h"
 #include "AudioProcess.h"
-#include <json/json.h>
+#include <jsoncpp/json/json.h>
 #include <string>
 #include <queue>
 #include <vector>
@@ -64,7 +64,7 @@ private:
 
 class Application {
 public:
-    Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& protocolVersion, int sample_rate, int channels, int frame_duration);
+    Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& protocolVersion, int frame_duration, AudioProcess& audio_processor);
     void Run();
 
 private:
@@ -91,14 +91,14 @@ private:
 
     WebSocketClient ws_client_;
     StateMachine client_state_; // 更改成员变量名称
-    int sample_rate_;
-    int channels_;
     int frame_duration_;
 
     // 创建线程安全的消息队列
     ThreadSafeQueue<std::string> messageQueue_;
     // 创建线程安全的事件队列
     ThreadSafeQueue<int> eventQueue_;
+    // 创建audio process对象
+    AudioProcess& audio_processor_;
     
 };
 
