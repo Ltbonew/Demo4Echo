@@ -17,6 +17,9 @@ public:
     AudioProcess(int sample_rate = 16000, int channels = 1);
     ~AudioProcess();
 
+    int get_sample_rate() const { return sample_rate; }
+    int get_channels() const { return channels; }
+
     // 启动录音
     bool startRecording();
 
