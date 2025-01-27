@@ -4,13 +4,6 @@ import websockets
 import json
 from MessageHandler import MessageHandler
 
-# 预定义的鉴权信息
-ACCESS_TOKEN = "123456"
-DEVICE_ID = "00:11:22:33:44:55"
-PROTOCOL_VERSION = "1"
-HOST = "0.0.0.0"
-PORT = 8765
-
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -23,7 +16,7 @@ class WebSocketServer:
         self.device_id = device_id
         self.protocol_version = protocol_version
         self.verified_clients = set()
-        self.message_handler = MessageHandler()
+        self.message_handler = MessageHandler(self.protocol_version)
 
     # 客户端鉴权函数
     async def authenticate(self, headers):
@@ -82,6 +75,8 @@ class WebSocketServer:
             # 连接关闭后从已验证集合中移除
             self.verified_clients.discard(websocket)
             logger.info("Client disconnected")
+            # 初始化音频处理器
+            self.message_handler.audio_proc_reset()
 
     # 启动 WebSocket 服务器
     async def start_server(self):
