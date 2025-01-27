@@ -12,8 +12,8 @@ class ModelManager:
         self.vad_model = AutoModel(
             model=vad_model_dir,
             disable_pbar=True,
-            max_end_silence_time=1000,
-            vad_kwargs={"max_single_segment_time": 500},
+            max_end_silence_time=600,
+            # vad_kwargs={"max_single_segment_time": 500},
             disable_update=True
         )
         self.vad_cache = {}
@@ -47,4 +47,7 @@ class ModelManager:
 
     def ASR_generate_text(self, audio_buffer):
         res = self.asr_model.generate(input=audio_buffer, cache={}, language='auto', use_itn=True)
-        return rich_transcription_postprocess(res[0]['text'])
+        # res是有情感等信息的, 只取text
+        if(res[0]['text']):
+            return rich_transcription_postprocess(res[0]['text'])
+        return None
