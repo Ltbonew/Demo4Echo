@@ -4,10 +4,17 @@
 #include <fstream>
 
 
-AudioProcess::AudioProcess(int sample_rate, int channels) : sample_rate(sample_rate), channels(channels), encoder(nullptr), decoder(nullptr), isRecording(false), stream(nullptr) {
-    if (!initializeOpus()) {
-        USER_LOG_ERROR("Failed to initialize Opus encoder/decoder.");
-    }
+AudioProcess::AudioProcess(int sample_rate, int channels, int frame_duration_ms) 
+    : sample_rate(sample_rate), 
+      channels(channels), 
+      frame_duration_ms(frame_duration_ms),
+      encoder(nullptr), 
+      decoder(nullptr), 
+      isRecording(false), 
+      stream(nullptr) {
+        if (!initializeOpus()) {
+            USER_LOG_ERROR("Failed to initialize Opus encoder/decoder.");
+        }
 }
 
 AudioProcess::~AudioProcess() {
@@ -81,7 +88,7 @@ bool AudioProcess::startRecording() {
                         &inputParameters,
                         nullptr, // 无输出
                         sample_rate,
-                        1600, // 每缓冲区的帧数
+                        sample_rate / 1000 * frame_duration_ms, // 每缓冲区的帧数
                         paClipOff, // 不剪裁样本
                         recordCallback,
                         this);
@@ -284,7 +291,7 @@ bool AudioProcess::decode(const uint8_t* opus_data, size_t opus_data_size, std::
         return false;
     }
 
-    int frame_size = 960;  // 20ms 帧, 16000Hz 采样率, 理论上应该是 320 个样本，但是 Opus 限制为 960
+    int frame_size = 960;  // 40ms 帧, 16000Hz 采样率, 理论上应该是 640 个样本，但是 Opus 限制为 960
     pcm_frame.resize(frame_size * channels);
 
     // 对当前帧进行解码
