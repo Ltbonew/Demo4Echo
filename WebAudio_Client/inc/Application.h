@@ -92,6 +92,7 @@ private:
     WebSocketClient ws_client_;
     StateMachine client_state_; // 更改成员变量名称
     int frame_duration_;
+    std::string asr_text_;
 
     // 创建线程安全的消息队列
     ThreadSafeQueue<std::string> messageQueue_;

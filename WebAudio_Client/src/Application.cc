@@ -61,8 +61,8 @@ Application::AppEvent_t_ Application::handle_vad_message(const Json::Value& root
 Application::AppEvent_t_ Application::handle_asr_message(const Json::Value& root) {
     const Json::Value text = root["text"];
     if (text.isString()) {
-        std::string textStr = text.asString();
-        USER_LOG_INFO("Received ASR text: %s", textStr.c_str());
+        asr_text_ = text.asString();
+        USER_LOG_INFO("Received ASR text: %s", asr_text_.c_str());
     } else {
         USER_LOG_WARN("Invalid ASR text value.");
     }
@@ -108,7 +108,7 @@ void Application::thinking_exit() {
 }
 
 void Application::speaking_enter() {
-    std::string json_message = R"({"type": "state", "state": "speaking"})";
+    std::string json_message = R"({"type": "state", "state": "speaking", "question": ")" + asr_text_ + R"("})";
     ws_client_.SendText(json_message);
     USER_LOG_INFO("Into speaking state.");
 }
@@ -168,7 +168,9 @@ void Application::listeningState_run() {
 
 void Application::thinkingState_run() {
     USER_LOG_INFO("Thinking state run.");
-    while(1);
+    while(client_state_.GetCurrentState() == static_cast<int>(AppState::thinking)) {
+        // do nothing
+    }
 
 }
 
@@ -211,12 +213,15 @@ void Application::Run() {
         while(true) {
             if(auto message_opt = messageQueue_.Dequeue(); message_opt) {
                 std::string message = message_opt.value();
-                if (!message.empty()) {
-                    // 处理信息转化为事件
-                    int event = handle_message(message);
-                    // 发送事件到事件队列
-                    if(event)
-                        eventQueue_.Enqueue(event);
+                // 检查是否为 "null" 或者是空字符串
+                if (message == "null" || message.empty()) {
+                    continue; // 跳过本次循环的后续操作
+                }
+                // 处理信息转化为事件
+                int event = handle_message(message);
+                // 发送事件到事件队列
+                if(event) {
+                    eventQueue_.Enqueue(event);
                 }
             }
         }
@@ -233,7 +238,8 @@ void Application::Run() {
         client_state_.RegisterTransition(static_cast<int>(AppState::idle), static_cast<int>(AppEvent::wake_detected), static_cast<int>(AppState::listening));
         client_state_.RegisterTransition(static_cast<int>(AppState::listening), static_cast<int>(AppEvent::vad_no_speech), static_cast<int>(AppState::idle));
         client_state_.RegisterTransition(static_cast<int>(AppState::listening), static_cast<int>(AppEvent::vad_end), static_cast<int>(AppState::thinking));
-        
+        //client_state_.RegisterTransition(static_cast<int>(AppState::thinking), static_cast<int>(AppEvent::asr_received), static_cast<int>(AppState::speaking));
+
         // 初始化
         client_state_.Initialize();
 
