@@ -14,11 +14,12 @@
 class AudioProcess {
 public:
     // 构造函数，传入录音参数
-    AudioProcess(int sample_rate = 16000, int channels = 1);
+    AudioProcess(int sample_rate = 16000, int channels = 1, int frame_duration_ms = 40);
     ~AudioProcess();
 
     int get_sample_rate() const { return sample_rate; }
     int get_channels() const { return channels; }
+    int get_frame_duration() const { return frame_duration_ms; }
 
     // check if recorded audio queue is empty
     bool recordedQueueIsEmpty() const { return recordedAudioQueue.empty(); }
@@ -121,6 +122,7 @@ private:
     int sample_rate;
     // 通道数
     int channels;
+    int frame_duration_ms;
 
     // 录音相关
     std::queue<std::vector<int16_t>> recordedAudioQueue;
