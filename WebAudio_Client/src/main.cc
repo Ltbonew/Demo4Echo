@@ -27,9 +27,9 @@ int main(int argc, char* argv[]) {
         int frame_duration = 40;
 
         // 创建 AudioProcess 实例
-        AudioProcess audio_processor(sample_rate, channels);
+        AudioProcess audio_processor(sample_rate, channels, frame_duration);
         // 创建 Application 实例
-        Application app(address, port, token, deviceId, protocolVersion, frame_duration, audio_processor);
+        Application app(address, port, token, deviceId, protocolVersion, audio_processor);
 
         // 运行应用程序
         app.Run();

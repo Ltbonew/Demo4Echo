@@ -2,10 +2,9 @@
 #include "../inc/user_log.h"
 #include "../third_party/snowboy/include/snowboy-detect-c-wrapper.h"
 
-Application::Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& protocolVersion, int frame_duration, AudioProcess& audio_processor)
+Application::Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& protocolVersion, AudioProcess& audio_processor)
     : ws_client_(address, port, token, deviceId, protocolVersion),
       client_state_(static_cast<int>(AppState::idle)),
-      frame_duration_(frame_duration),
       audio_processor_(audio_processor) {
 
         // 设置接收到消息的回调函数
@@ -201,7 +200,7 @@ void Application::Run() {
                 "format": "opus",
                 "sample_rate": )" + std::to_string(audio_processor_.get_sample_rate()) + R"(,
                 "channels": )" + std::to_string(audio_processor_.get_channels()) + R"(,
-                "frame_duration": )" + std::to_string(frame_duration_) + R"(
+                "frame_duration": )" + std::to_string(audio_processor_.get_frame_duration()) + R"(
             }
         })";
 

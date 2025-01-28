@@ -64,7 +64,7 @@ private:
 
 class Application {
 public:
-    Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& protocolVersion, int frame_duration, AudioProcess& audio_processor);
+    Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& protocolVersion, AudioProcess& audio_processor);
     void Run();
 
 private:
