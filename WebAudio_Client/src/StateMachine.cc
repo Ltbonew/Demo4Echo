@@ -29,7 +29,7 @@ void StateMachine::RegisterTransition(int from, int event, int to) {
 bool StateMachine::HandleEvent(int event) {
     auto& possibleTransitions = transitions_[currentState_];
     if (possibleTransitions.find(event) == possibleTransitions.end()) {
-        USER_LOG_WARN("Event not handled in current state.");
+        USER_LOG_WARN("Event: %d is not handled in current state.", event);
         return false;
     }
 
