@@ -99,11 +99,12 @@ public:
      * Unpack a binary protocol frame into an Opus frame.
      * 
      * @param [in] packed_data The packed binary protocol frame(received uint8_t).
-     * @param [in] packed_data_size The size of the packed binary protocol frame.
-     * @param [out] unpacked_frame The unpacked Opus frame.
+     * @param [in] packed_data_size The size of the packed data.
+     * @param [out] protocol_info The protocol info, just info!.
+     * @param [out] opus_data The unpacked Opus data payload.
      * @return true if unpacking is successful, false otherwise.
      */
-    bool UnpackBinFrame(const uint8_t* packed_data, size_t packed_data_size, BinProtocol& unpacked_frame);
+    bool UnpackBinFrame(const uint8_t* packed_data, size_t packed_data_size, BinProtocolInfo& protocol_info, std::vector<uint8_t>& opus_data);
 
 private:
     // PortAudio 回调函数

@@ -325,32 +325,36 @@ BinProtocol* AudioProcess::PackBinFrame(const uint8_t* payload, size_t payload_s
     return pack;
 }
 
-bool AudioProcess::UnpackBinFrame(const uint8_t* packed_data, size_t packed_data_size, BinProtocol& unpacked_frame) {
+bool AudioProcess::UnpackBinFrame(const uint8_t* packed_data, size_t packed_data_size, BinProtocolInfo& protocol_info, std::vector<uint8_t>& opus_data) {
     // 检查输入数据的有效性
-    if (packed_data_size < sizeof(BinProtocol) - sizeof(uint8_t)) {
+    if (packed_data_size < sizeof(uint16_t) * 2 + sizeof(uint32_t)) { // 至少需要2字节版本+2字节类型+4字节负载大小
         USER_LOG_ERROR("Packed data size is too small");
         return false;
     }
 
-    // 计算 payload 的大小
-    const BinProtocol* bin_frame = reinterpret_cast<const BinProtocol*>(packed_data);
-    size_t payload_size = ntohl(bin_frame->payload_size);
+    // 解析头部信息
+    const uint16_t* version_ptr = reinterpret_cast<const uint16_t*>(packed_data);
+    const uint16_t* type_ptr = reinterpret_cast<const uint16_t*>(packed_data + sizeof(uint16_t));
+    const uint32_t* payload_size_ptr = reinterpret_cast<const uint32_t*>(packed_data + sizeof(uint16_t) * 2);
 
-    // 检查总数据大小是否匹配
-    if (packed_data_size < sizeof(BinProtocol) - sizeof(uint8_t) + payload_size) {
+    uint16_t version = ntohs(*version_ptr);
+    uint16_t type = ntohs(*type_ptr);
+    uint32_t payload_size = ntohl(*payload_size_ptr);
+
+    // 确认总数据大小是否匹配
+    if (packed_data_size < sizeof(uint16_t) * 2 + sizeof(uint32_t) + payload_size) {
         USER_LOG_ERROR("Packed data size does not match payload size");
         return false;
     }
 
-    // 计算总大小
-    size_t total_size = sizeof(BinProtocol) - sizeof(uint8_t) + payload_size;
+    // protocol_info
+    protocol_info.version = version;
+    protocol_info.type = type;
 
-    // 动态分配内存
-    unpacked_frame = *reinterpret_cast<const BinProtocol*>(new uint8_t[total_size]);
-    unpacked_frame.version = ntohs(bin_frame->version);
-    unpacked_frame.type = ntohs(bin_frame->type);
-    unpacked_frame.payload_size = payload_size;
-    std::copy(bin_frame->payload, bin_frame->payload + payload_size, unpacked_frame.payload);
+    // 提取并填充opus_data
+    opus_data.clear();
+    opus_data.insert(opus_data.end(), packed_data + sizeof(uint16_t) * 2 + sizeof(uint32_t), 
+                     packed_data + sizeof(uint16_t) * 2 + sizeof(uint32_t) + payload_size);
 
     return true;
 }
