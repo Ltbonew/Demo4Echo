@@ -102,8 +102,16 @@ void WebSocketClient::on_open(websocketpp::connection_hdl hdl) {
 
 // 消息接收的回调
 void WebSocketClient::on_message(websocketpp::connection_hdl hdl, client_t::message_ptr msg) {
-    if (on_message_) {
-        on_message_(msg->get_payload());
+    if (msg->get_opcode() == websocketpp::frame::opcode::text) {
+        // 处理文本消息，传递给外部回调
+        if (on_message_) {
+            on_message_(msg->get_payload(), false); // false 表示是文本消息
+        }
+    } else if (msg->get_opcode() == websocketpp::frame::opcode::binary) {
+        // 处理二进制消息，传递给外部回调
+        if (on_message_) {
+            on_message_(msg->get_payload(), true); // true 表示是二进制消息
+        }
     }
 }
 
