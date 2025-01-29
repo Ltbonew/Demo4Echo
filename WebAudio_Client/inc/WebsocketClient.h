@@ -18,6 +18,11 @@ struct BinProtocol {
     uint8_t payload[];
 } __attribute__((packed));
 
+struct BinProtocolInfo {
+    uint16_t version;
+    uint16_t type;
+};
+
 class WebSocketClient {
 public:
     using message_callback_t = std::function<void(const std::string&, bool)>;
