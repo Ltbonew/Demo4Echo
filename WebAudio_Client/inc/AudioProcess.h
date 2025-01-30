@@ -23,6 +23,8 @@ public:
 
     // check if recorded audio queue is empty
     bool recordedQueueIsEmpty() const { return recordedAudioQueue.empty(); }
+    // check if playback audio queue is empty
+    bool playbackQueueIsEmpty() const { return playbackQueue.empty(); }
 
     // 启动录音
     bool startRecording();
@@ -33,6 +35,15 @@ public:
     // 清空录音队列
     void clearRecordedAudioQueue();
 
+    // 启动播放
+    bool startPlaying();
+
+    // 停止播放
+    bool stopPlaying();
+
+    // 清空播放队列
+    void clearPlaybackAudioQueue();
+
     /**
      * get recorded audio data from recordedAudioQueue.
      * 
@@ -40,6 +51,13 @@ public:
      * @return true if recorded audio data is available, false is empty.
      */
     bool getRecordedAudio(std::vector<int16_t>& recordedData);
+
+    /**
+     * add a frame to the playback queue.
+     * 
+     * @param pcm_frame The PCM frame to add.
+     */
+    void addFrameToPlaybackQueue(const std::vector<int16_t>& pcm_frame);
 
     /**
      * Load audio data from a file and split it into frames.
@@ -107,12 +125,19 @@ public:
     bool UnpackBinFrame(const uint8_t* packed_data, size_t packed_data_size, BinProtocolInfo& protocol_info, std::vector<uint8_t>& opus_data);
 
 private:
-    // PortAudio 回调函数
+    // PortAudio 录音回调函数
     static int recordCallback(const void *inputBuffer, void *outputBuffer,
                               unsigned long framesPerBuffer,
                               const PaStreamCallbackTimeInfo* timeInfo,
                               PaStreamCallbackFlags statusFlags,
                               void *userData);
+
+    // PortAudio 播放回调函数
+    static int playCallback(const void *inputBuffer, void *outputBuffer,
+                            unsigned long framesPerBuffer,
+                            const PaStreamCallbackTimeInfo* timeInfo,
+                            PaStreamCallbackFlags statusFlags,
+                            void *userData);
 
     // Opus 编码器的状态
     OpusEncoder* encoder;
@@ -129,8 +154,13 @@ private:
     std::queue<std::vector<int16_t>> recordedAudioQueue;
     std::mutex recordedAudioMutex;
     std::condition_variable recordedAudioCV;
+    PaStream* recordStream;
     bool isRecording;
-    PaStream* stream;
+    // 播放相关
+    std::queue<std::vector<int16_t>> playbackQueue;
+    std::mutex playbackMutex;
+    PaStream* playbackStream;
+    bool isPlaying;
 
     // 初始化编码器、解码器
     bool initializeOpus();

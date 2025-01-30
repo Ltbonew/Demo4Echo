@@ -11,7 +11,9 @@ AudioProcess::AudioProcess(int sample_rate, int channels, int frame_duration_ms)
       encoder(nullptr), 
       decoder(nullptr), 
       isRecording(false), 
-      stream(nullptr) {
+      recordStream(nullptr),
+      isPlaying(false),
+      playbackStream(nullptr) {
         if (!initializeOpus()) {
             USER_LOG_ERROR("Failed to initialize Opus encoder/decoder.");
         }
@@ -20,8 +22,12 @@ AudioProcess::AudioProcess(int sample_rate, int channels, int frame_duration_ms)
 AudioProcess::~AudioProcess() {
     cleanupOpus();
     clearRecordedAudioQueue();
+    clearPlaybackAudioQueue();
     if (isRecording) {
         stopRecording();
+    }
+    if (isPlaying) {
+        stopPlaying();
     }
 }
 
@@ -84,7 +90,7 @@ bool AudioProcess::startRecording() {
     inputParameters.hostApiSpecificStreamInfo = nullptr;
 
     // 打开音频流
-    err = Pa_OpenStream(&stream,
+    err = Pa_OpenStream(&recordStream,
                         &inputParameters,
                         nullptr, // 无输出
                         sample_rate,
@@ -93,16 +99,16 @@ bool AudioProcess::startRecording() {
                         recordCallback,
                         this);
     if (err != paNoError) {
-        USER_LOG_ERROR("Error opening stream: %s", Pa_GetErrorText(err));
+        USER_LOG_ERROR("Error opening recordStream: %s", Pa_GetErrorText(err));
         Pa_Terminate();
         return false;
     }
 
     // 开始录制
-    err = Pa_StartStream(stream);
+    err = Pa_StartStream(recordStream);
     if (err != paNoError) {
-        USER_LOG_ERROR("Error starting stream: %s", Pa_GetErrorText(err));
-        Pa_CloseStream(stream);
+        USER_LOG_ERROR("Error starting recordStream: %s", Pa_GetErrorText(err));
+        Pa_CloseStream(recordStream);
         Pa_Terminate();
         return false;
     }
@@ -122,16 +128,16 @@ bool AudioProcess::stopRecording() {
     PaError err;
 
     // 停止录制
-    err = Pa_StopStream(stream);
+    err = Pa_StopStream(recordStream);
     if (err != paNoError) {
-        USER_LOG_ERROR("Error stopping stream: %s", Pa_GetErrorText(err));
+        USER_LOG_ERROR("Error stopping recordStream: %s", Pa_GetErrorText(err));
         return false;
     }
 
     // 关闭音频流
-    err = Pa_CloseStream(stream);
+    err = Pa_CloseStream(recordStream);
     if (err != paNoError) {
-        USER_LOG_ERROR("Error closing stream: %s", Pa_GetErrorText(err));
+        USER_LOG_ERROR("Error closing recordStream: %s", Pa_GetErrorText(err));
         return false;
     }
 
@@ -191,6 +197,158 @@ int AudioProcess::recordCallback(const void *inputBuffer, void *outputBuffer,
     audioProcess->recordedAudioCV.notify_one();
 
     return paContinue;
+}
+
+bool AudioProcess::startPlaying() {
+    if (isPlaying) {
+        USER_LOG_WARN("Already playing. Cannot start again.");
+        return false;
+    }
+
+    PaError err;
+
+    // 初始化 PortAudio
+    err = Pa_Initialize();
+    if (err != paNoError) {
+        USER_LOG_ERROR("PortAudio error: %s", Pa_GetErrorText(err));
+        return false;
+    }
+
+    // 配置音频流参数
+    PaStreamParameters outputParameters;
+    outputParameters.device = Pa_GetDefaultOutputDevice();
+    if (outputParameters.device == paNoDevice) {
+        USER_LOG_ERROR("No default output device found.");
+        Pa_Terminate();
+        return false;
+    }
+    outputParameters.channelCount = channels;       // 通道数
+    outputParameters.sampleFormat = paInt16;       // 16 位样本
+    outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
+    outputParameters.hostApiSpecificStreamInfo = nullptr;
+
+    // 打开音频流
+    err = Pa_OpenStream(&playbackStream,
+                        nullptr, // 无输入
+                        &outputParameters,
+                        sample_rate,
+                        sample_rate / 1000 * frame_duration_ms, // 每缓冲区的帧数
+                        paClipOff, // 不剪裁样本
+                        playCallback,
+                        this);
+    if (err != paNoError) {
+        USER_LOG_ERROR("Error opening playbackStream: %s", Pa_GetErrorText(err));
+        Pa_Terminate();
+        return false;
+    }
+
+    // 开始播放
+    err = Pa_StartStream(playbackStream);
+    if (err != paNoError) {
+        USER_LOG_ERROR("Error starting playbackStream: %s", Pa_GetErrorText(err));
+        Pa_CloseStream(playbackStream);
+        Pa_Terminate();
+        return false;
+    }
+
+    isPlaying = true;
+    USER_LOG_INFO("Playback started.");
+    return true;
+}
+
+bool AudioProcess::stopPlaying() {
+    if (!isPlaying) {
+        USER_LOG_WARN("Not playing. Nothing to stop.");
+        return false;
+    }
+
+    PaError err;
+
+    // 停止播放
+    err = Pa_StopStream(playbackStream);
+    if (err != paNoError) {
+        USER_LOG_ERROR("Error stopping playbackStream: %s", Pa_GetErrorText(err));
+        return false;
+    }
+
+    // 关闭音频流
+    err = Pa_CloseStream(playbackStream);
+    if (err != paNoError) {
+        USER_LOG_ERROR("Error closing playbackStream: %s", Pa_GetErrorText(err));
+        return false;
+    }
+
+    // 释放 PortAudio 资源
+    Pa_Terminate();
+
+    isPlaying = false;
+    USER_LOG_INFO("Playback stopped.");
+    return true;
+}
+
+int AudioProcess::playCallback(const void *inputBuffer, void *outputBuffer,
+                               unsigned long framesPerBuffer,
+                               const PaStreamCallbackTimeInfo* timeInfo,
+                               PaStreamCallbackFlags statusFlags,
+                               void *userData) {
+    (void) inputBuffer; // 未使用输入缓冲区
+    (void) timeInfo;     // 未使用时间信息
+    (void) statusFlags;  // 未使用状态标志
+
+    AudioProcess* audioProcess = static_cast<AudioProcess*>(userData);
+    int16_t* output = static_cast<int16_t*>(outputBuffer);
+
+    std::lock_guard<std::mutex> lock(audioProcess->playbackMutex);
+
+    if (audioProcess->playbackQueue.empty()) {
+        // 如果队列为空，则填充静音数据
+        USER_LOG_WARN("Playback queue is empty. Filling with silence.");
+        std::fill(output, output + framesPerBuffer * audioProcess->channels, 0);
+        return paContinue;
+    }
+
+    // 获取并处理当前帧
+    std::vector<int16_t>& currentFrame = audioProcess->playbackQueue.front();
+    size_t samplesToCopy = std::min(framesPerBuffer * audioProcess->channels, currentFrame.size());
+
+    std::copy(currentFrame.begin(), currentFrame.begin() + samplesToCopy, output);
+
+    if (samplesToCopy < framesPerBuffer * audioProcess->channels) {
+        // 如果当前帧不足，则用静音填充剩余部分
+        std::fill(output + samplesToCopy, output + framesPerBuffer * audioProcess->channels, 0);
+    }
+
+    // 移除已播放的数据
+    if (samplesToCopy == currentFrame.size()) {
+        audioProcess->playbackQueue.pop();
+    } else {
+        // 更新队列中的第一个元素以删除已播放的部分
+        audioProcess->playbackQueue.front().erase(audioProcess->playbackQueue.front().begin(), audioProcess->playbackQueue.front().begin() + samplesToCopy);
+    }
+
+    return paContinue;
+}
+
+void AudioProcess::clearPlaybackAudioQueue() {
+    std::lock_guard<std::mutex> lock(playbackMutex);
+    std::queue<std::vector<int16_t>> empty;
+    std::swap(playbackQueue, empty);
+}
+
+void AudioProcess::addFrameToPlaybackQueue(const std::vector<int16_t>& pcm_frame) {
+    std::lock_guard<std::mutex> lock(playbackMutex);
+    
+    // 计算每帧的样本数量
+    int frame_size = sample_rate / 1000 * frame_duration_ms;
+
+    // 如果当前帧大小小于预期的帧大小，则填充静音
+    if (pcm_frame.size() < static_cast<size_t>(frame_size)) {
+        auto tempFrame = pcm_frame;
+        tempFrame.resize(frame_size, 0); // 使用0填充至目标长度
+        playbackQueue.push(tempFrame);
+    } else {
+        playbackQueue.push(pcm_frame);
+    }
 }
 
 std::queue<std::vector<int16_t>> AudioProcess::loadAudioFromFile(const std::string& filename, int frame_duration_ms) {
