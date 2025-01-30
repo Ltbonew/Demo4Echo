@@ -302,7 +302,6 @@ int AudioProcess::playCallback(const void *inputBuffer, void *outputBuffer,
 
     if (audioProcess->playbackQueue.empty()) {
         // 如果队列为空，则填充静音数据
-        USER_LOG_WARN("Playback queue is empty. Filling with silence.");
         std::fill(output, output + framesPerBuffer * audioProcess->channels, 0);
         return paContinue;
     }
