@@ -28,7 +28,7 @@ public:
     using message_callback_t = std::function<void(const std::string&, bool)>;
     using close_callback_t = std::function<void()>;
 
-    WebSocketClient(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& protocolVersion);
+    WebSocketClient(const std::string& address, int port, const std::string& token, const std::string& deviceId, int protocolVersion);
     ~WebSocketClient();
 
     /**

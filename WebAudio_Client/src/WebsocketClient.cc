@@ -3,7 +3,7 @@
 #include <websocketpp/common/asio.hpp>
 
 // WebSocketClient 构造函数
-WebSocketClient::WebSocketClient(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& protocolVersion) {
+WebSocketClient::WebSocketClient(const std::string& address, int port, const std::string& token, const std::string& deviceId, int protocolVersion) {
     ws_client_.init_asio();
     ws_client_.set_open_handler(bind(&WebSocketClient::on_open, this, std::placeholders::_1));
     ws_client_.set_message_handler(bind(&WebSocketClient::on_message, this, std::placeholders::_1, std::placeholders::_2));
@@ -15,7 +15,7 @@ WebSocketClient::WebSocketClient(const std::string& address, int port, const std
 
     headers_["Authorization"] = "Bearer " + token;
     headers_["Device-Id"] = deviceId;
-    headers_["Protocol-Version"] = protocolVersion;
+    headers_["Protocol-Version"] = std::to_string(protocolVersion);
 
 }
 
