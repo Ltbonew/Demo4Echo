@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
         std::string token = argv[3];
         // 默认值
         std::string deviceId = "00:11:22:33:44:55";
-        std::string protocolVersion = "1";
+        int protocolVersion = 1;
         int sample_rate = 16000;
         int channels = 1;
         int frame_duration = 40;
