@@ -74,12 +74,16 @@ class AudioProcessor:
         :param pcm_data: PCM 音频数据 (字节)
         :return: 编码后的 Opus 数据 (字节)
         """
-        if len(pcm_data) % (self.frame_size * 2) != 0:
-            logger.error("PCM data size is not a multiple of the frame size")
+        # 计算可以完整处理的帧数
+        full_frames = len(pcm_data) // (self.frame_size * 2)
+        total_bytes_to_process = full_frames * self.frame_size * 2
+
+        if full_frames == 0:
+            logger.error("PCM data size is less than one frame size")
             return None
 
         opus_data = b''
-        for i in range(0, len(pcm_data), self.frame_size * 2):
+        for i in range(0, total_bytes_to_process, self.frame_size * 2):
             frame = pcm_data[i:i + self.frame_size * 2]
             encoded_frame = self.encoder.encode(frame)
             opus_data += encoded_frame
@@ -104,7 +108,7 @@ class AudioProcessor:
 
         return pcm_data
 
-    def set_audio_params(self, sample_rate, channels, frame_duration_ms=None):
+    def set_audio_params(self, sample_rate=SAMPLE_RATE, channels=CHANNELS, frame_duration_ms=FRAME_DURATION_MS):
         """
         设置音频参数
         :param sample_rate: 采样率
