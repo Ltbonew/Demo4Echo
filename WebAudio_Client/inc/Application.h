@@ -30,6 +30,7 @@ enum class AppEvent {
     vad_no_speech,
     vad_end,
     asr_received,
+    speaking_end,
     // Add more events here...
 };
 
@@ -64,35 +65,42 @@ private:
 
 class Application {
 public:
-    Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& protocolVersion, AudioProcess& audio_processor);
+    Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, int protocolVersion, AudioProcess& audio_processor);
     void Run();
 
 private:
     using AppEvent_t_ = int;
     
+    void ws_msg_callback(const std::string& message, bool is_binary);
     AppEvent_t_ handle_message(const std::string& message);
     AppEvent_t_ handle_vad_message(const Json::Value& root);
     AppEvent_t_ handle_asr_message(const Json::Value& root);
+    AppEvent_t_ handle_tts_message(const Json::Value& root);
 
     void idle_enter();
+    void idleState_run();
     void idle_exit();
+
     void listening_enter();
+    void listeningState_run();
     void listening_exit();
+
     void thinking_enter();
     void thinking_exit();
+
     void speaking_enter();
-    void speaking_exit();
-
-    void idleState_run();
-    void listeningState_run();
-    void thinkingState_run();
     void speakingState_run();
-
+    void speaking_exit();
 
     WebSocketClient ws_client_;
     StateMachine client_state_; // 更改成员变量名称
     int frame_duration_;
+    int protocolVersion_;
     std::string asr_text_;
+    bool tts_completed_ = false;
+    std::atomic<bool> state_running_ = false;
+    std::thread state_running_thread_;
+    
 
     // 创建线程安全的消息队列
     ThreadSafeQueue<std::string> messageQueue_;
