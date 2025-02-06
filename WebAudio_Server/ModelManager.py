@@ -79,8 +79,9 @@ class ModelManager:
     def get_LLM_answer(self, question):
         """获取百炼对话回答\r\n
         注意: 此处是yield生成器, 需要在外部循环中调用"""
-        # 添加用户问题
-        self.add_message('user', question)
+        # 如果在此添加用户问题
+        if(question):
+            self.add_message('user', question)
         messages = self.messages
 
         responses = dashscope.Generation.call(
@@ -90,7 +91,8 @@ class ModelManager:
             messages=messages,
             result_format='message',
             stream=True,
-            incremental_output=True
+            incremental_output=True,
+            enable_search=True
         )
         full_text = ''
         for response in responses:
@@ -102,27 +104,37 @@ class ModelManager:
 
     class __tts_callback(ResultCallback):
 
+        def __init__(self, on_open=None, on_complete=None, on_error=None, on_close=None, on_data=None):
+            self.on_open = on_open or (lambda: logger.info("tts server-WS is open."))
+            self.on_complete = on_complete or (lambda: logger.info("Speech synthesis task completed successfully."))
+            self.on_error = on_error or (lambda message: logger.info(f"Speech synthesis task failed, {message}"))
+            self.on_close = on_close or (lambda: logger.info("tts server-WS is closed."))
+            self.on_data = on_data or (lambda data: logger.info(f"Audio result length: {len(data)}"))
+
+        # 实现 ResultCallback 必需的方法
         def on_open(self):
-            logger.info("tts server-WS is open.")
+            self.on_open()
 
         def on_complete(self):
-            logger.info("Speech synthesis task completed successfully.")
+            self.on_complete()
 
         def on_error(self, message: str):
-            logger.info(f"Speech synthesis task failed, {message}")
+            self.on_error(message)
 
         def on_close(self):
-            logger.info("tts server-WS is closed.")
+            self.on_close()
 
         def on_data(self, data: bytes) -> None:
-            logger.info("Audio result length:", len(data))
-            self._stream.write(data)
+            self.on_data(data)
 
-    def tts_stream_speech_synthesis(self, text_generator):
+    def tts_stream_speech_synthesis(self, text_generator,
+                                    on_open=None, on_complete=None, on_error=None, on_close=None, on_data=None):
         '''流式语音合成\r\n
         可以直接将get_LLM_answer()的输出作为该函数的输入, 已经有循环调用yield\r\n
         text_generator: 生成器或一段文本列表'''
-        callback = self.__tts_callback()
+        callback = self.__tts_callback(on_open=on_open, on_complete=on_complete,
+                                        on_error=on_error, on_close=on_close, on_data=on_data)
+
         synthesizer = SpeechSynthesizer(
             model="cosyvoice-v1",
             voice="longxiaochun",
@@ -133,7 +145,7 @@ class ModelManager:
         for text_chunk in text_generator:
             if text_chunk:
                 synthesizer.streaming_call(text_chunk)
-                time.sleep(0.5)  # 简单模拟延迟
+                time.sleep(0.1)
 
         synthesizer.streaming_complete()
         print('Request ID:', synthesizer.get_last_request_id())
