@@ -69,7 +69,7 @@ make install
 ```sh
 cd ./rv1106_WebAudioClient_demo
 chmod +x ./bin/WebAudioClient
-./bin/WebAudioClient <server_address> <port> <token>
+./bin/WebAudioClient 172.32.0.100 8765 123456
 ```
 
 3. 清除:
