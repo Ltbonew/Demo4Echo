@@ -61,6 +61,15 @@ make
 mkdir build && cd build
 cmake -DTARGET_ARM=ON ..
 make
+make install
+```
+
+最后生成的demo文件夹发送到开发板执行即可
+
+```sh
+cd ./rv1106_WebAudioClient_demo
+chmod +x ./bin/WebAudioClient
+./bin/WebAudioClient <server_address> <port> <token>
 ```
 
 3. 清除:
