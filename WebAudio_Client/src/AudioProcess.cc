@@ -308,7 +308,7 @@ int AudioProcess::playCallback(const void *inputBuffer, void *outputBuffer,
 
     // 获取并处理当前帧
     std::vector<int16_t>& currentFrame = audioProcess->playbackQueue.front();
-    size_t samplesToCopy = std::min(framesPerBuffer * audioProcess->channels, currentFrame.size());
+    size_t samplesToCopy = std::min(static_cast<size_t>(framesPerBuffer * audioProcess->channels), currentFrame.size());
 
     std::copy(currentFrame.begin(), currentFrame.begin() + samplesToCopy, output);
 
