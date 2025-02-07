@@ -4,7 +4,7 @@
 #include "WebsocketClient.h"
 #include "StateMachine.h"
 #include "AudioProcess.h"
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 #include <string>
 #include <queue>
 #include <vector>
