@@ -69,3 +69,13 @@ add_custom_target(clean-all
     COMMAND find "${CMAKE_BINARY_DIR}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
     COMMENT "Cleaning all generated files."
 )
+
+set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/rv1106_WebAudioClient_demo")
+# 安装可执行文件到/bin子目录
+install(TARGETS WebAudioClient DESTINATION bin)
+
+# 安装资源文件到demo/resources子目录
+install(FILES ${CMAKE_SOURCE_DIR}/third_party/snowboy/resources/common.res
+        DESTINATION third_party/snowboy/resources)
+install(FILES ${CMAKE_SOURCE_DIR}/third_party/snowboy/resources/models/echo.pmdl
+        DESTINATION third_party/snowboy/resources/models)
