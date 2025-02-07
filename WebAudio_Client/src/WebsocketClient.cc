@@ -66,7 +66,9 @@ void WebSocketClient::Terminate() {
 
 void WebSocketClient::Close() {
     try {
-        ws_client_.close(connection_hdl_, websocketpp::close::status::going_away, "Client is being destroyed");
+        if(is_connected_){
+            ws_client_.close(connection_hdl_, websocketpp::close::status::going_away, "Client is being destroyed");
+        }
     } catch (const std::exception& e) {
         USER_LOG_ERROR("Error closing connection: %s", e.what());
     }
