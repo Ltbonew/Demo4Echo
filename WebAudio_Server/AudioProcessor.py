@@ -88,6 +88,11 @@ class AudioProcessor:
             encoded_frame = self.encoder.encode(frame)
             opus_data += encoded_frame
 
+        # # 如果有剩余未处理的数据，则记录警告
+        # remaining_bytes = len(pcm_data) % (self.frame_size * 2)
+        # if remaining_bytes > 0:
+        #     logger.warning(f"Skipped {remaining_bytes} bytes of PCM data that did not fit into a complete frame")
+
         return opus_data
 
     def decode_audio(self, opus_data):
