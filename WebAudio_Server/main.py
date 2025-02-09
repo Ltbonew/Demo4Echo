@@ -3,6 +3,7 @@ import queue
 import threading
 import time
 import logging
+import argparse
 from WebsocketServer import WebSocketServer
 from MessageHandler import MessageHandler
 
@@ -10,13 +11,42 @@ from MessageHandler import MessageHandler
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# 运行服务器
+# 使用方法: python ./main.py --access_token="123456" --aliyun_api_key="sk-xxxx"
+# access_token: 自定义的用于客户端鉴权的访问令牌（必须）
+# aliyun_api_key: 阿里云API密钥（必须）
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="WebSocket Server with configurable parameters.")
+    parser.add_argument('--host', type=str, default="0.0.0.0", help='server host addr.')
+    parser.add_argument('--port', type=int, default=8765, help='Port number to run the server on. Default is 8765.')
+    parser.add_argument('--access_token', type=str, required=True, help='Access token for client authentication.')
+    parser.add_argument('--device_id', type=str, default=None, help='client Device ID(MAC addr.).')
+    parser.add_argument('--protocol_version', type=int, default=1, help='Protocol version. Default is 1.')
+    parser.add_argument('--aliyun_api_key', type=str, required=True, help='API key for aliyun service.')
+
+    return parser.parse_args()
+
+# 运行主函数
 if __name__ == "__main__":
+    args = parse_arguments()
+
     ws_rec_queue = queue.Queue()
     ws_send_queue = queue.Queue()
     stop_queue = queue.Queue()
-    websocket_server = WebSocketServer(ws_rec_msg=ws_rec_queue, ws_send_msg=ws_send_queue)
-    msg_handler = MessageHandler(ws_rec_msg=ws_rec_queue, ws_send_msg=ws_send_queue)
+    # 创建 WebSocket 服务器和消息处理器
+    websocket_server = WebSocketServer(
+        host=args.host,
+        port=args.port,
+        access_token=args.access_token,
+        device_id=args.device_id,
+        protocol_version=args.protocol_version,
+        ws_rec_msg=ws_rec_queue,
+        ws_send_msg=ws_send_queue
+    )
+    msg_handler = MessageHandler(
+        aliyun_api_key=args.aliyun_api_key,
+        ws_rec_msg=ws_rec_queue,
+        ws_send_msg=ws_send_queue
+    )
 
     async def ws_tasks_create():
         websocket_task = asyncio.create_task(websocket_server.ws_server_task_run())
@@ -28,7 +58,6 @@ if __name__ == "__main__":
                 ws_msg_send_task.cancel()
                 break
             await asyncio.sleep(0.1)  # 定期检查停止队列
-        # 等待任务取消完成
         try:
             await asyncio.gather(websocket_task, ws_msg_send_task, return_exceptions=True)
         except asyncio.CancelledError:
@@ -45,6 +74,7 @@ if __name__ == "__main__":
                 break
             msg_handler.handle_message_task_run()
             time.sleep(0.1)
+
     # 创建线程
     ws_thread = threading.Thread(target=websocket_thread_run)
     msg_handler_thread = threading.Thread(target=msg_handler_thread_run)
