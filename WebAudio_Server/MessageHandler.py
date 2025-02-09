@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class MessageHandler:
-    def __init__(self, protocol_version=1, ws_rec_msg: queue.Queue = None, ws_send_msg: queue.Queue = None):
+    def __init__(self, protocol_version=1, aliyun_api_key=None, ws_rec_msg: queue.Queue = None, ws_send_msg: queue.Queue = None):
         self.protocol_version = protocol_version
         # 缓冲区设置
         self.BUFFER_MAX_LENGTH_MS = 10 * 1000  # 缓冲区最大长度
@@ -20,7 +20,7 @@ class MessageHandler:
         # 初始化音频处理器
         self.audio_processor = AudioProcessor()
         # 初始化模型管理器
-        self.model_manager = ModelManager()
+        self.model_manager = ModelManager(aliyun_api_key=aliyun_api_key)
         # 使用numpy数组作为音频缓冲区
         self.rec_audio_buffer = np.array([], dtype=np.int16)  # 初始化为空的numpy数组, 用于存储client发送来的音频数据
         # 记录VAD处理的最后位置，用于200ms的VAD推理
@@ -99,13 +99,17 @@ class MessageHandler:
 
         # 判断是否超过1s未检测到语音活动，若超过则触发ASR识别
         if self.last_speech_pos > 0 and (audio_length - self.last_speech_pos) > self.POST_SPEECH_BUFFER_MS:
-            logger.info("end speech position: %d", self.last_speech_pos)
-            logger.info("Post-speech buffer exceeded 1 second")
-            res = {
-                "type": "vad",
-                "state": "end"
-            }
-            return res
+            # 说话时长小于800ms, 则不进行ASR识别（可能是噪声）
+            if self.last_speech_pos > 800:
+                logger.info("end speech position: %d", self.last_speech_pos)
+                logger.info("Post-speech buffer exceeded 1 second")
+                res = {
+                    "type": "vad",
+                    "state": "end"
+                }
+                return res
+            else:
+                self.audio_proc_reset()
         return
 
     # 处理音频数据
@@ -133,6 +137,7 @@ class MessageHandler:
 
         if data.get('type') == 'state' :
             if data.get('state') == 'idle':
+                self.model_manager.clear_messages()
                 self.audio_proc_reset()
 
             elif data.get('state') == 'listening':
@@ -152,12 +157,25 @@ class MessageHandler:
             elif data.get('state') == 'speaking':
                 question = data.get('question')
                 logger.info(f"Received question: {question}")
+                # LLM回答
                 ress = self.model_manager.get_LLM_answer(question)
+                # TTS合成
                 self.model_manager.tts_stream_speech_synthesis(ress, on_data=self.__tts_on_data)
-                response =  {
-                    "type": "tts",
-                    "state": "end",
-                }
+                # 使用fasttext进行语义分类（判断是否有指令）
+                if(self.model_manager.command_recognize(question)=='__label__TalkEnd'):
+                    logger.info("End of conversation")
+                    response =  {
+                        "type": "tts",
+                        "state": "end",
+                        "conversation": "end"
+                    }
+                else:
+                    logger.info("Conversation continues")
+                    response =  {
+                        "type": "tts",
+                        "state": "end",
+                        "conversation": "continue"
+                    }
                 self.audio_proc_reset()
                 return response
         return
@@ -193,6 +211,4 @@ class MessageHandler:
             response = self.handle_message(message)
             if response is not None:
                 self.ws_send_msg.put(response)
-
-
 
