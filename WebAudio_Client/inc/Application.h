@@ -31,6 +31,7 @@ enum class AppEvent {
     vad_end,
     asr_received,
     speaking_end,
+    conversation_end,
     // Add more events here...
 };
 
@@ -98,6 +99,7 @@ private:
     int protocolVersion_;
     std::string asr_text_;
     bool tts_completed_ = false;
+    bool conversation_completed_ = false;
     std::atomic<bool> state_running_ = false;
     std::thread state_running_thread_;
     

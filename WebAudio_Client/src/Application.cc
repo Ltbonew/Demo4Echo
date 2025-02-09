@@ -97,6 +97,7 @@ Application::AppEvent_t_ Application::handle_asr_message(const Json::Value& root
     return static_cast<int>(AppEvent::asr_received);
 }
 
+// 处理 TTS 消息
 Application::AppEvent_t_ Application::handle_tts_message(const Json::Value& root) {
     const Json::Value state = root["state"];
     if (state.isString()) {
@@ -104,6 +105,14 @@ Application::AppEvent_t_ Application::handle_tts_message(const Json::Value& root
         if (stateStr == "end") {
             USER_LOG_INFO("Received TTS end.");
             tts_completed_ = true;
+        }
+    }
+    const Json::Value conversation = root["conversation"];
+    if (conversation.isString()) {
+        std::string conversationStr = conversation.asString();
+        if (conversationStr == "end") {
+            USER_LOG_INFO("Received conversation end.");
+            conversation_completed_ = true;
         }
     }
     return -1;
@@ -155,6 +164,9 @@ void Application::idle_exit() {
 void Application::listening_enter() {
     std::string json_message = R"({"type": "state", "state": "listening"})";
     ws_client_.SendText(json_message);
+    // start录音
+    audio_processor_.startRecording();
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     // clear recorded audio queue
     audio_processor_.clearRecordedAudioQueue();
     // clear playback audio queue
@@ -228,8 +240,13 @@ void Application::speakingState_run() {
         if(tts_completed_ && audio_processor_.playbackQueueIsEmpty()) {
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
             USER_LOG_INFO("Speaking end.");
-            eventQueue_.Enqueue(static_cast<int>(AppEvent::speaking_end));
+            if(conversation_completed_ == false) {
+                eventQueue_.Enqueue(static_cast<int>(AppEvent::speaking_end));
+            } else {
+                eventQueue_.Enqueue(static_cast<int>(AppEvent::conversation_end));
+            }
             tts_completed_ = false;
+            conversation_completed_ = false;
             break;
         }
     }
@@ -252,7 +269,7 @@ void Application::Run() {
     ws_client_.Connect();
     // 必须等待连接建立
     while(!ws_client_.IsConnected()) {
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        std::this_thread::sleep_for(std::chrono::seconds(2));
         ws_client_.Connect();
     }
     
@@ -305,6 +322,7 @@ void Application::Run() {
         client_state_.RegisterTransition(static_cast<int>(AppState::listening), static_cast<int>(AppEvent::vad_end), static_cast<int>(AppState::thinking));
         client_state_.RegisterTransition(static_cast<int>(AppState::thinking), static_cast<int>(AppEvent::asr_received), static_cast<int>(AppState::speaking));
         client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::speaking_end), static_cast<int>(AppState::listening));
+        client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::conversation_end), static_cast<int>(AppState::idle));
 
         // 初始化
         client_state_.Initialize();
