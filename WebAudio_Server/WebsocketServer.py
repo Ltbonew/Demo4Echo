@@ -26,8 +26,9 @@ class WebSocketServer:
     # 客户端鉴权函数
     async def authenticate(self, headers):
         # 验证 token, device_id, protocol_version 是否正确
+        # device_id为None时不验证
         if (headers.get("Authorization") == "Bearer " + self.access_token and
-            headers.get("Device-Id") == self.device_id and
+            (headers.get("Device-Id") == self.device_id or self.device_id == None) and
             headers.get("Protocol-Version") == str(self.protocol_version)):
             return True
         else:
