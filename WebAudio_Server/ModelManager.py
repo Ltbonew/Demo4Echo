@@ -5,6 +5,8 @@ import dashscope
 from dashscope.api_entities.dashscope_response import SpeechSynthesisResponse
 from dashscope.audio.tts_v2 import *
 import time
+import fasttext
+import jieba
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -15,10 +17,11 @@ vad_model = "./FunAudioLLM/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch"
 asr_model = "./FunAudioLLM/iic/SenseVoiceSmall"
 remote_code = "./FunAudioLLM/SenseVoice/model.py"
 # 设置 阿里百炼 API Key
-dashscope.api_key = "your-api-key"
+# dashscope.api_key = "your-api-key"
 
 class ModelManager:
-    def __init__(self, vad_model_dir=vad_model, asr_model_dir=asr_model, remote_code_dir=remote_code, device="cuda:0"):
+    def __init__(self, vad_model_dir=vad_model, asr_model_dir=asr_model, remote_code_dir=remote_code, device="cuda:0", aliyun_api_key=None):
+        dashscope.api_key = aliyun_api_key
         # 初始化 VAD 模型
         self.vad_model = AutoModel(
             model=vad_model_dir,
@@ -42,6 +45,9 @@ class ModelManager:
         self.messages = [
             {'role': 'system', 'content': 'You are a desk assistant, answering questions shortly and quickly.'}
         ]
+
+        # 初始化 fasttext 模型
+        self.classify = fasttext.load_model("./fasttext/model/classify.model")
 
     # VAD init
     def VAD_cache_clean(self):
@@ -73,8 +79,10 @@ class ModelManager:
         self.messages.append({'role': role, 'content': content})
 
     def clear_messages(self):
-        """清除对话记录"""
-        self.messages.clear()
+        """清除LLM对话记录"""
+        self.messages = [
+            {'role': 'system', 'content': 'You are a desk assistant, answering questions shortly and quickly.'}
+        ]
 
     def get_LLM_answer(self, question):
         """获取百炼对话回答\r\n
@@ -149,3 +157,12 @@ class ModelManager:
 
         synthesizer.streaming_complete()
         print('Request ID:', synthesizer.get_last_request_id())
+
+    def command_recognize(self, question):
+        '''识别指令'''
+        text = jieba.cut_for_search(question)
+        text = " ".join(text)
+        result = self.classify.predict(text)
+        label, _ = result  # 解包元组，_ 用来忽略概率数组
+        cleaned_label = label[0][len('__label__'):]  # 切片去掉前缀
+        return cleaned_label
