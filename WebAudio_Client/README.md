@@ -44,14 +44,18 @@ ls /usr/local/include/websocketpp
 
 ### 如何编译：
 
-1. X86： 
+#### 1. X86 (电脑端测试)： 
 ```sh
 mkdir build && cd build
 cmake ..
 make
 ```
+然后运行即可：
+```sh
+./build/WebAudioClient 192.168.211.1 8765 123456
+```
 
-2. arm:
+#### 2. arm:
 
 注意, 需要先修改toolchain.cmake中的SDK路径
 
@@ -72,7 +76,7 @@ chmod +x ./bin/WebAudioClient
 ./bin/WebAudioClient 172.32.0.100 8765 123456
 ```
 
-3. 清除:
+#### 3. 清除:
 
 ```sh
 # in dir: build
