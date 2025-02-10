@@ -160,8 +160,15 @@ class MessageHandler:
                 logger.info(f"Received question: {question}")
                 # LLM回答
                 ress = self.model_manager.get_LLM_answer(question)
-                # 如果获取到了LLM回答
-                if ress != -1:
+                # 如果没有获取到LLM回答
+                if ress == -1:
+                    response =  {
+                        "type": "error",
+                        "message": "Failed to get LLM response"
+                    }
+                    return response
+                # 获取到LLM回答
+                else:
                     # TTS合成
                     if self.model_manager.tts_stream_speech_synthesis(ress, on_data=self.__tts_on_data) != True:
                         logger.error("TTS failed")
@@ -170,13 +177,6 @@ class MessageHandler:
                             "message": "TTS failed"
                         }
                         return response
-                # 如果没有获取到LLM回答
-                else:
-                    response =  {
-                        "type": "error",
-                        "message": "Failed to get LLM response"
-                    }
-                    return response
                 # 使用fasttext进行语义分类（判断是否有指令）
                 if(self.model_manager.command_recognize(question)=='__label__TalkEnd'):
                     logger.info("End of conversation")
