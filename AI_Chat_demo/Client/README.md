@@ -42,7 +42,9 @@ sudo make install
 ls /usr/local/include/websocketpp
 ```
 
-### 如何编译：
+### 如何编译&运行：
+
+**注意：** Client运行之前，先把Server服务器跑起来，才能正常工作
 
 #### 1. X86 (电脑端测试)： 
 ```sh

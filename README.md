@@ -4,10 +4,10 @@
 
 ### :ledger: Overview
 
-这个AI语音助手的项目可以完美部署到轻量级的Linux开发板上~本项目的AI语音助手的大致结构框图如下：
+这个AI语音助手的项目可以完美部署到轻量级的Linux开发板上~本项目的AI语音助手的大致结构框图如下, 分为Client端和Server端，Client端运行在开发板上，Server可以在电脑上跑，然后开发板连接上即可。
 
 <p align="center">
-	<img border="1px" width="50%" src="./res/AI_Audio_diagram.png">
+	<img border="1px" width="75%" src="./res/AI_Audio_diagram.png">
 </p>
 
 [FSMN-VAD](https://www.modelscope.cn/models/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch/summary): 阿里达摩院语音端点检测模型，用于检测语音活跃端点
@@ -34,12 +34,12 @@
 
 本项目的服务器Sever端，可以在没有GPU的笔记本电脑运行，除了通义千问和CosyVoice这两个生成式模型是调用阿里的API，其他的都是运行在本地的，当然如果有较强算力的同学，可以直接将这些模型都部署到本地服务器~
 
-**注意：**如果需要自定义指令识别，可以重新改一下fastText的数据集，然后再训练得到自己的模型即可拿去用了，详见Sever端的文件夹中的内容。
+**注意：** 如果需要自定义指令识别，可以重新改一下fastText的数据集，然后再训练得到自己的模型即可拿去用了，详见Sever端的文件夹中的内容。
 
 AI语音助手的运行流程大致如下图所示：
 
 <p align="center">
-	<img border="1px" width="25%" src="./res/flow-chart.png">
+	<img border="1px" width="30%" src="./res/flow-chart.png">
 </p>
 
 ### :bookmark_tabs:Websockets协议定义：
