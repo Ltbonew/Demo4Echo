@@ -36,8 +36,13 @@
 
 **注意：**如果需要自定义指令识别，可以重新改一下fastText的数据集，然后再训练得到自己的模型即可拿去用了，详见Sever端的文件夹中的内容。
 
+AI语音助手的运行流程大致如下图所示：
 
+<p align="center">
+	<img border="1px" width="25%" src="./res/flow-chart.png">
+</p>
 
 ### :bookmark_tabs:Websockets协议定义：
 
 Client端和Server端通过Webscokets进行通信，
+
