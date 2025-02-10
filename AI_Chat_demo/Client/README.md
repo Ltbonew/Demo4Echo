@@ -82,3 +82,49 @@ chmod +x ./bin/WebAudioClient
 # in dir: build
 make clean-all
 ```
+
+### Websockets协议定义：
+
+以下是Client端会向Server端发送的信息:
+
+1. 鉴权信息：
+
+   ```json
+   Authorization: "Bearer " + access_token
+   Device-Id: MAC address
+   Protocol-Version: 定义的协议版本
+   ```
+
+2. 发送参数
+
+   ```json
+   {
+       "type": "hello",
+       "audio_params": {
+           "format": "opus",
+           "sample_rate": "16000",
+           "channels": "1",
+           "frame_duration": "40" // ms
+       }
+   }
+   ```
+
+3. 发送状态改变
+
+   ```json
+   {
+       "type": "state", 
+       "state": "idle" // 包括listening等，详见代码
+   }
+   ```
+
+4. 打包发送的音频数据
+
+   ```cpp
+   struct BinProtocol {
+       uint16_t version;       //协议版本
+       uint16_t type;          //0为音频数据
+       uint32_t payload_size;  //音频数据长度
+       uint8_t payload[];      //opus音频数据
+   } __attribute__((packed));
+   ```
