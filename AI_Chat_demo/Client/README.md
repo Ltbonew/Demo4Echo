@@ -91,7 +91,7 @@ make clean-all
 
 1. 鉴权信息：
 
-   ```json
+   ```
    Authorization: "Bearer " + access_token
    Device-Id: MAC address
    Protocol-Version: 定义的协议版本
@@ -106,7 +106,7 @@ make clean-all
            "format": "opus",
            "sample_rate": "16000",
            "channels": "1",
-           "frame_duration": "40" // ms
+           "frame_duration": "40"
        }
    }
    ```
@@ -116,10 +116,10 @@ make clean-all
    ```json
    {
        "type": "state", 
-       "state": "idle" // 包括listening等，详见代码
+       "state": "idle" 
    }
    ```
-
+    "state"还包括listening等，详见代码
 4. 打包发送的音频数据
 
    ```cpp

@@ -53,18 +53,20 @@ Server/
    ```json
    {
       "type": "auth",
-      "message": "Authentication failed" //还有"Client authenticated"
+      "message": "Authentication failed" 
    }
    ```
+   "message"还包括: "Client authenticated"
 
 2. VAD检测到说话的活跃状态
 
    ```json
    {
       "type": "vad",
-      "state": "no_speech" // 还有end, too_long
+      "state": "no_speech" 
    }
    ```
+   "state"还包括: "end", "too_long"
 
 3. ASR识别到说话的文字
 
@@ -81,15 +83,15 @@ Server/
    {
        "type": "tts",
        "state": "end",
-       "conversation": "end" // or "continue"
+       "conversation": "end"
    }
    ```
-
+   "state"还包括: "continue"
 
 5. 打包发送的音频数据
 
    ```python
-    :param version: 协议版本 (2 字节)
-    :param type: 消息类型 (2 字节)
-    :param payload: opus格式消息负载 (字节)
+    version: 协议版本 (2 字节)
+    type: 消息类型 (2 字节)
+    payload: opus格式消息负载 (字节)
    ```
