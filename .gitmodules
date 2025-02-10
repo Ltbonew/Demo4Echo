@@ -1,13 +1,13 @@
-[submodule "WebAudio_Server/FunAudioLLM/SenseVoice"]
-	path = WebAudio_Server/FunAudioLLM/SenseVoice
+[submodule "AI_Chat_demo/Server/FunAudioLLM/SenseVoice"]
+	path = AI_Chat_demo/Server/FunAudioLLM/SenseVoice
 	url = https://github.com/FunAudioLLM/SenseVoice.git
 	branch = main
-[submodule "WebAudio_Server/FunAudioLLM/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch"]
-	path = WebAudio_Server/FunAudioLLM/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch
+[submodule "AI_Chat_demo/Server/FunAudioLLM/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch"]
+	path = AI_Chat_demo/Server/FunAudioLLM/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch
 	url = https://www.modelscope.cn/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch.git
 	branch = master
-[submodule "WebAudio_Server/FunAudioLLM/iic/SenseVoiceSmall"]
-	path = WebAudio_Server/FunAudioLLM/iic/SenseVoiceSmall
+[submodule "AI_Chat_demo/Server/FunAudioLLM/iic/SenseVoiceSmall"]
+	path = AI_Chat_demo/Server/FunAudioLLM/iic/SenseVoiceSmall
 	url = https://www.modelscope.cn/iic/SenseVoiceSmall.git
 	branch = master
 [submodule "lvgl_demo/lvgl"]
