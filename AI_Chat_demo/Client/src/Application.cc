@@ -65,6 +65,9 @@ Application::AppEvent_t_ Application::handle_message(const std::string& message)
             return handle_asr_message(root);
         } else if (typeStr == "tts") {
             return handle_tts_message(root);
+        } else if (typeStr == "error") {
+            USER_LOG_ERROR("server erro msg: %s", message.c_str());
+            return static_cast<int>(AppEvent::fault);
         }
     }
     USER_LOG_WARN("not event message type: %s", message.c_str());
@@ -155,6 +158,8 @@ void Application::idleState_run() {
 }
 
 void Application::idle_exit() {
+    // stop录音
+    audio_processor_.stopRecording();
     // stop running
     state_running_ = false;
     state_running_thread_.join();
@@ -205,8 +210,6 @@ void Application::listeningState_run() {
 void Application::listening_exit() {
     // stop录音
     audio_processor_.stopRecording();
-    // clear recorded audio queue
-    audio_processor_.clearRecordedAudioQueue();
     // stop running
     state_running_ = false;
     state_running_thread_.join();
@@ -302,7 +305,7 @@ void Application::Run() {
                 // 处理信息转化为事件
                 int event = handle_message(message);
                 // 发送事件到事件队列
-                if(event) {
+                if(event!=-1) {
                     eventQueue_.Enqueue(event);
                 }
             }
@@ -323,7 +326,7 @@ void Application::Run() {
         client_state_.RegisterTransition(static_cast<int>(AppState::thinking), static_cast<int>(AppEvent::asr_received), static_cast<int>(AppState::speaking));
         client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::speaking_end), static_cast<int>(AppState::listening));
         client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::conversation_end), static_cast<int>(AppState::idle));
-
+        client_state_.RegisterTransition(-1, static_cast<int>(AppEvent::fault), static_cast<int>(AppState::idle));
         // 初始化
         client_state_.Initialize();
 
