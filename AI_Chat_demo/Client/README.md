@@ -50,9 +50,9 @@ mkdir build && cd build
 cmake ..
 make
 ```
-然后运行即可：
+然后运行即可, 这里的地址参数为Server端的IP地址, 按照你自己的设置改即可：
 ```sh
-./build/WebAudioClient 192.168.211.1 8765 123456
+./build/AIChatClient 192.168.211.1 8765 123456
 ```
 
 #### 2. arm:
@@ -71,9 +71,9 @@ make install
 最后生成的demo文件夹发送到开发板执行即可
 
 ```sh
-cd ./rv1106_WebAudioClient_demo
-chmod +x ./bin/WebAudioClient
-./bin/WebAudioClient 172.32.0.100 8765 123456
+cd ./rv1106_AIChatClient_demo
+chmod +x ./bin/AIChatClient
+./bin/AIChatClient 172.32.0.100 8765 123456
 ```
 
 #### 3. 清除:
