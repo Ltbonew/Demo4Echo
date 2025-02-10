@@ -92,23 +92,31 @@ class ModelManager:
             self.add_message('user', question)
         messages = self.messages
 
-        responses = dashscope.Generation.call(
-            # 若没有配置环境变量，请用百炼API Key将下行替换为：api_key="sk-xxx",
-            api_key=dashscope.api_key,
-            model="qwen-turbo", # 模型列表：https://help.aliyun.com/zh/model-studio/getting-started/models
-            messages=messages,
-            result_format='message',
-            stream=True,
-            incremental_output=True,
-            enable_search=True
-        )
-        full_text = ''
-        for response in responses:
-            for choice in response["output"]["choices"]:
-                full_text += choice["message"]["content"]
-                yield choice["message"]["content"]
-        # 最后记录回复的信息
-        self.add_message('assistant', full_text)
+        try:
+            responses = dashscope.Generation.call(
+                # 若没有配置环境变量，请用百炼API Key将下行替换为：api_key="sk-xxx",
+                api_key=dashscope.api_key,
+                model="qwen-turbo", # 模型列表：https://help.aliyun.com/zh/model-studio/getting-started/models
+                messages=messages,
+                result_format='message',
+                stream=True,
+                incremental_output=True,
+                enable_search=True
+            )
+            full_text = ''
+            for response in responses:
+                if response["status_code"] == 200:
+                    for choice in response["output"]["choices"]:
+                        full_text += choice["message"]["content"]
+                        yield choice["message"]["content"]
+                else:
+                    logger.error(f"Failed to get LLM response with status code {response['status_code']}")
+                    yield -1
+            # 最后记录回复的信息
+            self.add_message('assistant', full_text)
+        except Exception as e:
+            logger.error(f"An exception occurred: {str(e)}")
+            yield -1
 
     class __tts_callback(ResultCallback):
 
@@ -139,7 +147,8 @@ class ModelManager:
                                     on_open=None, on_complete=None, on_error=None, on_close=None, on_data=None):
         '''流式语音合成\r\n
         可以直接将get_LLM_answer()的输出作为该函数的输入, 已经有循环调用yield\r\n
-        text_generator: 生成器或一段文本列表'''
+        text_generator: 生成器或一段文本列表
+        return: 合成是否成功'''
         callback = self.__tts_callback(on_open=on_open, on_complete=on_complete,
                                         on_error=on_error, on_close=on_close, on_data=on_data)
 
@@ -152,11 +161,14 @@ class ModelManager:
 
         for text_chunk in text_generator:
             if text_chunk:
-                synthesizer.streaming_call(text_chunk)
-                time.sleep(0.1)
-
+                try:
+                    synthesizer.streaming_call(text_chunk)
+                    time.sleep(0.1)
+                except Exception as e:
+                    return False
         synthesizer.streaming_complete()
         print('Request ID:', synthesizer.get_last_request_id())
+        return True
 
     def command_recognize(self, question):
         '''识别指令'''
