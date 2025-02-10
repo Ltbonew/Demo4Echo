@@ -23,7 +23,15 @@ void StateMachine::RegisterState(int state, EnterFunc_t on_enter, ExitFunc_t on_
 }
 
 void StateMachine::RegisterTransition(int from, int event, int to) {
-    transitions_[from][event] = to;
+    // If from is -1, it means the transition is from any state
+    if(from == -1) {
+        for(auto& state : stateActions_) {
+            transitions_[state.first][event] = to;
+        }
+    } 
+    else {
+        transitions_[from][event] = to;
+    }
 }
 
 bool StateMachine::HandleEvent(int event) {
