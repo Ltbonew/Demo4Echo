@@ -1,9 +1,9 @@
 
-## 语言助手demo
+## AI语言助手demo(Client端)
 
 ### 库安装
 
-使用编译之前请安装CmakeList涉及到的库:
+使用编译之前请安装CmakeList涉及到的库(如果不在电脑本地跑测试可以忽略):
 
 1. jsoncpp
 
@@ -59,7 +59,7 @@ make
 
 注意, 需要先修改toolchain.cmake中的SDK路径
 
-这个也是一样，需要确保SDK的buildroot已经设置好库并编译好了, 因为会用到sysroot里面的lib和inc
+这个也是一样，需要确保SDK的buildroot已经设置好库并编译好了, 因为会用到sysroot里面的lib和inc(涉及到的库)
 
 ```sh
 mkdir build && cd build
