@@ -37,7 +37,7 @@
 AI语音助手的运行流程大致如下图所示：
 
 <p align="center">
-	<img border="1px" width="35%" src="./res/flow-chart.png">
+	<img border="1px" width="30%" src="./res/flow-chart.png">
 </p>
 
 ### :bookmark_tabs:Websockets协议定义：
