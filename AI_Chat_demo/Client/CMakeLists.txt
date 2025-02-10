@@ -16,7 +16,7 @@ else()
 endif()
 
 # Project name and language
-project(WebAudioClient)
+project(AIChatClient)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -47,7 +47,7 @@ include_directories(
 )
 
 # Add the source files
-add_executable(WebAudioClient
+add_executable(AIChatClient
     src/main.cc
     src/AudioProcess.cc
     src/WebsocketClient.cc
@@ -56,7 +56,7 @@ add_executable(WebAudioClient
 )
 
 # Link libraries for opus and websocketpp
-target_link_libraries(WebAudioClient
+target_link_libraries(AIChatClient
     ${OPUS_LIBRARIES}
     ${PORTAUDIO_LIBRARIES}
     ${JSONCPP_LIBRARIES}
@@ -70,9 +70,9 @@ add_custom_target(clean-all
     COMMENT "Cleaning all generated files."
 )
 
-set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/rv1106_WebAudioClient_demo")
+set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/rv1106_AIChatClient_demo")
 # 安装可执行文件到/bin子目录
-install(TARGETS WebAudioClient DESTINATION bin)
+install(TARGETS AIChatClient DESTINATION bin)
 
 # 安装资源文件到demo/resources子目录
 install(FILES ${CMAKE_SOURCE_DIR}/third_party/snowboy/resources/common.res
