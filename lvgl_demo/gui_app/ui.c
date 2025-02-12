@@ -1,6 +1,6 @@
 #include "ui.h"
 #include "./common/lv_lib.h"
-#include "./pages/ui_HomePage/ui_HomePage1.h"
+#include "./pages/ui_HomePage/ui_HomePage.h"
 ///////////////////// VARIABLES ////////////////////
 
 lv_lib_pm_t page_manager;
@@ -27,7 +27,7 @@ void ui_init(void)
     lv_disp_set_theme(dispp, theme);
 
     lv_lib_pm_Init(&page_manager);
-    lv_lib_pm_page_t *pm_page1 = lv_lib_pm_CreatePage(&page_manager, "HomePage1", ui_HomeScreen1_screen_init, ui_HomeScreen1_screen_deinit, NULL);
+    lv_lib_pm_page_t *pm_page1 = lv_lib_pm_CreatePage(&page_manager, "HomePage1", ui_HomeScreen_screen_init, ui_HomeScreen_screen_deinit, NULL);
     // lv_lib_pm_page_t *pm_page2 = lv_lib_pm_CreatePage(&page_manager, "Page2", page2_init, page2_deinit, NULL);
     lv_lib_pm_OpenPage(&page_manager, pm_page1, "HomePage1");
 }

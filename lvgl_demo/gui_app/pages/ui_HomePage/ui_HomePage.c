@@ -1,4 +1,4 @@
-#include "ui_HomePage1.h"
+#include "ui_HomePage.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -111,7 +111,7 @@ void ui_event_CalendarBtn(lv_event_t * e)
 
 ///////////////////// SCREEN init ////////////////////
 
-void ui_HomeScreen1_screen_init(void)
+void ui_HomeScreen_screen_init(void)
 {
     lv_obj_t * ui_HomeScreen = lv_obj_create(NULL);
     lv_obj_remove_flag(ui_HomeScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -371,7 +371,7 @@ void ui_HomeScreen1_screen_init(void)
 
 ///////////////////// SCREEN deinit ////////////////////
 
-void ui_HomeScreen1_screen_deinit(void)
+void ui_HomeScreen_screen_deinit(void)
 {
     return;
 }
