@@ -7,9 +7,10 @@ file(GLOB_RECURSE GUI_APP_SOURCES
 add_library(gui_app STATIC ${GUI_APP_SOURCES})
 
 # 设置 gui_app 的头文件路径
-# 设置 gui_app 的头文件路径
 target_include_directories(gui_app PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/common
     ${CMAKE_CURRENT_SOURCE_DIR}/common/stack
     ${CMAKE_CURRENT_SOURCE_DIR}/common/page_manager
+    ${CMAKE_CURRENT_SOURCE_DIR}/pages/ui_HomePage
 )
