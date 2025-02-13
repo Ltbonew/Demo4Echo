@@ -22,6 +22,11 @@ void _ui_anim_callback_set_x(void * var, int32_t v)
     lv_obj_set_x(var, v);
 }
 
+void _ui_anim_completed_cb()
+{
+    ui_desktop_data.scroll_busy = false;
+}
+
 void AppContLeft_Animation(lv_obj_t * TargetObject, int delay)
 {
     int32_t x_pos_now = lv_obj_get_x(TargetObject);
@@ -38,6 +43,7 @@ void AppContLeft_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
     lv_anim_set_repeat_delay(&PropertyAnimation_0, 0);
     lv_anim_set_early_apply(&PropertyAnimation_0, false);
+    lv_anim_set_completed_cb(&PropertyAnimation_0, _ui_anim_completed_cb);
     lv_anim_start(&PropertyAnimation_0);
 
 }
@@ -58,6 +64,7 @@ void AppContRight_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
     lv_anim_set_repeat_delay(&PropertyAnimation_0, 0);
     lv_anim_set_early_apply(&PropertyAnimation_0, false);
+    lv_anim_set_completed_cb(&PropertyAnimation_0, _ui_anim_completed_cb);
     lv_anim_start(&PropertyAnimation_0);
 
 }
@@ -84,13 +91,13 @@ void ui_event_TopDrag(lv_event_t * e)
 
     else if(event_code == LV_EVENT_RELEASED) {
         int32_t y = lv_obj_get_y_aligned(obj);
-        if(y >= ui_desktop_data.height/2)
+        if(!ui_desktop_data.show_dropdown && y >= ui_desktop_data.height/3)
         {
             lv_obj_set_y(dropdown_panel, 0);
             lv_obj_set_y(obj, ui_desktop_data.height-lv_obj_get_height(obj));
             ui_desktop_data.show_dropdown = true;
         }
-        else 
+        else if(ui_desktop_data.show_dropdown && y <= ui_desktop_data.height * 2/3)
         {
             lv_obj_set_y(dropdown_panel, -ui_desktop_data.height);
             lv_obj_set_y(obj, 0);
@@ -103,9 +110,10 @@ void ui_event_scroll_gesture(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * AppContainer = lv_event_get_user_data(e);
-    if(event_code == LV_EVENT_GESTURE) {
+    if(event_code == LV_EVENT_GESTURE && !ui_desktop_data.scroll_busy) {
         if(lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT)
         {   
+            ui_desktop_data.scroll_busy = true;
             // not in the end page
             if(lv_obj_get_x(AppContainer) != (-ui_desktop_data.witdh) * (ui_desktop_data.container_total_pages-1))
             {
@@ -117,6 +125,7 @@ void ui_event_scroll_gesture(lv_event_t * e)
         }
         else if (lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT)
         {
+            ui_desktop_data.scroll_busy = true;
             // not in the first page
             if(lv_obj_get_x(AppContainer) != 0)
             {
@@ -134,8 +143,9 @@ void ui_event_AppsBtn(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * obj = lv_event_get_target(e);
 
-    if(event_code == LV_EVENT_CLICKED) {
-        LV_LOG_USER("LV_EVENT_CLICKED");
+    if(event_code == LV_EVENT_CLICKED && !ui_desktop_data.scroll_busy) 
+    {
+        LV_LOG_USER("LV_EVENT_CLICKED");    
     }
 }
 
