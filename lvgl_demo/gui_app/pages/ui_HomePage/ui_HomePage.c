@@ -8,6 +8,11 @@
 uint8_t ui_home_container_page_index = 0; // first page
 lv_obj_t * ui_ScrollDots[UI_HOME_CONTAINER_PAGES];
 
+#define UI_HOME_STATE_SHOW_DESKTOP 0
+#define UI_HOME_STATE_SHOW_DROP_DOWN_PAGE 1
+uint8_t ui_home_state = UI_HOME_STATE_SHOW_DESKTOP;
+
+uint8_t ui_home_scroll_busy = 0; // avoid scroll too fast, and btns click event happen at the same time
 
 ///////////////////// ANIMATIONS ////////////////////
 
@@ -61,12 +66,35 @@ void AppContRight_Animation(lv_obj_t * TargetObject, int delay)
 void ui_event_TopDrag(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    lv_obj_t * dropdown_panel = lv_event_get_user_data(e);
 
-    if(event_code == LV_EVENT_RELEASED) {
-        LV_LOG_USER("LV_EVENT_RELEASED");
+    if(event_code == LV_EVENT_PRESSING) {
+        lv_indev_t * indev = lv_indev_active();
+        if(indev == NULL)  return;
+
+        lv_point_t vect;
+        lv_indev_get_vect(indev, &vect);
+
+        int32_t y = lv_obj_get_y_aligned(obj) + vect.y;
+        lv_obj_set_y(obj, y); // set drag position follow the touch
+        lv_obj_set_y(dropdown_panel, y-UI_HOME_HEIGHT); // set dorp down panel
     }
-    else if(event_code == LV_EVENT_PRESSING) {
-        LV_LOG_USER("LV_EVENT_PRESSING");
+
+    else if(event_code == LV_EVENT_RELEASED) {
+        int32_t y = lv_obj_get_y_aligned(obj);
+        if(y >= UI_HOME_HEIGHT/2)
+        {
+            lv_obj_set_y(dropdown_panel, 0);
+            lv_obj_set_y(obj, UI_HOME_HEIGHT-lv_obj_get_height(obj));
+            ui_home_state = UI_HOME_STATE_SHOW_DROP_DOWN_PAGE;
+        }
+        else 
+        {
+            lv_obj_set_y(dropdown_panel, -UI_HOME_HEIGHT);
+            lv_obj_set_y(obj, 0);
+            ui_home_state = UI_HOME_STATE_SHOW_DESKTOP;
+        }
     }
 }
 
@@ -103,6 +131,7 @@ void ui_event_gesture(lv_event_t * e)
 void ui_event_CalendarBtn(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * obj = lv_event_get_target(e);
 
     if(event_code == LV_EVENT_CLICKED) {
         LV_LOG_USER("LV_EVENT_CLICKED");
@@ -186,20 +215,6 @@ void ui_HomeScreen_screen_init(void)
     }
     lv_obj_set_style_bg_opa(ui_ScrollDots[0], 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    // top drag panel
-    lv_obj_t * ui_TopDragPanel = lv_obj_create(ui_HomeScreen);
-    lv_obj_set_width(ui_TopDragPanel, UI_HOME_WITDH);
-    lv_obj_set_height(ui_TopDragPanel, 30);
-    lv_obj_set_align(ui_TopDragPanel, LV_ALIGN_TOP_MID);
-    lv_obj_remove_flag(ui_TopDragPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_TopDragPanel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_TopDragPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_TopDragPanel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_TopDragPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // top drag event
-    lv_obj_add_event_cb(ui_TopDragPanel, ui_event_TopDrag, LV_EVENT_PRESSING, NULL);
-    lv_obj_add_event_cb(ui_TopDragPanel, ui_event_TopDrag, LV_EVENT_RELEASED, NULL);
-
     // dropdown panel
     lv_obj_t * ui_DropdownPanel = lv_obj_create(ui_HomeScreen);
     lv_obj_set_width(ui_DropdownPanel, UI_HOME_WITDH);
@@ -215,6 +230,21 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_set_style_bg_opa(ui_DropdownPanel, 200, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_DropdownPanel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_DropdownPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // top drag
+    lv_obj_t * ui_TopDragPanel = lv_obj_create(ui_HomeScreen);
+    lv_obj_set_width(ui_TopDragPanel, UI_HOME_WITDH);
+    lv_obj_set_height(ui_TopDragPanel, 30);
+    lv_obj_set_align(ui_TopDragPanel, LV_ALIGN_TOP_MID);
+    lv_obj_remove_flag(ui_TopDragPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_TopDragPanel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_TopDragPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_TopDragPanel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_TopDragPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // top drag event
+    lv_obj_add_event_cb(ui_TopDragPanel, ui_event_TopDrag, LV_EVENT_PRESSING, ui_DropdownPanel);
+    lv_obj_add_event_cb(ui_TopDragPanel, ui_event_TopDrag, LV_EVENT_RELEASED, ui_DropdownPanel);
+
 
     // setting app
     lv_obj_t * ui_SettingBtn = lv_button_create(ui_AppIconContainer);
