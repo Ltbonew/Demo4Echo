@@ -333,6 +333,7 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_set_style_bg_opa(ui_MemoBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_image_src(ui_MemoBtn, &ui_img_634722903, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+
     // game muyu app
     lv_obj_t * ui_GameMuyuBtn = lv_button_create(ui_AppIconContainer);
     lv_obj_set_width(ui_GameMuyuBtn, 70);
@@ -343,6 +344,17 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_add_flag(ui_GameMuyuBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_GameMuyuBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_GameMuyuBtn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_GameMuyuBtn, lv_color_hex(0x355C7D), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_GameMuyuBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_MuyuIcon = lv_label_create(ui_GameMuyuBtn);
+    lv_obj_set_width(ui_MuyuIcon, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_MuyuIcon, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_MuyuIcon, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_MuyuIcon, "");
+    lv_obj_set_style_text_color(ui_MuyuIcon, lv_color_hex(0xF6AB75), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_MuyuIcon, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_MuyuIcon, &ui_font_iconfont36, LV_PART_MAIN | LV_STATE_DEFAULT);
 
 
     // game 2048 app
@@ -355,6 +367,17 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_add_flag(ui_Game2048Btn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_Game2048Btn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_Game2048Btn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Game2048Btn, lv_color_hex(0x11999E), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Game2048Btn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_Icon2048 = lv_label_create(ui_Game2048Btn);
+    lv_obj_set_width(ui_Icon2048, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Icon2048, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_Icon2048, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Icon2048, "");
+    lv_obj_set_style_text_color(ui_Icon2048, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Icon2048, 196, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Icon2048, &ui_font_iconfont48, LV_PART_MAIN | LV_STATE_DEFAULT);
 
 
     // AI Chat app
@@ -367,6 +390,17 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_add_flag(ui_AIChatBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_AIChatBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_AIChatBtn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_AIChatBtn, lv_color_hex(0xA56CC1), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_AIChatBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_BotIcon = lv_label_create(ui_AIChatBtn);
+    lv_obj_set_width(ui_BotIcon, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_BotIcon, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_BotIcon, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_BotIcon, "");
+    lv_obj_set_style_text_color(ui_BotIcon, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_BotIcon, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_BotIcon, &ui_font_iconfont48, LV_PART_MAIN | LV_STATE_DEFAULT);
 
 
     // Camera app
@@ -379,6 +413,19 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_add_flag(ui_CameraBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_CameraBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_CameraBtn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_CameraBtn, lv_color_hex(0xFF9A00), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_CameraBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_CameraIcon = lv_label_create(ui_CameraBtn);
+    lv_obj_set_width(ui_CameraIcon, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_CameraIcon, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_CameraIcon, 2);
+    lv_obj_set_y(ui_CameraIcon, 0);
+    lv_obj_set_align(ui_CameraIcon, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_CameraIcon, "");
+    lv_obj_set_style_text_color(ui_CameraIcon, lv_color_hex(0xF6F7D7), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_CameraIcon, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_CameraIcon, &ui_font_iconfont48, LV_PART_MAIN | LV_STATE_DEFAULT);
 
 
     // YOLO app
@@ -391,6 +438,17 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_add_flag(ui_YOLOBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_YOLOBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_YOLOBtn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_YOLOBtn, lv_color_hex(0xEEEF48), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_YOLOBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_YOLOLabel = lv_label_create(ui_YOLOBtn);
+    lv_obj_set_width(ui_YOLOLabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_YOLOLabel, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_YOLOLabel, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_YOLOLabel, "YOLO");
+    lv_obj_set_style_text_color(ui_YOLOLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_YOLOLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_YOLOLabel, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
 
     // Game Memory app
@@ -403,6 +461,9 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_add_flag(ui_GameMemBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_GameMemBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_GameMemBtn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_GameMemBtn, lv_color_hex(0xDBE2EF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_GameMemBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_image_src(ui_GameMemBtn, &ui_img_21600057, LV_PART_MAIN | LV_STATE_DEFAULT);
 
 
     // load page
