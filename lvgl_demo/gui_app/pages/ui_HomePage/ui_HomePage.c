@@ -2,17 +2,18 @@
 
 ///////////////////// VARIABLES ////////////////////
 
-#define UI_HOME_WITDH 320
-#define UI_HOME_HEIGHT 240
-#define UI_HOME_CONTAINER_PAGES 2
-uint8_t ui_home_container_page_index = 0; // first page
-lv_obj_t * ui_ScrollDots[UI_HOME_CONTAINER_PAGES];
+#define _APP_CONTAINER_MAX_PAGES 2
 
-#define UI_HOME_STATE_SHOW_DESKTOP 0
-#define UI_HOME_STATE_SHOW_DROP_DOWN_PAGE 1
-uint8_t ui_home_state = UI_HOME_STATE_SHOW_DESKTOP;
+ui_desktop_data_t ui_desktop_data = {
+    .witdh = 320,
+    .height = 240,
+    .container_total_pages = _APP_CONTAINER_MAX_PAGES,
+    .app_container_index = 0,
+    .show_dropdown = false,
+    .scroll_busy = false        
+};
 
-uint8_t ui_home_scroll_busy = 0; // avoid scroll too fast, and btns click event happen at the same time
+lv_obj_t * ui_ScrollDots[_APP_CONTAINER_MAX_PAGES];
 
 ///////////////////// ANIMATIONS ////////////////////
 
@@ -28,7 +29,7 @@ void AppContLeft_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_init(&PropertyAnimation_0);
     lv_anim_set_var(&PropertyAnimation_0, TargetObject);
     lv_anim_set_time(&PropertyAnimation_0, 250);
-    lv_anim_set_values(&PropertyAnimation_0, x_pos_now, x_pos_now - UI_HOME_WITDH);
+    lv_anim_set_values(&PropertyAnimation_0, x_pos_now, x_pos_now - ui_desktop_data.witdh);
     lv_anim_set_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_x);
     lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_ease_out);
     lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
@@ -48,7 +49,7 @@ void AppContRight_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_init(&PropertyAnimation_0);
     lv_anim_set_var(&PropertyAnimation_0, TargetObject);
     lv_anim_set_time(&PropertyAnimation_0, 250);
-    lv_anim_set_values(&PropertyAnimation_0, x_pos_now, x_pos_now + UI_HOME_WITDH);
+    lv_anim_set_values(&PropertyAnimation_0, x_pos_now, x_pos_now + ui_desktop_data.witdh);
     lv_anim_set_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_x);
     lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_ease_out);
     lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
@@ -78,27 +79,27 @@ void ui_event_TopDrag(lv_event_t * e)
 
         int32_t y = lv_obj_get_y_aligned(obj) + vect.y;
         lv_obj_set_y(obj, y); // set drag position follow the touch
-        lv_obj_set_y(dropdown_panel, y-UI_HOME_HEIGHT); // set dorp down panel
+        lv_obj_set_y(dropdown_panel, y-ui_desktop_data.height); // set dorp down panel
     }
 
     else if(event_code == LV_EVENT_RELEASED) {
         int32_t y = lv_obj_get_y_aligned(obj);
-        if(y >= UI_HOME_HEIGHT/2)
+        if(y >= ui_desktop_data.height/2)
         {
             lv_obj_set_y(dropdown_panel, 0);
-            lv_obj_set_y(obj, UI_HOME_HEIGHT-lv_obj_get_height(obj));
-            ui_home_state = UI_HOME_STATE_SHOW_DROP_DOWN_PAGE;
+            lv_obj_set_y(obj, ui_desktop_data.height-lv_obj_get_height(obj));
+            ui_desktop_data.show_dropdown = true;
         }
         else 
         {
-            lv_obj_set_y(dropdown_panel, -UI_HOME_HEIGHT);
+            lv_obj_set_y(dropdown_panel, -ui_desktop_data.height);
             lv_obj_set_y(obj, 0);
-            ui_home_state = UI_HOME_STATE_SHOW_DESKTOP;
+            ui_desktop_data.show_dropdown = false;
         }
     }
 }
 
-void ui_event_gesture(lv_event_t * e)
+void ui_event_scroll_gesture(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * AppContainer = lv_event_get_user_data(e);
@@ -106,12 +107,12 @@ void ui_event_gesture(lv_event_t * e)
         if(lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT)
         {   
             // not in the end page
-            if(lv_obj_get_x(AppContainer) != (-UI_HOME_WITDH) * (UI_HOME_CONTAINER_PAGES-1))
+            if(lv_obj_get_x(AppContainer) != (-ui_desktop_data.witdh) * (ui_desktop_data.container_total_pages-1))
             {
                 AppContLeft_Animation(AppContainer, 0);
-                lv_obj_set_style_bg_opa(ui_ScrollDots[ui_home_container_page_index], 96, LV_PART_MAIN | LV_STATE_DEFAULT);
-                ui_home_container_page_index++;
-                lv_obj_set_style_bg_opa(ui_ScrollDots[ui_home_container_page_index], 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+                lv_obj_set_style_bg_opa(ui_ScrollDots[ui_desktop_data.app_container_index], 96, LV_PART_MAIN | LV_STATE_DEFAULT);
+                ui_desktop_data.app_container_index++;
+                lv_obj_set_style_bg_opa(ui_ScrollDots[ui_desktop_data.app_container_index], 255, LV_PART_MAIN | LV_STATE_DEFAULT);
             }
         }
         else if (lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT)
@@ -120,15 +121,15 @@ void ui_event_gesture(lv_event_t * e)
             if(lv_obj_get_x(AppContainer) != 0)
             {
                 AppContRight_Animation(AppContainer, 0);
-                lv_obj_set_style_bg_opa(ui_ScrollDots[ui_home_container_page_index], 96, LV_PART_MAIN | LV_STATE_DEFAULT);
-                ui_home_container_page_index--;
-                lv_obj_set_style_bg_opa(ui_ScrollDots[ui_home_container_page_index], 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+                lv_obj_set_style_bg_opa(ui_ScrollDots[ui_desktop_data.app_container_index], 96, LV_PART_MAIN | LV_STATE_DEFAULT);
+                ui_desktop_data.app_container_index--;
+                lv_obj_set_style_bg_opa(ui_ScrollDots[ui_desktop_data.app_container_index], 255, LV_PART_MAIN | LV_STATE_DEFAULT);
             }
         }
     }
 }
 
-void ui_event_CalendarBtn(lv_event_t * e)
+void ui_event_AppsBtn(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * obj = lv_event_get_target(e);
@@ -147,8 +148,8 @@ void ui_HomeScreen_screen_init(void)
 
     // apps‘ container, to contain all apps btns
     lv_obj_t * ui_AppIconContainer = lv_obj_create(ui_HomeScreen);
-    lv_obj_set_width(ui_AppIconContainer, UI_HOME_WITDH * UI_HOME_CONTAINER_PAGES);
-    lv_obj_set_height(ui_AppIconContainer, UI_HOME_HEIGHT);
+    lv_obj_set_width(ui_AppIconContainer, ui_desktop_data.witdh * ui_desktop_data.container_total_pages);
+    lv_obj_set_height(ui_AppIconContainer, ui_desktop_data.height);
     lv_obj_set_align(ui_AppIconContainer, LV_ALIGN_LEFT_MID);
     lv_obj_remove_flag(ui_AppIconContainer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_AppIconContainer, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -156,7 +157,7 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_set_style_border_color(ui_AppIconContainer, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_AppIconContainer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     // gesture event
-    lv_obj_add_event_cb(ui_HomeScreen, ui_event_gesture, LV_EVENT_GESTURE, ui_AppIconContainer);
+    lv_obj_add_event_cb(ui_HomeScreen, ui_event_scroll_gesture, LV_EVENT_GESTURE, ui_AppIconContainer);
 
     // time Label
     lv_obj_t * ui_TimeLabel = lv_label_create(ui_HomeScreen);
@@ -189,16 +190,16 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_set_style_text_font(ui_NoWifiLabel, &ui_font_iconfont26, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     // page dots
-    for(int i = 0; i < UI_HOME_CONTAINER_PAGES; i++)
+    for(int i = 0; i < _APP_CONTAINER_MAX_PAGES; i++)
     {
         int16_t start_pos;
-        if(UI_HOME_CONTAINER_PAGES%2==0)
+        if(_APP_CONTAINER_MAX_PAGES%2==0)
         {
-            start_pos = -20*(UI_HOME_CONTAINER_PAGES/2) + 10;
+            start_pos = -20*(_APP_CONTAINER_MAX_PAGES/2) + 10;
         }
         else
         {
-            start_pos = -20*(UI_HOME_CONTAINER_PAGES/2 + 1) + 20;
+            start_pos = -20*(_APP_CONTAINER_MAX_PAGES/2 + 1) + 20;
         }
         ui_ScrollDots[i] = lv_obj_create(ui_HomeScreen);
         lv_obj_set_width(ui_ScrollDots[i], 8);
@@ -217,10 +218,10 @@ void ui_HomeScreen_screen_init(void)
 
     // dropdown panel
     lv_obj_t * ui_DropdownPanel = lv_obj_create(ui_HomeScreen);
-    lv_obj_set_width(ui_DropdownPanel, UI_HOME_WITDH);
-    lv_obj_set_height(ui_DropdownPanel, UI_HOME_HEIGHT);
+    lv_obj_set_width(ui_DropdownPanel, ui_desktop_data.witdh);
+    lv_obj_set_height(ui_DropdownPanel, ui_desktop_data.height);
     lv_obj_set_x(ui_DropdownPanel, 0);
-    lv_obj_set_y(ui_DropdownPanel, -UI_HOME_HEIGHT);
+    lv_obj_set_y(ui_DropdownPanel, -ui_desktop_data.height);
     lv_obj_set_align(ui_DropdownPanel, LV_ALIGN_TOP_MID);
     lv_obj_remove_flag(ui_DropdownPanel,
                        LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
@@ -233,7 +234,7 @@ void ui_HomeScreen_screen_init(void)
 
     // top drag
     lv_obj_t * ui_TopDragPanel = lv_obj_create(ui_HomeScreen);
-    lv_obj_set_width(ui_TopDragPanel, UI_HOME_WITDH);
+    lv_obj_set_width(ui_TopDragPanel, ui_desktop_data.witdh);
     lv_obj_set_height(ui_TopDragPanel, 30);
     lv_obj_set_align(ui_TopDragPanel, LV_ALIGN_TOP_MID);
     lv_obj_remove_flag(ui_TopDragPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -305,7 +306,7 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_set_style_text_opa(ui_DateLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_DateLabel, &lv_font_montserrat_30, LV_PART_MAIN | LV_STATE_DEFAULT);
     // calendar event
-    lv_obj_add_event_cb(ui_CalendarBtn, ui_event_CalendarBtn, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(ui_CalendarBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, NULL);
 
 
     // memo app
