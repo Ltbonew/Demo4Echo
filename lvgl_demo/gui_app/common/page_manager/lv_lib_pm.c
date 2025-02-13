@@ -121,7 +121,7 @@ lv_lib_pm_page_t* lv_lib_pm_CreatePage(lv_lib_pm_t *manager, const char *name, v
  * 
  * @param manager 指向页面管理器的指针
  * @param page    要打开的页面
- * @param name    页面名称（可用于调试或日志）
+ * @param name    查找页面名, 可在没有page参数时使用, 优先级低于page参数
  */
 void lv_lib_pm_OpenPage(lv_lib_pm_t *manager, lv_lib_pm_page_t *page, char *name) {
     if (!manager) return;
