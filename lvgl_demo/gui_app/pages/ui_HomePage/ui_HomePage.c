@@ -238,9 +238,149 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_set_scrollbar_mode(ui_DropdownPanel, LV_SCROLLBAR_MODE_ON);
     lv_obj_set_scroll_dir(ui_DropdownPanel, LV_DIR_VER);
     lv_obj_set_style_bg_color(ui_DropdownPanel, lv_color_hex(0x323232), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_DropdownPanel, 200, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_DropdownPanel, 242, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_DropdownPanel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_DropdownPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_LightSlider = lv_slider_create(ui_DropdownPanel);
+    lv_slider_set_value(ui_LightSlider, 50, LV_ANIM_OFF);
+    if(lv_slider_get_mode(ui_LightSlider) == LV_SLIDER_MODE_RANGE) lv_slider_set_left_value(ui_LightSlider, 0, LV_ANIM_OFF);
+    lv_obj_set_width(ui_LightSlider, 50);
+    lv_obj_set_height(ui_LightSlider, 150);
+    lv_obj_set_x(ui_LightSlider, 50);
+    lv_obj_set_y(ui_LightSlider, -10);
+    lv_obj_set_align(ui_LightSlider, LV_ALIGN_CENTER);
+    lv_obj_set_style_radius(ui_LightSlider, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_LightSlider, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_LightSlider, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_radius(ui_LightSlider, 0, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_LightSlider, lv_color_hex(0x3264C8), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_LightSlider, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_radius(ui_LightSlider, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_LightSlider, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_LightSlider, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+
+    //Compensating for LVGL9.1 draw crash with bar/slider max value when top-padding is nonzero and right-padding is 0
+    if(lv_obj_get_style_pad_top(ui_LightSlider, LV_PART_MAIN) > 0) lv_obj_set_style_pad_right(ui_LightSlider,
+                                                                                                  lv_obj_get_style_pad_right(ui_LightSlider, LV_PART_MAIN) + 1, LV_PART_MAIN);
+    lv_obj_t * ui_LightIcon = lv_label_create(ui_LightSlider);
+    lv_obj_set_width(ui_LightIcon, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_LightIcon, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_LightIcon, 1);
+    lv_obj_set_y(ui_LightIcon, 50);
+    lv_obj_set_align(ui_LightIcon, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_LightIcon, "");
+    lv_obj_set_style_text_color(ui_LightIcon, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_LightIcon, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_LightIcon, &ui_font_iconfont44, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_SoundSlider = lv_slider_create(ui_DropdownPanel);
+    lv_slider_set_value(ui_SoundSlider, 50, LV_ANIM_OFF);
+    if(lv_slider_get_mode(ui_SoundSlider) == LV_SLIDER_MODE_RANGE) lv_slider_set_left_value(ui_SoundSlider, 0, LV_ANIM_OFF);
+    lv_obj_set_width(ui_SoundSlider, 50);
+    lv_obj_set_height(ui_SoundSlider, 150);
+    lv_obj_set_x(ui_SoundSlider, 115);
+    lv_obj_set_y(ui_SoundSlider, -10);
+    lv_obj_set_align(ui_SoundSlider, LV_ALIGN_CENTER);
+    lv_obj_set_style_radius(ui_SoundSlider, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SoundSlider, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SoundSlider, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_radius(ui_SoundSlider, 0, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SoundSlider, lv_color_hex(0x3264C8), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SoundSlider, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_radius(ui_SoundSlider, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SoundSlider, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SoundSlider, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+
+    //Compensating for LVGL9.1 draw crash with bar/slider max value when top-padding is nonzero and right-padding is 0
+    if(lv_obj_get_style_pad_top(ui_SoundSlider, LV_PART_MAIN) > 0) lv_obj_set_style_pad_right(ui_SoundSlider,
+                                                                                                  lv_obj_get_style_pad_right(ui_SoundSlider, LV_PART_MAIN) + 1, LV_PART_MAIN);
+    lv_obj_t * ui_SoundIcon = lv_label_create(ui_SoundSlider);
+    lv_obj_set_width(ui_SoundIcon, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SoundIcon, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_SoundIcon, 1);
+    lv_obj_set_y(ui_SoundIcon, 50);
+    lv_obj_set_align(ui_SoundIcon, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_SoundIcon, "");
+    lv_obj_set_style_text_color(ui_SoundIcon, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_SoundIcon, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_SoundIcon, &ui_font_iconfont36, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_WifiBtn = lv_button_create(ui_DropdownPanel);
+    lv_obj_set_width(ui_WifiBtn, 60);
+    lv_obj_set_height(ui_WifiBtn, 60);
+    lv_obj_set_x(ui_WifiBtn, -100);
+    lv_obj_set_y(ui_WifiBtn, -50);
+    lv_obj_set_align(ui_WifiBtn, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_WifiBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_WifiBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_WifiBtn, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_WifiBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_DropWifiIcon = lv_label_create(ui_WifiBtn);
+    lv_obj_set_width(ui_DropWifiIcon, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_DropWifiIcon, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_DropWifiIcon, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_DropWifiIcon, "");
+    lv_obj_set_style_text_font(ui_DropWifiIcon, &ui_font_iconfont36, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_BLEBtn = lv_button_create(ui_DropdownPanel);
+    lv_obj_set_width(ui_BLEBtn, 60);
+    lv_obj_set_height(ui_BLEBtn, 60);
+    lv_obj_set_x(ui_BLEBtn, -25);
+    lv_obj_set_y(ui_BLEBtn, -50);
+    lv_obj_set_align(ui_BLEBtn, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_BLEBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_BLEBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_BLEBtn, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_BLEBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_DropBLEIcon = lv_label_create(ui_BLEBtn);
+    lv_obj_set_width(ui_DropBLEIcon, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_DropBLEIcon, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_DropBLEIcon, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_DropBLEIcon, "");
+    lv_obj_set_style_text_font(ui_DropBLEIcon, &ui_font_iconfont36, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_DropSetBtn = lv_button_create(ui_DropdownPanel);
+    lv_obj_set_width(ui_DropSetBtn, 60);
+    lv_obj_set_height(ui_DropSetBtn, 60);
+    lv_obj_set_x(ui_DropSetBtn, -100);
+    lv_obj_set_y(ui_DropSetBtn, 30);
+    lv_obj_set_align(ui_DropSetBtn, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_DropSetBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_DropSetBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_DropSetBtn, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_DropSetBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_DropSetIcon = lv_label_create(ui_DropSetBtn);
+    lv_obj_set_width(ui_DropSetIcon, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_DropSetIcon, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_DropSetIcon, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_DropSetIcon, "");
+    lv_obj_set_style_text_font(ui_DropSetIcon, &ui_font_iconfont36, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_HomeBtn = lv_button_create(ui_DropdownPanel);
+    lv_obj_set_width(ui_HomeBtn, 60);
+    lv_obj_set_height(ui_HomeBtn, 60);
+    lv_obj_set_x(ui_HomeBtn, -25);
+    lv_obj_set_y(ui_HomeBtn, 30);
+    lv_obj_set_align(ui_HomeBtn, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_HomeBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_HomeBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_HomeBtn, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_HomeBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_DropHomeIcon = lv_label_create(ui_HomeBtn);
+    lv_obj_set_width(ui_DropHomeIcon, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_DropHomeIcon, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_DropHomeIcon, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_DropHomeIcon, "");
+    lv_obj_set_style_text_font(ui_DropHomeIcon, &ui_font_iconfont36, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     // top drag
     lv_obj_t * ui_TopDragPanel = lv_obj_create(ui_HomeScreen);
