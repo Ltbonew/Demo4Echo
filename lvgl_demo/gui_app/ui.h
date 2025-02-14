@@ -17,6 +17,7 @@ LV_IMG_DECLARE(ui_img_1318505016);    // assets/日历64.png
 // FONTS
 LV_FONT_DECLARE(ui_font_iconfont26);
 LV_FONT_DECLARE(ui_font_iconfont36);
+LV_FONT_DECLARE(ui_font_iconfont44);
 LV_FONT_DECLARE(ui_font_iconfont48);
 
 // UI INIT
