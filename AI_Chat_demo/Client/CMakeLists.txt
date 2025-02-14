@@ -79,3 +79,5 @@ install(FILES ${CMAKE_SOURCE_DIR}/third_party/snowboy/resources/common.res
         DESTINATION third_party/snowboy/resources)
 install(FILES ${CMAKE_SOURCE_DIR}/third_party/snowboy/resources/models/echo.pmdl
         DESTINATION third_party/snowboy/resources/models)
+install(FILES ${CMAKE_SOURCE_DIR}/third_party/audio/waked.pcm
+        DESTINATION third_party/audio)

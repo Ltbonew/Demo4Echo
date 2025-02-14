@@ -163,6 +163,22 @@ void Application::idle_exit() {
     // stop running
     state_running_ = false;
     state_running_thread_.join();
+
+    // playing waked up sound
+    std::string waked_sound_path = "third_party/audio/waked.pcm";
+    auto audioQueue = audio_processor_.loadAudioFromFile(waked_sound_path, 40);
+    while (!audioQueue.empty()) {
+        const auto& frame = audioQueue.front();
+        audio_processor_.addFrameToPlaybackQueue(frame);
+        audioQueue.pop();
+    }
+    audio_processor_.startPlaying();
+    while(!audio_processor_.playbackQueueIsEmpty()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    audio_processor_.stopPlaying();
+
     USER_LOG_INFO("Idle exit.");
 }
 
