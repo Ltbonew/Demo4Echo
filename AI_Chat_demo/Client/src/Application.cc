@@ -176,8 +176,8 @@ void Application::idle_exit() {
     while(!audio_processor_.playbackQueueIsEmpty()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    audio_processor_.stopPlaying();
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    // audio_processor_.stopPlaying();
 
     USER_LOG_INFO("Idle exit.");
 }
@@ -232,18 +232,8 @@ void Application::listening_exit() {
     USER_LOG_INFO("Listening exit.");
 }
 
-void Application::thinking_enter() {
-    std::string json_message = R"({"type": "state", "state": "thinking"})";
-    ws_client_.SendText(json_message);
-    USER_LOG_INFO("Into thinking state.");
-}
-
-void Application::thinking_exit() {
-    USER_LOG_INFO("Thinking exit.");
-}
-
 void Application::speaking_enter() {
-    std::string json_message = R"({"type": "state", "state": "speaking", "question": ")" + asr_text_ + R"("})";
+    std::string json_message = R"({"type": "state", "state": "speaking"})";
     ws_client_.SendText(json_message);
     // start播放
     audio_processor_.startPlaying();
@@ -275,7 +265,7 @@ void Application::speaking_exit() {
     // clear playback audio queue
     audio_processor_.clearPlaybackAudioQueue();
     // stop播放
-    audio_processor_.stopPlaying();
+    // audio_processor_.stopPlaying();
     // stop state running
     state_running_ = false;
     state_running_thread_.join();
@@ -332,14 +322,12 @@ void Application::Run() {
         // 添加状态
         client_state_.RegisterState(static_cast<int>(AppState::idle), [this]() {idle_enter();}, [this]() {idle_exit();});
         client_state_.RegisterState(static_cast<int>(AppState::listening), [this]() {listening_enter(); }, [this]() {listening_exit(); });
-        client_state_.RegisterState(static_cast<int>(AppState::thinking), [this]() {thinking_enter(); }, [this]() {thinking_exit(); });
         client_state_.RegisterState(static_cast<int>(AppState::speaking), [this]() {speaking_enter(); }, [this]() {speaking_exit(); });
         
         // 添加状态切换
         client_state_.RegisterTransition(static_cast<int>(AppState::idle), static_cast<int>(AppEvent::wake_detected), static_cast<int>(AppState::listening));
         client_state_.RegisterTransition(static_cast<int>(AppState::listening), static_cast<int>(AppEvent::vad_no_speech), static_cast<int>(AppState::idle));
-        client_state_.RegisterTransition(static_cast<int>(AppState::listening), static_cast<int>(AppEvent::vad_end), static_cast<int>(AppState::thinking));
-        client_state_.RegisterTransition(static_cast<int>(AppState::thinking), static_cast<int>(AppEvent::asr_received), static_cast<int>(AppState::speaking));
+        client_state_.RegisterTransition(static_cast<int>(AppState::listening), static_cast<int>(AppEvent::vad_end), static_cast<int>(AppState::speaking));
         client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::speaking_end), static_cast<int>(AppState::listening));
         client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::conversation_end), static_cast<int>(AppState::idle));
         client_state_.RegisterTransition(-1, static_cast<int>(AppEvent::fault), static_cast<int>(AppState::idle));

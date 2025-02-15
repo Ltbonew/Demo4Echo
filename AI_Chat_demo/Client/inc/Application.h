@@ -19,7 +19,6 @@
 enum class AppState {
     idle,
     listening,
-    thinking,
     speaking,
     // Add more states here...
 };
