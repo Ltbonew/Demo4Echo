@@ -47,6 +47,7 @@ class MessageHandler:
     # TTS回调函数
     def __tts_on_data(self,data):
         self.ws_send_msg.put(data)
+        logger.info("sent")
 
     def VAD_proc_audio_stream(self):
         # 计算音频数据的时长
@@ -138,30 +139,32 @@ class MessageHandler:
         if data.get('type') == 'state' :
             if data.get('state') == 'idle':
                 self.model_manager.clear_messages()
+                try:
+                    self.model_manager.tts_stream_close()
+                except Exception as e:
+                    pass
                 self.audio_proc_reset()
 
             elif data.get('state') == 'listening':
                 self.audio_proc_reset()
+                self.model_manager.tts_stream_set(on_data=self.__tts_on_data)
 
-            elif data.get('state') == 'thinking':
+            elif data.get('state') == 'speaking':
+                # ASR识别
                 asr_text = self.model_manager.ASR_generate_text(self.rec_audio_buffer[:self.last_speech_pos*self.audio_processor.sample_rate//1000].astype(np.float32))
                 if asr_text:
                     logger.info(f"ASR result: {asr_text}")
                     # asr识别异常处理还需要
-                    response =  {
+                    res =  {
                         "type": "asr",
                         "text": asr_text
                     }
                     self.audio_proc_reset()
-                    return response
-
-            elif data.get('state') == 'speaking':
-                question = data.get('question')
-                logger.info(f"Received question: {question}")
+                self.ws_send_msg.put(res)
                 # LLM回答
-                ress = self.model_manager.get_LLM_answer(question)
+                llm_ress = self.model_manager.get_LLM_answer(asr_text)
                 # 如果没有获取到LLM回答
-                if ress == -1:
+                if llm_ress == -1:
                     response =  {
                         "type": "error",
                         "message": "Failed to get LLM response"
@@ -170,7 +173,7 @@ class MessageHandler:
                 # 获取到LLM回答
                 else:
                     # TTS合成
-                    if self.model_manager.tts_stream_speech_synthesis(ress, on_data=self.__tts_on_data) != True:
+                    if self.model_manager.tts_stream_speech_synthesis(llm_ress) != True:
                         logger.error("TTS failed")
                         response =  {
                             "type": "error",
@@ -178,7 +181,7 @@ class MessageHandler:
                         }
                         return response
                 # 使用fasttext进行语义分类（判断是否有指令）
-                if(self.model_manager.command_recognize(question)=='__label__TalkEnd'):
+                if(self.model_manager.command_recognize(asr_text)=='__label__TalkEnd'):
                     logger.info("End of conversation")
                     response =  {
                         "type": "tts",

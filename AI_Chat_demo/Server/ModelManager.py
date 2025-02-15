@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 vad_model = "./FunAudioLLM/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch"
 asr_model = "./FunAudioLLM/iic/SenseVoiceSmall"
 remote_code = "./FunAudioLLM/SenseVoice/model.py"
-# 设置 阿里百炼 API Key
-# dashscope.api_key = "your-api-key"
+# 设置 API Key
+# dashscope.api_key = "sk-6be919c5b8f24042a352362ca6dd4d1e"
 
 class ModelManager:
     def __init__(self, vad_model_dir=vad_model, asr_model_dir=asr_model, remote_code_dir=remote_code, device="cuda:0", aliyun_api_key=None):
@@ -26,7 +26,7 @@ class ModelManager:
         self.vad_model = AutoModel(
             model=vad_model_dir,
             disable_pbar=True,
-            max_end_silence_time=600,
+            max_end_silence_time=200,
             # vad_kwargs={"max_single_segment_time": 500},
             disable_update=True
         )
@@ -48,6 +48,16 @@ class ModelManager:
 
         # 初始化 fasttext 模型
         self.classify = fasttext.load_model("./fasttext/model/classify.model")
+
+        # 初始化 TTS 回调函数
+        self.callback = None
+        # 初始化 TTS 生成器
+        self.synthesizer = SpeechSynthesizer(
+            model="cosyvoice-v1",
+            voice="longxiaochun",
+            format=AudioFormat.PCM_16000HZ_MONO_16BIT,
+            callback=self.callback
+        )
 
     # VAD init
     def VAD_cache_clean(self):
@@ -143,31 +153,41 @@ class ModelManager:
         def on_data(self, data: bytes) -> None:
             self.on_data(data)
 
+    def tts_stream_set(self, on_open=None, on_complete=None, on_error=None, on_close=None, on_data=None):
+        '''设置TTS回调函数'''
+        self.callback = self.__tts_callback(on_open=on_open, on_complete=on_complete,
+                                      on_error=on_error, on_close=on_close, on_data=on_data)
+        self.synthesizer=SpeechSynthesizer(
+            model="cosyvoice-v1",
+            voice="longxiaochun",
+            format=AudioFormat.PCM_16000HZ_MONO_16BIT,
+            callback=self.callback
+        )
+        try:
+            self.synthesizer.streaming_call('') # 先提前打开ws连接
+            time.sleep(0.1)
+        except Exception as e:
+            return False
+
+    def tts_stream_close(self):
+        self.synthesizer.streaming_complete()
+
     def tts_stream_speech_synthesis(self, text_generator,
                                     on_open=None, on_complete=None, on_error=None, on_close=None, on_data=None):
         '''流式语音合成\r\n
         可以直接将get_LLM_answer()的输出作为该函数的输入, 已经有循环调用yield\r\n
         text_generator: 生成器或一段文本列表
         return: 合成是否成功'''
-        callback = self.__tts_callback(on_open=on_open, on_complete=on_complete,
-                                        on_error=on_error, on_close=on_close, on_data=on_data)
-
-        synthesizer = SpeechSynthesizer(
-            model="cosyvoice-v1",
-            voice="longxiaochun",
-            format=AudioFormat.PCM_16000HZ_MONO_16BIT,
-            callback=callback,
-        )
 
         for text_chunk in text_generator:
             if text_chunk:
                 try:
-                    synthesizer.streaming_call(text_chunk)
+                    self.synthesizer.streaming_call(text_chunk)
                     time.sleep(0.1)
                 except Exception as e:
                     return False
-        synthesizer.streaming_complete()
-        print('Request ID:', synthesizer.get_last_request_id())
+        self.synthesizer.streaming_complete()
+        print('Request ID:',self.synthesizer.get_last_request_id())
         return True
 
     def command_recognize(self, question):
