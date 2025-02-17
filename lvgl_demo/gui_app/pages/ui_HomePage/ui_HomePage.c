@@ -1,4 +1,5 @@
 #include "ui_HomePage.h"
+#include "app_HomePage.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -13,7 +14,25 @@ ui_desktop_data_t ui_desktop_data = {
     .scroll_busy = false        
 };
 
+ui_desktop_para_t ui_desktop_para = {
+    .brightness = 50,
+    .sound = 50,
+    .wifi_connected = true
+};
+
 lv_obj_t * ui_ScrollDots[_APP_CONTAINER_MAX_PAGES];
+
+//////////////////////// Timer //////////////////////
+
+void ui_home_timer_cb(lv_timer_t * timer)
+{
+    lv_obj_t * timelabel = timer->user_data;
+    uint8_t hour, minute;
+    get_current_time(&hour, &minute);
+    char time_str[6];
+    sprintf(time_str, "%02d:%02d", hour, minute);
+    lv_label_set_text(timelabel, time_str);
+}
 
 ///////////////////// ANIMATIONS ////////////////////
 
@@ -110,7 +129,7 @@ void ui_event_scroll_gesture(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * AppContainer = lv_event_get_user_data(e);
-    if(event_code == LV_EVENT_GESTURE && !ui_desktop_data.scroll_busy) {
+    if(event_code == LV_EVENT_GESTURE && !ui_desktop_data.scroll_busy && !ui_desktop_data.show_dropdown) {
         if(lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT)
         {   
             ui_desktop_data.scroll_busy = true;
@@ -178,8 +197,13 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_set_align(ui_TimeLabel, LV_ALIGN_TOP_MID);
     lv_label_set_text(ui_TimeLabel, "11:59");
     lv_obj_set_style_text_font(ui_TimeLabel, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+    uint8_t hour, minute;
+    get_current_time(&hour, &minute);
+    char time_str[6];
+    sprintf(time_str, "%02d:%02d", hour, minute);
+    lv_label_set_text(ui_TimeLabel, time_str);
 
-    // wifi Label
+    // wifi connected Label
     lv_obj_t * ui_WifiLabel = lv_label_create(ui_HomeScreen);
     lv_obj_set_width(ui_WifiLabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_WifiLabel, LV_SIZE_CONTENT);    /// 1
@@ -189,6 +213,7 @@ void ui_HomeScreen_screen_init(void)
     lv_label_set_text(ui_WifiLabel, "");
     lv_obj_set_style_text_font(ui_WifiLabel, &ui_font_iconfont26, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    // wifi not connected Label
     lv_obj_t * ui_NoWifiLabel = lv_label_create(ui_HomeScreen);
     lv_obj_set_width(ui_NoWifiLabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_NoWifiLabel, LV_SIZE_CONTENT);    /// 1
@@ -234,7 +259,7 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_set_y(ui_DropdownPanel, -ui_desktop_data.height);
     lv_obj_set_align(ui_DropdownPanel, LV_ALIGN_TOP_MID);
     lv_obj_remove_flag(ui_DropdownPanel,
-                       LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
+                       LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
     lv_obj_set_scrollbar_mode(ui_DropdownPanel, LV_SCROLLBAR_MODE_ON);
     lv_obj_set_scroll_dir(ui_DropdownPanel, LV_DIR_VER);
     lv_obj_set_style_bg_color(ui_DropdownPanel, lv_color_hex(0x323232), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -605,6 +630,8 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_set_style_bg_opa(ui_GameMemBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_image_src(ui_GameMemBtn, &ui_img_21600057, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    // timer
+    lv_timer_create(ui_home_timer_cb, 1000, ui_TimeLabel);
 
     // load page
     lv_scr_load_anim(ui_HomeScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 100, 0, true);
