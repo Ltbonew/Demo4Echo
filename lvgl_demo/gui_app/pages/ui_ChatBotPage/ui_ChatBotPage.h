@@ -7,8 +7,8 @@ extern "C" {
 
 #include "../../ui.h"
 
-
-
+void ui_ChatBotPage_init(void);
+void ui_ChatBotPage_deinit(void);
 
 
 #ifdef __cplusplus
