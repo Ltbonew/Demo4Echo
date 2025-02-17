@@ -1,6 +1,6 @@
 #include "ui.h"
-#include "./common/lv_lib.h"
 #include "./pages/ui_HomePage/ui_HomePage.h"
+#include "./pages/ui_ChatBotPage/ui_ChatBotPage.h"
 ///////////////////// VARIABLES ////////////////////
 
 lv_lib_pm_t page_manager;
@@ -11,10 +11,49 @@ lv_lib_pm_t page_manager;
     #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
 #endif
 
-///////////////////// ANIMATIONS ////////////////////
+///////////////////// all apps ////////////////////
 
+#define _APP_NUMS 2 // number of apps (including HomePage)
 
-///////////////////// FUNCTIONS ////////////////////
+ui_app_data_t ui_apps[_APP_NUMS] = {
+    {
+        .name = "HomePage",
+        .init = ui_HomePage_init,
+        .deinit = ui_HomePage_deinit,
+        .page_obj = NULL
+    },
+    {
+        .name = "ChatBotPage",
+        .init = ui_ChatBotPage_init,
+        .deinit = ui_ChatBotPage_deinit,
+        .page_obj = NULL
+    }
+    // {
+    //     .name = "SettingPage",
+    //     .init = NULL,
+    //     .deinit = NULL,
+    //     .page_obj = NULL
+    // },
+    // {
+    //     .name = "CameraPage",
+    //     .init = NULL,
+    //     .deinit = NULL,
+    //     .page_obj = NULL
+    // },
+    // {
+    //     .name = "YOLOPage",
+    //     .init = NULL,
+    //     .deinit = NULL,
+    //     .page_obj = NULL
+    // },
+    // {
+    //     .name = "GameMemoryPage",
+    //     .init = NULL,
+    //     .deinit = NULL,
+    //     .page_obj = NULL
+    // }
+
+};
 
 
 ///////////////////// SCREENS ////////////////////
@@ -27,7 +66,11 @@ void ui_init(void)
     lv_disp_set_theme(dispp, theme);
 
     lv_lib_pm_Init(&page_manager);
-    lv_lib_pm_page_t *pm_page1 = lv_lib_pm_CreatePage(&page_manager, "HomePage", ui_HomePage_init, ui_HomePage_deinit, NULL);
-    // lv_lib_pm_page_t *pm_page2 = lv_lib_pm_CreatePage(&page_manager, "Page2", page2_init, page2_deinit, NULL);
-    lv_lib_pm_OpenPage(&page_manager, pm_page1, "HomePage");
+    lv_lib_pm_page_t *pm_page[_APP_NUMS];
+    for(int i = 0; i < _APP_NUMS; i++)
+    {
+        pm_page[i] = lv_lib_pm_CreatePage(&page_manager, ui_apps[i].name, ui_apps[i].init, ui_apps[i].deinit, NULL);
+    }
+    // lv_lib_pm_page_t *pm_HomePage = lv_lib_pm_CreatePage(&page_manager, "HomePage", ui_HomePage_init, ui_HomePage_deinit, NULL);
+    lv_lib_pm_OpenPage(&page_manager, NULL, "HomePage");
 }
