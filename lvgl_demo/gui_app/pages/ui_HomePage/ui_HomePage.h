@@ -18,8 +18,11 @@ typedef struct {
 }ui_desktop_data_t;
 
 typedef struct {
-    // uint8_t time_hour;              // system time hour
-    // uint8_t time_minute;            // system time minute
+    int year;                       // system time year
+    int month;                      // system time month
+    int day;                        // system time day
+    uint8_t hour;                   // system time hour
+    uint8_t minute;                 // system time minute
     uint16_t brightness;            // system brightness
     uint16_t sound;                 // system sound volume
     bool wifi_connected;            // wifi connected or not
@@ -30,8 +33,8 @@ typedef struct {
     uint8_t name[16];               // app page name
 }ui_app_data_t;
 
-void ui_HomeScreen_screen_init(void);
-void ui_HomeScreen_screen_deinit(void);
+void ui_HomePage_init(void);
+void ui_HomePage_deinit(void);
 
 #ifdef __cplusplus
 } /*extern "C"*/

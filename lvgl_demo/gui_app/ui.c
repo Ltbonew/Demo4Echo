@@ -27,7 +27,7 @@ void ui_init(void)
     lv_disp_set_theme(dispp, theme);
 
     lv_lib_pm_Init(&page_manager);
-    lv_lib_pm_page_t *pm_page1 = lv_lib_pm_CreatePage(&page_manager, "HomePage", ui_HomeScreen_screen_init, ui_HomeScreen_screen_deinit, NULL);
+    lv_lib_pm_page_t *pm_page1 = lv_lib_pm_CreatePage(&page_manager, "HomePage", ui_HomePage_init, ui_HomePage_deinit, NULL);
     // lv_lib_pm_page_t *pm_page2 = lv_lib_pm_CreatePage(&page_manager, "Page2", page2_init, page2_deinit, NULL);
     lv_lib_pm_OpenPage(&page_manager, pm_page1, "HomePage");
 }

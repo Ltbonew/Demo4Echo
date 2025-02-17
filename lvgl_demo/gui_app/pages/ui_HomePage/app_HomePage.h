@@ -8,7 +8,7 @@ extern "C" {
 #include <stdint.h>
 
 void get_current_time(uint8_t *hour, uint8_t *minute);
-
+void get_current_date(int *year, int *month, int *day);
 
 #ifdef __cplusplus
 } /*extern "C"*/
