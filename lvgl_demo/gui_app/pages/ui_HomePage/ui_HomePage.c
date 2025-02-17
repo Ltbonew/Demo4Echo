@@ -22,6 +22,8 @@ ui_desktop_para_t ui_desktop_para = {
 
 lv_obj_t * ui_ScrollDots[_APP_CONTAINER_MAX_PAGES];
 
+lv_timer_t * ui_home_timer;
+
 //////////////////////// Timer //////////////////////
 
 void ui_home_timer_cb(lv_timer_t * timer)
@@ -159,11 +161,10 @@ void ui_event_scroll_gesture(lv_event_t * e)
 void ui_event_AppsBtn(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * obj = lv_event_get_target(e);
-
+    char * pagename = lv_event_get_user_data(e);
     if(event_code == LV_EVENT_CLICKED && !ui_desktop_data.scroll_busy) 
     {
-        LV_LOG_USER("LV_EVENT_CLICKED");    
+        LV_LOG_USER("%s-Btn-Clicked", pagename);
     }
 }
 
@@ -443,6 +444,8 @@ void ui_HomePage_init(void)
     lv_obj_set_align(ui_SettingIcon, LV_ALIGN_CENTER);
     lv_label_set_text(ui_SettingIcon, "");
     lv_obj_set_style_text_font(ui_SettingIcon, &ui_font_iconfont48, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // event
+    lv_obj_add_event_cb(ui_SettingBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "SettingPage");
 
 
     // weather app
@@ -456,6 +459,8 @@ void ui_HomePage_init(void)
     lv_obj_remove_flag(ui_WeatherBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_WeatherBtn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_image_src(ui_WeatherBtn, &ui_img_1946976022, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // event
+    lv_obj_add_event_cb(ui_WeatherBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "WeatherPage");
 
 
     // calendar app
@@ -479,14 +484,14 @@ void ui_HomePage_init(void)
     lv_obj_set_y(ui_DateLabel, 8);
     lv_obj_set_align(ui_DateLabel, LV_ALIGN_CENTER);
     lv_label_set_text(ui_DateLabel, "7");
+    char date_str[2];
+    sprintf(date_str, "%d", ui_desktop_para.day);
+    lv_label_set_text(ui_DateLabel, date_str);
     lv_obj_set_style_text_color(ui_DateLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_DateLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_DateLabel, &lv_font_montserrat_30, LV_PART_MAIN | LV_STATE_DEFAULT);
     // calendar event
-    lv_obj_add_event_cb(ui_CalendarBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, NULL);
-    char date_str[2];
-    sprintf(date_str, "%d", ui_desktop_para.day);
-    lv_label_set_text(ui_DateLabel, date_str);
+    lv_obj_add_event_cb(ui_CalendarBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "CalendarPage");
 
 
     // memo app
@@ -502,6 +507,8 @@ void ui_HomePage_init(void)
     lv_obj_set_style_bg_color(ui_MemoBtn, lv_color_hex(0xB83B5E), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_MemoBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_image_src(ui_MemoBtn, &ui_img_634722903, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // event
+    lv_obj_add_event_cb(ui_MemoBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "MemoPage");
 
 
     // game muyu app
@@ -516,6 +523,8 @@ void ui_HomePage_init(void)
     lv_obj_set_style_radius(ui_GameMuyuBtn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_GameMuyuBtn, lv_color_hex(0x355C7D), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_GameMuyuBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // event
+    lv_obj_add_event_cb(ui_GameMuyuBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "GameMuyuPage");
 
     lv_obj_t * ui_MuyuIcon = lv_label_create(ui_GameMuyuBtn);
     lv_obj_set_width(ui_MuyuIcon, LV_SIZE_CONTENT);   /// 1
@@ -548,6 +557,8 @@ void ui_HomePage_init(void)
     lv_obj_set_style_text_color(ui_Icon2048, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Icon2048, 196, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Icon2048, &ui_font_iconfont48, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // event
+    lv_obj_add_event_cb(ui_Game2048Btn, ui_event_AppsBtn, LV_EVENT_CLICKED, "Game2048Page");
 
 
     // AI Chat app
@@ -571,6 +582,8 @@ void ui_HomePage_init(void)
     lv_obj_set_style_text_color(ui_BotIcon, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_BotIcon, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_BotIcon, &ui_font_iconfont48, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // AI Chat evetn
+    lv_obj_add_event_cb(ui_AIChatBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "AIChatPage");
 
 
     // Camera app
@@ -596,7 +609,8 @@ void ui_HomePage_init(void)
     lv_obj_set_style_text_color(ui_CameraIcon, lv_color_hex(0xF6F7D7), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_CameraIcon, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_CameraIcon, &ui_font_iconfont48, LV_PART_MAIN | LV_STATE_DEFAULT);
-
+    // event
+    lv_obj_add_event_cb(ui_CameraBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "CameraPage");
 
     // YOLO app
     lv_obj_t * ui_YOLOBtn = lv_button_create(ui_AppIconContainer);
@@ -619,6 +633,8 @@ void ui_HomePage_init(void)
     lv_obj_set_style_text_color(ui_YOLOLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_YOLOLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_YOLOLabel, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // event
+    lv_obj_add_event_cb(ui_YOLOBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "YOLOPage");
 
 
     // Game Memory app
@@ -634,9 +650,11 @@ void ui_HomePage_init(void)
     lv_obj_set_style_bg_color(ui_GameMemBtn, lv_color_hex(0xDBE2EF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_GameMemBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_image_src(ui_GameMemBtn, &ui_img_21600057, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // event
+    lv_obj_add_event_cb(ui_GameMemBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "GameMemoryPage");
 
     // timer
-    lv_timer_create(ui_home_timer_cb, 1000, ui_TimeLabel);
+    ui_home_timer = lv_timer_create(ui_home_timer_cb, 1000, ui_TimeLabel);
 
     // load page
     lv_scr_load_anim(ui_HomeScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 100, 0, true);
@@ -647,5 +665,6 @@ void ui_HomePage_init(void)
 
 void ui_HomePage_deinit(void)
 {
+    lv_timer_delete(ui_home_timer);
     return;
 }

@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include "../../ui.h"
-#include "../../common/lv_lib.h"
 
 typedef struct {
     uint16_t witdh;                 // screen width  
@@ -28,10 +27,6 @@ typedef struct {
     bool wifi_connected;            // wifi connected or not
 }ui_desktop_para_t;
 
-typedef struct {
-    lv_lib_pm_page_t * app_page;    // app page
-    uint8_t name[16];               // app page name
-}ui_app_data_t;
 
 void ui_HomePage_init(void);
 void ui_HomePage_deinit(void);
