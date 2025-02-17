@@ -17,7 +17,7 @@ vad_model = "./FunAudioLLM/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch"
 asr_model = "./FunAudioLLM/iic/SenseVoiceSmall"
 remote_code = "./FunAudioLLM/SenseVoice/model.py"
 # 设置 API Key
-# dashscope.api_key = "sk-6be919c5b8f24042a352362ca6dd4d1e"
+# dashscope.api_key = "your-api-key"
 
 class ModelManager:
     def __init__(self, vad_model_dir=vad_model, asr_model_dir=asr_model, remote_code_dir=remote_code, device="cuda:0", aliyun_api_key=None):
@@ -43,7 +43,7 @@ class ModelManager:
 
         # 对话初始历史记录
         self.messages = [
-            {'role': 'system', 'content': 'You are a desk assistant, answering questions shortly and quickly.'}
+            {'role': 'system', 'content': '你是一个桌面助手, 精炼地回复我.'}
         ]
 
         # 初始化 fasttext 模型
@@ -91,7 +91,7 @@ class ModelManager:
     def clear_messages(self):
         """清除LLM对话记录"""
         self.messages = [
-            {'role': 'system', 'content': 'You are a desk assistant, answering questions shortly and quickly.'}
+            {'role': 'system', 'content': '你是一个桌面助手, 精炼地回复我.'}
         ]
 
     def get_LLM_answer(self, question):
