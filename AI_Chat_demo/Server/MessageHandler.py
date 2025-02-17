@@ -13,7 +13,7 @@ class MessageHandler:
     def __init__(self, protocol_version=1, aliyun_api_key=None, ws_rec_msg: queue.Queue = None, ws_send_msg: queue.Queue = None):
         self.protocol_version = protocol_version
         # 缓冲区设置
-        self.BUFFER_MAX_LENGTH_MS = 10 * 1000  # 缓冲区最大长度
+        self.BUFFER_MAX_LENGTH_MS = 15 * 1000  # 缓冲区最大长度
         self.VAD_FRAME_DURATION_MS = 200  # VAD 推理的片段长度
         self.NO_SPEECH_TIMEOUT_MS = 3000  # 无语音活动超时
         self.POST_SPEECH_BUFFER_MS = 200  # 语音结束后的判断结束的时间
