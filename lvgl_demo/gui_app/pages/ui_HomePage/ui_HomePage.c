@@ -165,6 +165,7 @@ void ui_event_AppsBtn(lv_event_t * e)
     if(event_code == LV_EVENT_CLICKED && !ui_desktop_data.scroll_busy) 
     {
         LV_LOG_USER("%s-Btn-Clicked", pagename);
+        lv_lib_pm_OpenPage(&page_manager, NULL, pagename);
     }
 }
 
@@ -561,7 +562,7 @@ void ui_HomePage_init(void)
     lv_obj_add_event_cb(ui_Game2048Btn, ui_event_AppsBtn, LV_EVENT_CLICKED, "Game2048Page");
 
 
-    // AI Chat app
+    // AI Chat Bot app
     lv_obj_t * ui_AIChatBtn = lv_button_create(ui_AppIconContainer);
     lv_obj_set_width(ui_AIChatBtn, 70);
     lv_obj_set_height(ui_AIChatBtn, 70);
@@ -583,7 +584,7 @@ void ui_HomePage_init(void)
     lv_obj_set_style_text_opa(ui_BotIcon, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_BotIcon, &ui_font_iconfont48, LV_PART_MAIN | LV_STATE_DEFAULT);
     // AI Chat evetn
-    lv_obj_add_event_cb(ui_AIChatBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "AIChatPage");
+    lv_obj_add_event_cb(ui_AIChatBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "ChatBotPage");
 
 
     // Camera app
