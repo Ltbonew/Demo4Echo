@@ -19,6 +19,7 @@ LV_IMG_DECLARE(ui_img_21600057);    // assets/记忆64.png
 LV_IMG_DECLARE(ui_img_1318505016);    // assets/日历64.png
 LV_IMG_DECLARE(ui_img_364131572);    // assets/问号60.png
 LV_IMG_DECLARE(ui_img_519153304);    // assets/思绪60.png
+LV_IMG_DECLARE(ui_img_1829120061);    // assets/手指60.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_iconfont26);
