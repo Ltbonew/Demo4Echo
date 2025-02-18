@@ -13,4 +13,5 @@ target_include_directories(gui_app PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/common/stack
     ${CMAKE_CURRENT_SOURCE_DIR}/common/page_manager
     ${CMAKE_CURRENT_SOURCE_DIR}/pages/ui_HomePage
+    ${CMAKE_CURRENT_SOURCE_DIR}/pages/ui_ChatBotPage
 )
