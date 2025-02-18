@@ -26,7 +26,7 @@ lv_timer_t * ui_home_timer;
 
 //////////////////////// Timer //////////////////////
 
-void ui_home_timer_cb(lv_timer_t * timer)
+static void ui_home_timer_cb(lv_timer_t * timer)
 {
     lv_obj_t * timelabel = timer->user_data;
     get_current_time(&ui_desktop_para.hour, &ui_desktop_para.minute);
@@ -37,17 +37,17 @@ void ui_home_timer_cb(lv_timer_t * timer)
 
 ///////////////////// ANIMATIONS ////////////////////
 
-void _ui_anim_callback_set_x(void * var, int32_t v)
+static void _ui_anim_callback_set_x(void * var, int32_t v)
 {
     lv_obj_set_x(var, v);
 }
 
-void _ui_anim_completed_cb()
+static void _ui_anim_completed_cb()
 {
     ui_desktop_data.scroll_busy = false;
 }
 
-void AppContLeft_Animation(lv_obj_t * TargetObject, int delay)
+static void AppContLeft_Animation(lv_obj_t * TargetObject, int delay)
 {
     int32_t x_pos_now = lv_obj_get_x(TargetObject);
     lv_anim_t PropertyAnimation_0;
@@ -68,7 +68,7 @@ void AppContLeft_Animation(lv_obj_t * TargetObject, int delay)
 
 }
 
-void AppContRight_Animation(lv_obj_t * TargetObject, int delay)
+static void AppContRight_Animation(lv_obj_t * TargetObject, int delay)
 {
     int32_t x_pos_now = lv_obj_get_x(TargetObject);
     lv_anim_t PropertyAnimation_0;
@@ -91,7 +91,7 @@ void AppContRight_Animation(lv_obj_t * TargetObject, int delay)
 
 ///////////////////// FUNCTIONS ////////////////////
 
-void ui_event_TopDrag(lv_event_t * e)
+static void ui_event_TopDrag(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * obj = lv_event_get_target(e);
@@ -126,7 +126,7 @@ void ui_event_TopDrag(lv_event_t * e)
     }
 }
 
-void ui_event_scroll_gesture(lv_event_t * e)
+static void ui_event_scroll_gesture(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * AppContainer = lv_event_get_user_data(e);
@@ -158,7 +158,7 @@ void ui_event_scroll_gesture(lv_event_t * e)
     }
 }
 
-void ui_event_AppsBtn(lv_event_t * e)
+static void ui_event_AppsBtn(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     char * pagename = lv_event_get_user_data(e);
