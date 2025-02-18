@@ -141,24 +141,59 @@ static void _ListenMove_Animation(void)
 
 ///////////////////// FUNCTIONS ////////////////////
 
+void ui_ChatBotPage_Objs_reinit(void)
+{
+    lv_obj_set_width(ui_EyesPanel, 210);
+    lv_obj_set_height(ui_EyesPanel, 80);
+    lv_obj_set_x(ui_EyesPanel, 0);
+    lv_obj_set_y(ui_EyesPanel, -25);
+
+    lv_obj_set_width(ui_EyesVerMovePanel, 210);
+    lv_obj_set_height(ui_EyesVerMovePanel, 80);
+    lv_obj_set_x(ui_EyesVerMovePanel, 0);
+    lv_obj_set_y(ui_EyesVerMovePanel, 0);
+
+    lv_obj_set_width(ui_EyeRight, 80);
+    lv_obj_set_height(ui_EyeRight, 80);
+    lv_obj_set_x(ui_EyeRight, 60);
+    lv_obj_set_y(ui_EyeRight, 0);
+
+    lv_obj_set_width(ui_EyeLeft, 80);
+    lv_obj_set_height(ui_EyeLeft, 80);
+    lv_obj_set_x(ui_EyeLeft, -60);
+    lv_obj_set_y(ui_EyeLeft, 0);
+
+    lv_obj_set_style_opa(ui_QuestionImg, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_opa(ui_thinkImg, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_opa(ui_HandImg, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+}
+
 static void ui_event_ChatBotPage(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_LEFT) {
         lv_indev_wait_release(lv_indev_active());
-        _IdleMove1_Animation();
+        // _IdleMove1_Animation();
+        // _IdleMove2_Animation();
+        _ListenMove_Animation();
     }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_active());
-        _ListenMove_Animation();
+        lv_anim_delete_all();
+        ui_ChatBotPage_Objs_reinit();
     }
 }
 
 ///////////////////// SCREEN init ////////////////////
 
-void ui_ChatBotPage_Objs_init(lv_obj_t * ui_ChatBotPage)
+void ui_ChatBotPage_init(void)
 {
+    lv_obj_t * ui_ChatBotPage = lv_obj_create(NULL);
+    lv_obj_remove_flag(ui_ChatBotPage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
     ui_EyesPanel = lv_obj_create(ui_ChatBotPage);
     lv_obj_set_width(ui_EyesPanel, 210);
     lv_obj_set_height(ui_EyesPanel, 80);
@@ -238,14 +273,6 @@ void ui_ChatBotPage_Objs_init(lv_obj_t * ui_ChatBotPage)
     lv_obj_remove_flag(ui_HandImg, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_image_set_rotation(ui_HandImg, -350);
     lv_obj_set_style_opa(ui_HandImg, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-}
-
-void ui_ChatBotPage_init(void)
-{
-    lv_obj_t * ui_ChatBotPage = lv_obj_create(NULL);
-    lv_obj_remove_flag(ui_ChatBotPage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    ui_ChatBotPage_Objs_init(ui_ChatBotPage);
 
     lv_obj_add_event_cb(ui_ChatBotPage, ui_event_ChatBotPage, LV_EVENT_ALL, NULL);
 
