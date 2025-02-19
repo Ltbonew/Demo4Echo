@@ -21,6 +21,8 @@ class MessageHandler:
         self.audio_processor = AudioProcessor()
         # 初始化模型管理器
         self.model_manager = ModelManager(aliyun_api_key=aliyun_api_key)
+        # client当前状态
+        self.now_state = "idle"
         # 使用numpy数组作为音频缓冲区
         self.rec_audio_buffer = np.array([], dtype=np.int16)  # 初始化为空的numpy数组, 用于存储client发送来的音频数据
         # 记录VAD处理的最后位置，用于200ms的VAD推理
@@ -126,6 +128,7 @@ class MessageHandler:
 
     # 处理文本数据
     def handle_text_message(self, data):
+
         if data.get('type') == 'hello':
             self.audio_proc_reset()
             audio_params = data.get('audio_params', {})
@@ -137,7 +140,9 @@ class MessageHandler:
             # self.audio_processor.set_audio_params(sample_rate, channels, frame_duration_ms)
 
         if data.get('type') == 'state' :
+            # client 端 idle 信息
             if data.get('state') == 'idle':
+                self.now_state = "idle"
                 self.model_manager.clear_messages()
                 try:
                     self.model_manager.tts_stream_close()
@@ -145,58 +150,64 @@ class MessageHandler:
                     pass
                 self.audio_proc_reset()
 
+            # client 端 listening 信息
             elif data.get('state') == 'listening':
+                self.now_state = "listening"
                 self.audio_proc_reset()
+                # 提前打开tts流
                 self.model_manager.tts_stream_set(on_data=self.__tts_on_data)
 
+            # client 端 speaking 信息
             elif data.get('state') == 'speaking':
-                # ASR识别
-                asr_text = self.model_manager.ASR_generate_text(self.rec_audio_buffer[:self.last_speech_pos*self.audio_processor.sample_rate//1000].astype(np.float32))
-                if asr_text:
-                    logger.info(f"ASR result: {asr_text}")
-                    # asr识别异常处理还需要
-                    res =  {
-                        "type": "asr",
-                        "text": asr_text
-                    }
-                    self.audio_proc_reset()
-                self.ws_send_msg.put(res)
-                # LLM回答
-                llm_ress = self.model_manager.get_LLM_answer(asr_text)
-                # 如果没有获取到LLM回答
-                if llm_ress == -1:
-                    response =  {
-                        "type": "error",
-                        "message": "Failed to get LLM response"
-                    }
-                    return response
-                # 获取到LLM回答
-                else:
-                    # TTS合成
-                    if self.model_manager.tts_stream_speech_synthesis(llm_ress) != True:
-                        logger.error("TTS failed")
+                # 确保上次状态是 listening
+                if self.now_state == "listening":
+                    # ASR识别
+                    asr_text = self.model_manager.ASR_generate_text(self.rec_audio_buffer[:self.last_speech_pos*self.audio_processor.sample_rate//1000].astype(np.float32))
+                    if asr_text:
+                        logger.info(f"ASR result: {asr_text}")
+                        # asr识别异常处理还需要
+                        res =  {
+                            "type": "asr",
+                            "text": asr_text
+                        }
+                        self.audio_proc_reset()
+                    self.ws_send_msg.put(res)
+                    # LLM回答
+                    llm_ress = self.model_manager.get_LLM_answer(asr_text)
+                    # 如果没有获取到LLM回答
+                    if llm_ress == -1:
                         response =  {
                             "type": "error",
-                            "message": "TTS failed"
+                            "message": "Failed to get LLM response"
                         }
                         return response
-                # 使用fasttext进行语义分类（判断是否有指令）
-                if(self.model_manager.command_recognize(asr_text)=='__label__TalkEnd'):
-                    logger.info("End of conversation")
-                    response =  {
-                        "type": "tts",
-                        "state": "end",
-                        "conversation": "end"
-                    }
-                else:
-                    logger.info("Conversation continues")
-                    response =  {
-                        "type": "tts",
-                        "state": "end",
-                        "conversation": "continue"
-                    }
-                self.audio_proc_reset()
-                return response
+                    # 获取到LLM回答
+                    else:
+                        # TTS合成
+                        if self.model_manager.tts_stream_speech_synthesis(llm_ress) != True:
+                            logger.error("TTS failed")
+                            response =  {
+                                "type": "error",
+                                "message": "TTS failed"
+                            }
+                            return response
+                    # 使用fasttext进行语义分类（判断是否有指令）
+                    if(self.model_manager.command_recognize(asr_text)=='__label__TalkEnd'):
+                        logger.info("End of conversation")
+                        response =  {
+                            "type": "tts",
+                            "state": "end",
+                            "conversation": "end"
+                        }
+                    else:
+                        logger.info("Conversation continues")
+                        response =  {
+                            "type": "tts",
+                            "state": "end",
+                            "conversation": "continue"
+                        }
+                    self.audio_proc_reset()
+                    return response
         return
     # 处理所有收到的消息
     def handle_message(self, message):
