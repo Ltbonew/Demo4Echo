@@ -9,6 +9,8 @@ lv_obj_t * ui_thinkImg;
 lv_obj_t * ui_HandImg;
 lv_obj_t * ui_EyeRight;
 lv_obj_t * ui_EyeLeft;
+lv_obj_t * ui_MouthPanel;
+lv_obj_t * ui_Mouth;
 
 ///////////////////// ANIMATIONS ////////////////////
 
@@ -139,6 +141,22 @@ static void _ListenMove_Animation(void)
     eye_width_now += 30;
 }
 
+static void _SpeakMove_Animation(void)
+{
+    int16_t mouth_panel_y_pos_now = 95;
+    int16_t mouth_y_pos_now = -40;
+    int16_t eye_panel_hight_now = 80;
+    _ui_user_Animation(ui_Mouth, 0, 150, mouth_y_pos_now, mouth_y_pos_now-10, 0, 150, 0, 6, lv_anim_path_ease_out, _ui_anim_callback_set_y);
+    _ui_user_Animation(ui_MouthPanel, 0, 150, mouth_panel_y_pos_now, mouth_panel_y_pos_now+10, 0, 150, 0, 6, lv_anim_path_ease_out, _ui_anim_callback_set_y);
+    // blink
+    _ui_user_Animation(ui_EyesPanel, 500, 200, eye_panel_hight_now, 10, 0, 200, 0, 1, lv_anim_path_ease_in_out, _ui_anim_callback_set_hight);
+    _ui_user_Animation(ui_EyesPanel, 2000, 200, eye_panel_hight_now, 10, 0, 200, 0, 1, lv_anim_path_ease_in_out, _ui_anim_callback_set_hight);
+
+    _ui_user_Animation(ui_Mouth, 1500, 150, mouth_y_pos_now, mouth_y_pos_now-10, 0, 150, 0, 4, lv_anim_path_ease_out, _ui_anim_callback_set_y);
+    _ui_user_Animation(ui_MouthPanel, 1500, 150, mouth_panel_y_pos_now, mouth_panel_y_pos_now+10, 0, 150, 0, 4, lv_anim_path_ease_out, _ui_anim_callback_set_y);
+
+}
+
 ///////////////////// FUNCTIONS ////////////////////
 
 void ui_ChatBotPage_Objs_reinit(void)
@@ -163,6 +181,16 @@ void ui_ChatBotPage_Objs_reinit(void)
     lv_obj_set_x(ui_EyeLeft, -60);
     lv_obj_set_y(ui_EyeLeft, 0);
 
+    lv_obj_set_width(ui_EyeLeft, 80);
+    lv_obj_set_height(ui_EyeLeft, 80);
+    lv_obj_set_x(ui_EyeLeft, -60);
+    lv_obj_set_y(ui_EyeLeft, 0);
+
+    lv_obj_set_width(ui_Mouth, 60);
+    lv_obj_set_height(ui_Mouth, 60);
+    lv_obj_set_x(ui_Mouth, 0);
+    lv_obj_set_y(ui_Mouth, -40);
+
     lv_obj_set_style_opa(ui_QuestionImg, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_set_style_opa(ui_thinkImg, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -178,7 +206,8 @@ static void ui_event_ChatBotPage(lv_event_t * e)
         lv_indev_wait_release(lv_indev_active());
         // _IdleMove1_Animation();
         // _IdleMove2_Animation();
-        _ListenMove_Animation();
+        // _ListenMove_Animation();
+        _SpeakMove_Animation();
     }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_active());
@@ -200,7 +229,7 @@ void ui_ChatBotPage_init(void)
     lv_obj_set_x(ui_EyesPanel, 0);
     lv_obj_set_y(ui_EyesPanel, -25);
     lv_obj_set_align(ui_EyesPanel, LV_ALIGN_CENTER);
-    lv_obj_remove_flag(ui_EyesPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_remove_flag(ui_EyesPanel, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_EyesPanel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_EyesPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_EyesPanel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -210,7 +239,7 @@ void ui_ChatBotPage_init(void)
     lv_obj_set_width(ui_EyesVerMovePanel, 210);
     lv_obj_set_height(ui_EyesVerMovePanel, 80);
     lv_obj_set_align(ui_EyesVerMovePanel, LV_ALIGN_CENTER);
-    lv_obj_remove_flag(ui_EyesVerMovePanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_remove_flag(ui_EyesVerMovePanel, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_EyesVerMovePanel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_EyesVerMovePanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_EyesVerMovePanel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -240,6 +269,30 @@ void ui_ChatBotPage_init(void)
     lv_obj_set_style_bg_color(ui_EyeLeft, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_EyeLeft, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_MouthPanel = lv_obj_create(ui_ChatBotPage);
+    lv_obj_set_width(ui_MouthPanel, 80);
+    lv_obj_set_height(ui_MouthPanel, 80);
+    lv_obj_set_x(ui_MouthPanel, 0);
+    lv_obj_set_y(ui_MouthPanel, 95);
+    lv_obj_set_align(ui_MouthPanel, LV_ALIGN_CENTER);
+    lv_obj_remove_flag(ui_MouthPanel, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_MouthPanel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_MouthPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_MouthPanel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_MouthPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Mouth = lv_button_create(ui_MouthPanel);
+    lv_obj_set_width(ui_Mouth, 60);
+    lv_obj_set_height(ui_Mouth, 60);
+    lv_obj_set_x(ui_Mouth, 0);
+    lv_obj_set_y(ui_Mouth, -40);
+    lv_obj_set_align(ui_Mouth, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Mouth, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_Mouth, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_Mouth, 80, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Mouth, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Mouth, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     ui_QuestionImg = lv_image_create(ui_ChatBotPage);
     lv_image_set_src(ui_QuestionImg, &ui_img_364131572);
     lv_obj_set_width(ui_QuestionImg, LV_SIZE_CONTENT);   /// 60
@@ -247,8 +300,7 @@ void ui_ChatBotPage_init(void)
     lv_obj_set_x(ui_QuestionImg, 125);
     lv_obj_set_y(ui_QuestionImg, -80);
     lv_obj_set_align(ui_QuestionImg, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_QuestionImg, LV_OBJ_FLAG_CLICKABLE);     /// Flags
-    lv_obj_remove_flag(ui_QuestionImg, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_remove_flag(ui_QuestionImg, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);      /// Flags
     lv_obj_set_style_opa(ui_QuestionImg, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_thinkImg = lv_image_create(ui_ChatBotPage);
@@ -258,8 +310,7 @@ void ui_ChatBotPage_init(void)
     lv_obj_set_x(ui_thinkImg, 120);
     lv_obj_set_y(ui_thinkImg, -80);
     lv_obj_set_align(ui_thinkImg, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_thinkImg, LV_OBJ_FLAG_CLICKABLE);     /// Flags
-    lv_obj_remove_flag(ui_thinkImg, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_remove_flag(ui_thinkImg, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);      /// Flags
     lv_obj_set_style_opa(ui_thinkImg, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_HandImg = lv_image_create(ui_ChatBotPage);
@@ -269,8 +320,7 @@ void ui_ChatBotPage_init(void)
     lv_obj_set_x(ui_HandImg, 0);
     lv_obj_set_y(ui_HandImg, 55);
     lv_obj_set_align(ui_HandImg, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_HandImg, LV_OBJ_FLAG_CLICKABLE);     /// Flags
-    lv_obj_remove_flag(ui_HandImg, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_remove_flag(ui_HandImg, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);      /// Flags
     lv_image_set_rotation(ui_HandImg, -350);
     lv_obj_set_style_opa(ui_HandImg, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
