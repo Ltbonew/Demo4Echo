@@ -119,7 +119,7 @@ void WebSocketClient::on_message(websocketpp::connection_hdl hdl, client_t::mess
 
 // 连接关闭的回调
 void WebSocketClient::on_close(websocketpp::connection_hdl hdl) {
-    USER_LOG_INFO("Connection closed.");
+    USER_LOG_WARN("Connection closed.");
     if (on_close_) {  // 调用用户设置的关闭回调
         on_close_();
     }
