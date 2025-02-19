@@ -17,6 +17,7 @@
 #include <optional>
 
 enum class AppState {
+    fault,
     idle,
     listening,
     speaking,
@@ -25,6 +26,7 @@ enum class AppState {
 
 enum class AppEvent {
     fault,
+    fault_solved,
     wake_detected,
     vad_no_speech,
     vad_end,
@@ -44,7 +46,7 @@ public:
         cond_var_.notify_one(); // 通知有新元素
     }
 
-    // 获取并移除队列中的最前面的元素
+    // 获取并移除队列中的最前面的元素(阻塞)
     std::optional<T> Dequeue() {
         std::unique_lock<std::mutex> lock(mutex_);
         // 等待条件变量，直到有元素或者被通知
@@ -55,6 +57,12 @@ public:
             return item;
         }
         return std::nullopt; // 如果队列为空，则返回空值
+    }
+    
+    // 检查队列是否为空，非阻塞
+    bool IsEmpty() const {
+        std::lock_guard<std::mutex> lock(mutex_); // 使用锁以保证线程安全
+        return queue_.empty();
     }
 
 private:
@@ -77,6 +85,9 @@ private:
     AppEvent_t_ handle_asr_message(const Json::Value& root);
     AppEvent_t_ handle_tts_message(const Json::Value& root);
 
+    void fault_enter();
+    void fault_exit();
+
     void idle_enter();
     void idleState_run();
     void idle_exit();
@@ -84,9 +95,6 @@ private:
     void listening_enter();
     void listeningState_run();
     void listening_exit();
-
-    void thinking_enter();
-    void thinking_exit();
 
     void speaking_enter();
     void speakingState_run();
@@ -101,7 +109,8 @@ private:
     bool conversation_completed_ = false;
     std::atomic<bool> state_running_ = false;
     std::thread state_running_thread_;
-    
+    // 原子变量用于通知线程退出
+    std::atomic<bool> threads_stop_flag_ = false;
 
     // 创建线程安全的消息队列
     ThreadSafeQueue<std::string> messageQueue_;

@@ -7,14 +7,13 @@ Application::Application(const std::string& address, int port, const std::string
       protocolVersion_(protocolVersion),
       client_state_(static_cast<int>(AppState::idle)),
       audio_processor_(audio_processor) {
-
         // 设置接收到消息的回调函数
         ws_client_.SetMessageCallback([this](const std::string& message, bool is_binary) {
             ws_msg_callback(message, is_binary);
         });
         ws_client_.SetCloseCallback([this]() {
             // 断开连接时的回调
-            
+            eventQueue_.Enqueue(static_cast<int>(AppEvent::fault));
         });
 }
 
@@ -121,6 +120,21 @@ Application::AppEvent_t_ Application::handle_tts_message(const Json::Value& root
     return -1;
 }
 
+void Application::fault_enter() {
+    USER_LOG_WARN("Into fault state.");
+    if (!ws_client_.IsConnected()) {
+        USER_LOG_WARN("fault: not connect to server");
+        // 设置标志，通知线程退出
+        threads_stop_flag_.store(true);
+    }
+    else {
+        eventQueue_.Enqueue(static_cast<int>(AppEvent::fault_solved));
+    }
+}
+
+void Application::fault_exit() {
+    USER_LOG_WARN("Fault exit.");
+}
 
 void Application::idle_enter() {
     std::string json_message = R"({"type": "state", "state": "idle"})";
@@ -130,7 +144,7 @@ void Application::idle_enter() {
     // 开启录音
     audio_processor_.startRecording();
     // start state running
-    state_running_ = true;
+    state_running_.store(true);
     state_running_thread_ = std::thread([this]() { idleState_run(); });
     USER_LOG_INFO("Into Idle state.");
 }
@@ -142,8 +156,9 @@ void Application::idleState_run() {
     SnowboyDetectSetAudioGain(detector, 1);
     SnowboyDetectApplyFrontend(detector, false);
     std::vector<int16_t> data;
-    while (state_running_ == true) {
-        if(audio_processor_.getRecordedAudio(data)) {
+    while (state_running_.load() == true) {
+        if(audio_processor_.recordedQueueIsEmpty() == false) {
+            audio_processor_.getRecordedAudio(data);
             // 检测唤醒词
             int result = SnowboyDetectRunDetection(detector, data.data(), data.size(), false);
             if (result > 0) {
@@ -154,6 +169,7 @@ void Application::idleState_run() {
             }
         }
     }
+    USER_LOG_INFO("ready to destroy snowboy detector.");
     SnowboyDetectDestructor(detector);
 }
 
@@ -161,7 +177,7 @@ void Application::idle_exit() {
     // stop录音
     audio_processor_.stopRecording();
     // stop running
-    state_running_ = false;
+    state_running_.store(false);
     state_running_thread_.join();
 
     // playing waked up sound
@@ -193,13 +209,13 @@ void Application::listening_enter() {
     // clear playback audio queue
     audio_processor_.clearPlaybackAudioQueue();
     // running
-    state_running_ = true;
+    state_running_.store(true);
     state_running_thread_ = std::thread([this]() { listeningState_run(); });
     USER_LOG_INFO("Into listening state.");
 }
 
 void Application::listeningState_run() {
-    while (state_running_ == true) {
+    while (state_running_.load() == true) {
         std::vector<int16_t> audio_frame;
         if(audio_processor_.recordedQueueIsEmpty() == false) {
             if(audio_processor_.getRecordedAudio(audio_frame)) {
@@ -227,7 +243,7 @@ void Application::listening_exit() {
     // stop录音
     audio_processor_.stopRecording();
     // stop running
-    state_running_ = false;
+    state_running_.store(false);
     state_running_thread_.join();
     USER_LOG_INFO("Listening exit.");
 }
@@ -238,14 +254,14 @@ void Application::speaking_enter() {
     // start播放
     audio_processor_.startPlaying();
     // running
-    state_running_ = true;
+    state_running_.store(true);
     state_running_thread_ = std::thread([this]() { speakingState_run(); });
     USER_LOG_INFO("Into speaking state.");
 }
 
 void Application::speakingState_run() {
     USER_LOG_INFO("Speaking state run.");
-    while(state_running_ == true) {
+    while(state_running_.load() == true) {
         if(tts_completed_ && audio_processor_.playbackQueueIsEmpty()) {
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
             USER_LOG_INFO("Speaking end.");
@@ -267,7 +283,7 @@ void Application::speaking_exit() {
     // stop播放
     // audio_processor_.stopPlaying();
     // stop state running
-    state_running_ = false;
+    state_running_.store(false);
     state_running_thread_.join();
     USER_LOG_INFO("Speaking exit.");
 }
@@ -300,19 +316,21 @@ void Application::Run() {
 
     std::thread ws_msg_thread([this]() {
         // websocket收到的json处理
-        while(true) {
+        while(threads_stop_flag_.load() == false) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            if(auto message_opt = messageQueue_.Dequeue(); message_opt) {
-                std::string message = message_opt.value();
-                // 检查是否为 "null" 或者是空字符串
-                if (message == "null" || message.empty()) {
-                    continue; // 跳过本次循环的后续操作
-                }
-                // 处理信息转化为事件
-                int event = handle_message(message);
-                // 发送事件到事件队列
-                if(event!=-1) {
-                    eventQueue_.Enqueue(event);
+            if(messageQueue_.IsEmpty() == false) {
+                if(auto message_opt = messageQueue_.Dequeue(); message_opt) {
+                    std::string message = message_opt.value();
+                    // 检查是否为 "null" 或者是空字符串
+                    if (message == "null" || message.empty()) {
+                        continue; // 跳过本次循环的后续操作
+                    }
+                    // 处理信息转化为事件
+                    int event = handle_message(message);
+                    // 发送事件到事件队列
+                    if(event!=-1) {
+                        eventQueue_.Enqueue(event);
+                    }
                 }
             }
         }
@@ -320,6 +338,7 @@ void Application::Run() {
 
     std::thread state_trans_thread([this]() {
         // 添加状态
+        client_state_.RegisterState(static_cast<int>(AppState::fault), [this]() {fault_enter();}, [this]() {fault_exit();});
         client_state_.RegisterState(static_cast<int>(AppState::idle), [this]() {idle_enter();}, [this]() {idle_exit();});
         client_state_.RegisterState(static_cast<int>(AppState::listening), [this]() {listening_enter(); }, [this]() {listening_exit(); });
         client_state_.RegisterState(static_cast<int>(AppState::speaking), [this]() {speaking_enter(); }, [this]() {speaking_exit(); });
@@ -330,17 +349,20 @@ void Application::Run() {
         client_state_.RegisterTransition(static_cast<int>(AppState::listening), static_cast<int>(AppEvent::vad_end), static_cast<int>(AppState::speaking));
         client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::speaking_end), static_cast<int>(AppState::listening));
         client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::conversation_end), static_cast<int>(AppState::idle));
-        client_state_.RegisterTransition(-1, static_cast<int>(AppEvent::fault), static_cast<int>(AppState::idle));
+        client_state_.RegisterTransition(-1, static_cast<int>(AppEvent::fault), static_cast<int>(AppState::fault));
+        client_state_.RegisterTransition(static_cast<int>(AppState::fault), static_cast<int>(AppEvent::fault_solved), static_cast<int>(AppState::idle));
         // 初始化
         client_state_.Initialize();
 
         // 主要执行state事件处理, 状态切换
-        while(true) {
+        while(threads_stop_flag_.load() == false) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            // 事件queue处理
-            if (auto event_opt = eventQueue_.Dequeue(); event_opt) {
-                client_state_.HandleEvent(event_opt.value());
-            }
+            if(eventQueue_.IsEmpty() == false) {
+                // 事件queue处理
+                if (auto event_opt = eventQueue_.Dequeue(); event_opt) {
+                    client_state_.HandleEvent(event_opt.value());
+                }
+            } 
         }
     });
 
@@ -348,5 +370,6 @@ void Application::Run() {
     ws_msg_thread.join();
     // 等待 state 切换事件线程结束
     state_trans_thread.join();
-  
+    USER_LOG_WARN("Application exit.");
+    return;
 }
