@@ -188,13 +188,8 @@ void Application::idle_exit() {
         audio_processor_.addFrameToPlaybackQueue(frame);
         audioQueue.pop();
     }
-    audio_processor_.startPlaying();
-    while(!audio_processor_.playbackQueueIsEmpty()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
+    tts_completed_ = true;
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    // audio_processor_.stopPlaying();
-
     USER_LOG_INFO("Idle exit.");
 }
 
@@ -344,7 +339,7 @@ void Application::Run() {
         client_state_.RegisterState(static_cast<int>(AppState::speaking), [this]() {speaking_enter(); }, [this]() {speaking_exit(); });
         
         // 添加状态切换
-        client_state_.RegisterTransition(static_cast<int>(AppState::idle), static_cast<int>(AppEvent::wake_detected), static_cast<int>(AppState::listening));
+        client_state_.RegisterTransition(static_cast<int>(AppState::idle), static_cast<int>(AppEvent::wake_detected), static_cast<int>(AppState::speaking));
         client_state_.RegisterTransition(static_cast<int>(AppState::listening), static_cast<int>(AppEvent::vad_no_speech), static_cast<int>(AppState::idle));
         client_state_.RegisterTransition(static_cast<int>(AppState::listening), static_cast<int>(AppEvent::vad_end), static_cast<int>(AppState::speaking));
         client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::speaking_end), static_cast<int>(AppState::listening));
