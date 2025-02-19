@@ -1,4 +1,8 @@
-  <h2 align="center">1. AI语音助手 demo</h2>
+<h1 align="center">Demos for Echo</h2>
+
+这个仓库存放着Echo开发板的各种例程, 包括LVGL, AI对话机器人, 机器视觉等独立的demo。Echo-Mate桌面助手机器人就是把他们融合起来做成的, LVGL作为UI界面, 这些高级demo作为子APP～
+
+<h2 align="center">1. AI语音助手 demo</h2>
 
 ### :ledger: Overview
 
@@ -44,7 +48,7 @@ AI语音助手的运行流程大致如下图所示：
 
 Client端和Server端通过Webscokets进行通信，通过JSON进行交互，语音传输格式为opus. 
 
-具体内容详见[Client](./AI_Chat_demo/Client/README.md)和[Server](./AI_Chat_demo/Server/README.md)的README.
+具体内容详见[Client](./AIChat_demo/Client/README.md)和[Server](./AIChat_demo/Server/README.md)的README.
 
 
   <h2 align="center">2. yolov5 demo</h2>
