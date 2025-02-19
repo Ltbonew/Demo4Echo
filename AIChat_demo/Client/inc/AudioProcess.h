@@ -49,6 +49,7 @@ public:
      * 
      * @param recordedData The recorded audio data.
      * @return true if recorded audio data is available, false is empty.
+     * @note This function is blocking.
      */
     bool getRecordedAudio(std::vector<int16_t>& recordedData);
 
