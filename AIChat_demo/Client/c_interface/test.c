@@ -10,9 +10,6 @@ int main() {
 
     run_application(app);
 
-    ChatState state = get_application_state(app);
-    printf("Current application state: %d\n", state);
-
     destroy_application(app);
 
     return 0;
