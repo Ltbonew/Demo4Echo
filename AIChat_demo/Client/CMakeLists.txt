@@ -47,8 +47,7 @@ include_directories(
 )
 
 # Add the source files
-add_executable(AIChatClient
-    src/main.cc
+add_library(AIChatCore STATIC
     src/AudioProcess.cc
     src/WebsocketClient.cc
     src/Application.cc
@@ -56,13 +55,22 @@ add_executable(AIChatClient
 )
 
 # Link libraries for opus and websocketpp
-target_link_libraries(AIChatClient
+target_link_libraries(AIChatCore
     ${OPUS_LIBRARIES}
     ${PORTAUDIO_LIBRARIES}
     ${JSONCPP_LIBRARIES}
     ${WEBSOCKETPP_LIBRARIES}
     snowboy-detect-c-wrapper
 )
+
+# Add the executable and link it to the core library
+add_executable(AIChatClient 
+    src/main.cc
+)
+target_link_libraries(AIChatClient AIChatCore)
+
+# Add the C interface (cmake details in c_interface/CMakeLists.txt)
+add_subdirectory(c_interface)
 
 # Custom command to clean up generated files
 add_custom_target(clean-all
