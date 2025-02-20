@@ -75,6 +75,7 @@ class Application {
 public:
     Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, int protocolVersion, AudioProcess& audio_processor);
     void Run();
+    int getState();
 
 private:
     using AppEvent_t_ = int;

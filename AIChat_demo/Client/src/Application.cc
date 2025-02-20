@@ -283,6 +283,10 @@ void Application::speaking_exit() {
     USER_LOG_INFO("Speaking exit.");
 }
 
+int Application::getState() {
+    return client_state_.GetCurrentState();
+}
+
 void Application::Run() {
 
     ws_client_.Run(); // 会开一个thread
