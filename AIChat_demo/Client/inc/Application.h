@@ -76,6 +76,7 @@ private:
 class Application {
 public:
     Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, int protocolVersion, int sample_rate, int channels, int frame_duration);
+    ~Application();
     void Run();
     int getState();
 

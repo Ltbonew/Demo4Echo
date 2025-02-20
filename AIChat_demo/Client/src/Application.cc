@@ -18,6 +18,11 @@ Application::Application(const std::string& address, int port, const std::string
         });
 }
 
+Application::~Application() {
+    // do nothing
+    USER_LOG_WARN("Application destruct.");
+}
+
 void Application::ws_msg_callback(const std::string& message, bool is_binary) {
 
     if(!is_binary) {
@@ -145,7 +150,8 @@ void Application::startup_enter() {
     int try_count = 3;
     while(!ws_client_.IsConnected() && try_count) {
         try_count--;
-        std::this_thread::sleep_for(std::chrono::seconds(3));
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        USER_LOG_INFO("Try to connect to server.");
         ws_client_.Connect();
     }
     
@@ -165,7 +171,7 @@ void Application::startup_enter() {
         eventQueue_.Enqueue(static_cast<int>(AppEvent::startup_done));
     }
     else {
-        USER_LOG_WARN("Startup failed.");
+        USER_LOG_ERROR("Startup failed.");
         eventQueue_.Enqueue(static_cast<int>(AppEvent::fault_happen));
     }
 }
