@@ -654,6 +654,21 @@ void ui_HomePage_init(void)
     // event
     lv_obj_add_event_cb(ui_GameMemBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "GameMemoryPage");
 
+    lv_obj_t * ui_DrawBtn = lv_button_create(ui_AppIconContainer);
+    lv_obj_set_width(ui_DrawBtn, 70);
+    lv_obj_set_height(ui_DrawBtn, 70);
+    lv_obj_set_x(ui_DrawBtn, 430);
+    lv_obj_set_y(ui_DrawBtn, 55);
+    lv_obj_set_align(ui_DrawBtn, LV_ALIGN_LEFT_MID);
+    lv_obj_add_flag(ui_DrawBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_DrawBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_DrawBtn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_DrawBtn, lv_color_hex(0x86A8E5), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_DrawBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_image_src(ui_DrawBtn, &ui_img_657561664, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // event
+    lv_obj_add_event_cb(ui_DrawBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "DrawPage");
+
     // timer
     ui_home_timer = lv_timer_create(ui_home_timer_cb, 1000, ui_TimeLabel);
 
