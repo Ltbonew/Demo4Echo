@@ -146,6 +146,7 @@ static void _SpeakMove_Animation(void)
     int16_t mouth_panel_y_pos_now = 95;
     int16_t mouth_y_pos_now = -40;
     int16_t eye_panel_hight_now = 80;
+    lv_obj_set_style_bg_opa(ui_Mouth, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     _ui_user_Animation(ui_Mouth, 0, 150, mouth_y_pos_now, mouth_y_pos_now-10, 0, 150, 0, 6, lv_anim_path_ease_out, _ui_anim_callback_set_y);
     _ui_user_Animation(ui_MouthPanel, 0, 150, mouth_panel_y_pos_now, mouth_panel_y_pos_now+10, 0, 150, 0, 6, lv_anim_path_ease_out, _ui_anim_callback_set_y);
     // blink
@@ -190,6 +191,8 @@ void ui_ChatBotPage_Objs_reinit(void)
     lv_obj_set_height(ui_Mouth, 60);
     lv_obj_set_x(ui_Mouth, 0);
     lv_obj_set_y(ui_Mouth, -40);
+
+    lv_obj_set_style_bg_opa(ui_Mouth, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_set_style_opa(ui_QuestionImg, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -291,7 +294,7 @@ void ui_ChatBotPage_init(void)
     lv_obj_remove_flag(ui_Mouth, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_Mouth, 80, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_Mouth, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Mouth, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Mouth, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_QuestionImg = lv_image_create(ui_ChatBotPage);
     lv_image_set_src(ui_QuestionImg, &ui_img_364131572);
