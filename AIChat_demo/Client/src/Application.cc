@@ -2,18 +2,19 @@
 #include "../inc/user_log.h"
 #include "../third_party/snowboy/include/snowboy-detect-c-wrapper.h"
 
-Application::Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, int protocolVersion, AudioProcess& audio_processor)
+Application::Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, int protocolVersion, 
+                         int sample_rate, int channels, int frame_duration)
     : ws_client_(address, port, token, deviceId, protocolVersion),
       protocolVersion_(protocolVersion),
-      client_state_(static_cast<int>(AppState::idle)),
-      audio_processor_(audio_processor) {
+      client_state_(static_cast<int>(AppState::startup)),
+      audio_processor_(sample_rate, channels, frame_duration) {
         // 设置接收到消息的回调函数
         ws_client_.SetMessageCallback([this](const std::string& message, bool is_binary) {
             ws_msg_callback(message, is_binary);
         });
         ws_client_.SetCloseCallback([this]() {
             // 断开连接时的回调
-            eventQueue_.Enqueue(static_cast<int>(AppEvent::fault));
+            eventQueue_.Enqueue(static_cast<int>(AppEvent::fault_happen));
         });
 }
 
@@ -52,7 +53,7 @@ Application::AppEvent_t_ Application::handle_message(const std::string& message)
     bool parsingSuccessful = reader.parse(message, root);
     if (!parsingSuccessful) {
         USER_LOG_WARN("Error parsing message: %s", reader.getFormattedErrorMessages().c_str());
-        return static_cast<int>(AppEvent::fault);
+        return static_cast<int>(AppEvent::fault_happen);
     }
     // 获取 JSON 对象中的值
     const Json::Value type = root["type"];
@@ -66,7 +67,7 @@ Application::AppEvent_t_ Application::handle_message(const std::string& message)
             return handle_tts_message(root);
         } else if (typeStr == "error") {
             USER_LOG_ERROR("server erro msg: %s", message.c_str());
-            return static_cast<int>(AppEvent::fault);
+            return static_cast<int>(AppEvent::fault_happen);
         }
     }
     USER_LOG_WARN("not event message type: %s", message.c_str());
@@ -134,6 +135,43 @@ void Application::fault_enter() {
 
 void Application::fault_exit() {
     USER_LOG_WARN("Fault exit.");
+}
+
+void Application::startup_enter() {
+    USER_LOG_INFO("Into startup state.");
+    ws_client_.Run(); // 会开一个thread
+    ws_client_.Connect();
+    // 等待连接建立, 尝试3次
+    int try_count = 3;
+    while(!ws_client_.IsConnected() && try_count) {
+        try_count--;
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        ws_client_.Connect();
+    }
+    
+    if (ws_client_.IsConnected()) {
+        std::string json_message = 
+        R"({
+            "type": "hello",
+            "audio_params": {
+                "format": "opus",
+                "sample_rate": )" + std::to_string(audio_processor_.get_sample_rate()) + R"(,
+                "channels": )" + std::to_string(audio_processor_.get_channels()) + R"(,
+                "frame_duration": )" + std::to_string(audio_processor_.get_frame_duration()) + R"(
+            }
+        })";
+
+        ws_client_.SendText(json_message);
+        eventQueue_.Enqueue(static_cast<int>(AppEvent::startup_done));
+    }
+    else {
+        USER_LOG_WARN("Startup failed.");
+        eventQueue_.Enqueue(static_cast<int>(AppEvent::fault_happen));
+    }
+}
+
+void Application::startup_exit() {
+    USER_LOG_INFO("Startup exit.");
 }
 
 void Application::idle_enter() {
@@ -289,30 +327,7 @@ int Application::getState() {
 
 void Application::Run() {
 
-    ws_client_.Run(); // 会开一个thread
-    ws_client_.Connect();
-    // 必须等待连接建立
-    while(!ws_client_.IsConnected()) {
-        std::this_thread::sleep_for(std::chrono::seconds(5));
-        ws_client_.Connect();
-    }
-    
-    if (ws_client_.IsConnected()) {
-
-        std::string json_message = 
-        R"({
-            "type": "hello",
-            "audio_params": {
-                "format": "opus",
-                "sample_rate": )" + std::to_string(audio_processor_.get_sample_rate()) + R"(,
-                "channels": )" + std::to_string(audio_processor_.get_channels()) + R"(,
-                "frame_duration": )" + std::to_string(audio_processor_.get_frame_duration()) + R"(
-            }
-        })";
-
-        ws_client_.SendText(json_message);
-    }
-
+    // websocket消息处理线程
     std::thread ws_msg_thread([this]() {
         // websocket收到的json处理
         while(threads_stop_flag_.load() == false) {
@@ -335,20 +350,23 @@ void Application::Run() {
         }
     });
 
+    // 状态切换与执行线程
     std::thread state_trans_thread([this]() {
         // 添加状态
         client_state_.RegisterState(static_cast<int>(AppState::fault), [this]() {fault_enter();}, [this]() {fault_exit();});
+        client_state_.RegisterState(static_cast<int>(AppState::startup), [this]() {startup_enter();}, [this]() {startup_exit();});
         client_state_.RegisterState(static_cast<int>(AppState::idle), [this]() {idle_enter();}, [this]() {idle_exit();});
         client_state_.RegisterState(static_cast<int>(AppState::listening), [this]() {listening_enter(); }, [this]() {listening_exit(); });
         client_state_.RegisterState(static_cast<int>(AppState::speaking), [this]() {speaking_enter(); }, [this]() {speaking_exit(); });
         
         // 添加状态切换
+        client_state_.RegisterTransition(static_cast<int>(AppState::startup), static_cast<int>(AppEvent::startup_done), static_cast<int>(AppState::idle));
         client_state_.RegisterTransition(static_cast<int>(AppState::idle), static_cast<int>(AppEvent::wake_detected), static_cast<int>(AppState::speaking));
         client_state_.RegisterTransition(static_cast<int>(AppState::listening), static_cast<int>(AppEvent::vad_no_speech), static_cast<int>(AppState::idle));
         client_state_.RegisterTransition(static_cast<int>(AppState::listening), static_cast<int>(AppEvent::vad_end), static_cast<int>(AppState::speaking));
         client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::speaking_end), static_cast<int>(AppState::listening));
         client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::conversation_end), static_cast<int>(AppState::idle));
-        client_state_.RegisterTransition(-1, static_cast<int>(AppEvent::fault), static_cast<int>(AppState::fault));
+        client_state_.RegisterTransition(-1, static_cast<int>(AppEvent::fault_happen), static_cast<int>(AppState::fault));
         client_state_.RegisterTransition(static_cast<int>(AppState::fault), static_cast<int>(AppEvent::fault_solved), static_cast<int>(AppState::idle));
         // 初始化
         client_state_.Initialize();

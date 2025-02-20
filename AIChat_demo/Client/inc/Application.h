@@ -18,6 +18,7 @@
 
 enum class AppState {
     fault,
+    startup,
     idle,
     listening,
     speaking,
@@ -25,8 +26,9 @@ enum class AppState {
 };
 
 enum class AppEvent {
-    fault,
+    fault_happen,
     fault_solved,
+    startup_done,
     wake_detected,
     vad_no_speech,
     vad_end,
@@ -73,7 +75,7 @@ private:
 
 class Application {
 public:
-    Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, int protocolVersion, AudioProcess& audio_processor);
+    Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, int protocolVersion, int sample_rate, int channels, int frame_duration);
     void Run();
     int getState();
 
@@ -89,6 +91,9 @@ private:
     void fault_enter();
     void fault_exit();
 
+    void startup_enter();
+    void startup_exit();
+
     void idle_enter();
     void idleState_run();
     void idle_exit();
@@ -101,6 +106,7 @@ private:
     void speakingState_run();
     void speaking_exit();
 
+    AudioProcess audio_processor_;
     WebSocketClient ws_client_;
     StateMachine client_state_; // 更改成员变量名称
     int frame_duration_;
@@ -117,8 +123,6 @@ private:
     ThreadSafeQueue<std::string> messageQueue_;
     // 创建线程安全的事件队列
     ThreadSafeQueue<int> eventQueue_;
-    // 创建audio process对象
-    AudioProcess& audio_processor_;
     
 };
 
