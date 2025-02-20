@@ -4,11 +4,11 @@
 
 这里默认大家都是用的自己的电脑搭建服务，默认同学们都没有GPU（有就更好）
 
-首先创建虚拟环境, 不然容易污染你的系统环境, 作者使用的python3.10。环境名字就起名AIChatServerEnv好了，环境名可自定义。
+首先创建虚拟环境, 不然容易污染你的系统环境, 作者使用的python3.10。环境名字就起名`AIChatServerEnv`好了，环境名可自定义。
 
 ``` sh
 cd ./your-path
-conda create --prefix ./AIChatServerEnv python=3.10 numpy
+conda create --prefix ./AIChatServerEnv python=3.10
 ```
 
 然后启动虚拟环境，并安装所需要的包，如果下载不了需要科学上网
@@ -26,7 +26,7 @@ python ./main.py --access_token="123456" --aliyun_api_key="sk-your-api-key"
 
 ### 文件目录介绍
 
-```python
+```sh
 Server/
 ├── fasttext/       # fasttext相关内容
 |   ├── data        # 存放训练用的数据集
