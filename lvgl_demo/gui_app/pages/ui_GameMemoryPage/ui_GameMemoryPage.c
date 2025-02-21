@@ -82,7 +82,7 @@ void ui_event_GameMemBtnM_handler(lv_event_t * e)
     if(code == LV_EVENT_DRAW_TASK_ADDED)
     {
         lv_draw_task_t * draw_task = lv_event_get_draw_task(e);
-        lv_draw_dsc_base_t * base_dsc = draw_task->draw_dsc;
+        lv_draw_dsc_base_t * base_dsc = lv_draw_task_get_draw_dsc(draw_task);
         if(base_dsc->part == LV_PART_ITEMS)
         {
             if(base_dsc->id1 >= 0)
