@@ -1,6 +1,8 @@
 #include "ui.h"
 #include "./pages/ui_HomePage/ui_HomePage.h"
+
 #include "./pages/ui_ChatBotPage/ui_ChatBotPage.h"
+#include "./pages/ui_GameMemoryPage/ui_GameMemoryPage.h"
 ///////////////////// VARIABLES ////////////////////
 
 lv_lib_pm_t page_manager;
@@ -13,7 +15,7 @@ lv_lib_pm_t page_manager;
 
 ///////////////////// all apps ////////////////////
 
-#define _APP_NUMS 2 // number of apps (including HomePage)
+#define _APP_NUMS 3 // number of apps (including HomePage)
 
 ui_app_data_t ui_apps[_APP_NUMS] = {
     {
@@ -22,18 +24,46 @@ ui_app_data_t ui_apps[_APP_NUMS] = {
         .deinit = ui_HomePage_deinit,
         .page_obj = NULL
     },
-    {
-        .name = "ChatBotPage",
-        .init = ui_ChatBotPage_init,
-        .deinit = ui_ChatBotPage_deinit,
-        .page_obj = NULL
-    }
     // {
     //     .name = "SettingPage",
     //     .init = NULL,
     //     .deinit = NULL,
     //     .page_obj = NULL
     // },
+    // {
+    //     .name = "WeatherPage",
+    //     .init = NULL,
+    //     .deinit = NULL,
+    //     .page_obj = NULL
+    // },
+    // {
+    //     .name = "CalendarPage",
+    //     .init = NULL,
+    //     .deinit = NULL,
+    //     .page_obj = NULL
+    // },
+    // {
+    //     .name = "MemoPage",
+    //     .init = NULL,
+    //     .deinit = NULL,
+    //     .page_obj = NULL
+    // },
+    //     .name = "GameMuyuPage",
+    //     .init = NULL,
+    //     .deinit = NULL,
+    //     .page_obj = NULL
+    // },
+    //     .name = "Game2048Page",
+    //     .init = NULL,
+    //     .deinit = NULL,
+    //     .page_obj = NULL
+    // },
+    {
+        .name = "ChatBotPage",
+        .init = ui_ChatBotPage_init,
+        .deinit = ui_ChatBotPage_deinit,
+        .page_obj = NULL
+    },
     // {
     //     .name = "CameraPage",
     //     .init = NULL,
@@ -46,8 +76,14 @@ ui_app_data_t ui_apps[_APP_NUMS] = {
     //     .deinit = NULL,
     //     .page_obj = NULL
     // },
+    {
+        .name = "GameMemoryPage",
+        .init = ui_GameMemoryPage_init,
+        .deinit = ui_GameMemoryPage_deinit,
+        .page_obj = NULL
+    },
     // {
-    //     .name = "GameMemoryPage",
+    //     .name = "DrawPage",
     //     .init = NULL,
     //     .deinit = NULL,
     //     .page_obj = NULL
