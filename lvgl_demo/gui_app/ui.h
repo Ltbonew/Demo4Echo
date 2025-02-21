@@ -27,6 +27,7 @@ LV_FONT_DECLARE(ui_font_iconfont26);
 LV_FONT_DECLARE(ui_font_iconfont36);
 LV_FONT_DECLARE(ui_font_iconfont44);
 LV_FONT_DECLARE(ui_font_iconfont48);
+LV_FONT_DECLARE(ui_font_heiti14);
 
 // ui apps data
 typedef lv_lib_pm_page_t ui_app_data_t;
