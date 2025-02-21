@@ -2,6 +2,10 @@
 #include "app_HomePage.h"
 ///////////////////// VARIABLES ////////////////////
 
+static const char *day_names[] =
+{
+    "日", "一", "二", "三", "四", "五", "六"
+};
 
 ///////////////////// ANIMATIONS ////////////////////
 
@@ -25,16 +29,28 @@ static void ui_enent_Gesture(lv_event_t * e)
 void ui_CalendarPage_init()
 {
     lv_obj_t * ui_CalendarPage = lv_obj_create(NULL);
-    lv_obj_remove_flag(ui_CalendarPage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    // lv_obj_remove_flag(ui_CalendarPage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_t * calendar = lv_calendar_create(ui_CalendarPage);
-    lv_obj_t * ui_Calendar1_header = lv_calendar_header_arrow_create(calendar);
     lv_obj_set_width(calendar, 320);
-    lv_obj_set_height(calendar, 240);
+    lv_obj_set_height(calendar, 320);
     lv_obj_align(calendar, LV_ALIGN_TOP_MID, 0, 0);
     int year, month, day;
     get_current_date(&year, &month, &day);
     lv_calendar_set_today_date(calendar, year, month, day);
     lv_calendar_set_showed_date(calendar, year, month);
+
+    lv_calendar_set_day_names(calendar, day_names);
+
+    lv_calendar_set_chinese_mode(calendar, true);
+    lv_obj_set_style_text_font(calendar, &ui_font_heiti14, LV_PART_MAIN);
+
+    #if LV_USE_CALENDAR_HEADER_DROPDOWN
+    lv_obj_t * calendar_head = lv_calendar_header_dropdown_create(calendar);
+    #elif LV_USE_CALENDAR_HEADER_ARROW
+        lv_calendar_header_arrow_create(calendar);
+    #endif
+
+    lv_obj_set_style_text_font(calendar_head, &lv_font_montserrat_14,  LV_PART_MAIN | LV_STATE_DEFAULT);
 
     // event
     lv_obj_add_event_cb(ui_CalendarPage, ui_enent_Gesture, LV_EVENT_ALL, NULL);
