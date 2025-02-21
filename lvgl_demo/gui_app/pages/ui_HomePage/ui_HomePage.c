@@ -185,6 +185,7 @@ void ui_HomePage_init(void)
     lv_obj_t * ui_AppIconContainer = lv_obj_create(ui_HomeScreen);
     lv_obj_set_width(ui_AppIconContainer, ui_desktop_data.witdh * ui_desktop_data.container_total_pages);
     lv_obj_set_height(ui_AppIconContainer, ui_desktop_data.height);
+    lv_obj_set_x(ui_AppIconContainer, -ui_desktop_data.app_container_index * ui_desktop_data.witdh);
     lv_obj_set_align(ui_AppIconContainer, LV_ALIGN_LEFT_MID);
     lv_obj_remove_flag(ui_AppIconContainer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_AppIconContainer, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -253,13 +254,15 @@ void ui_HomePage_init(void)
         lv_obj_set_style_border_color(ui_ScrollDots[i], lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_border_opa(ui_ScrollDots[i], 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     }
-    lv_obj_set_style_bg_opa(ui_ScrollDots[0], 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_ScrollDots[ui_desktop_data.app_container_index], 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     // dropdown panel
     lv_obj_t * ui_DropdownPanel = lv_obj_create(ui_HomeScreen);
     lv_obj_set_width(ui_DropdownPanel, ui_desktop_data.witdh);
     lv_obj_set_height(ui_DropdownPanel, ui_desktop_data.height);
     lv_obj_set_x(ui_DropdownPanel, 0);
+    if( ui_desktop_data.show_dropdown == true)
+    {lv_obj_set_y(ui_DropdownPanel, ui_desktop_data.height);}
     lv_obj_set_y(ui_DropdownPanel, -ui_desktop_data.height);
     lv_obj_set_align(ui_DropdownPanel, LV_ALIGN_TOP_MID);
     lv_obj_remove_flag(ui_DropdownPanel,
