@@ -37,7 +37,6 @@ void ui_enent_Gesture(lv_event_t * e)
     {
         if(lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT || lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT)
         {
-            LV_LOG_USER("Gesture Left or Right");
             lv_lib_pm_OpenPrePage(&page_manager);
         }
     }
@@ -118,9 +117,9 @@ void ui_event_NewGameBtn_handler(lv_event_t * e)
 ///////////////////// SCREEN init ////////////////////
 void ui_GameMemoryPage_init(void)
 {
-
     Game_Mem_Init();
-    ui_GameMem_Page = lv_obj_create(NULL);;
+    ui_GameMem_Page = lv_obj_create(NULL);
+    lv_obj_remove_flag(ui_GameMem_Page, LV_OBJ_FLAG_SCROLLABLE);
     ui_GameMem_BtnM = lv_btnmatrix_create(ui_GameMem_Page);
     lv_btnmatrix_set_map(ui_GameMem_BtnM, Game_Mem.btnm_map);
     // lv_obj_set_style_text_font(ui_GameMem_BtnM, &ui_font_Cuyuan24, 0);
