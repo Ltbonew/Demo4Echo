@@ -2,6 +2,9 @@
 
 ### 1.编译
 1. **在电脑上运行SDL仿真**
+
+    注意更改lv_conf, 置0`LV_USE_LINUX_FBDEV`和`LV_USE_EVDEV`，置1`LV_USE_SDL`
+    
     ```sh
     cd ./lvgl_demo
     mkdir ./build
@@ -17,6 +20,8 @@
     ```
 
 2. **编译到开发板上运行**
+
+    ,注意更改lv_conf, 置1`LV_USE_LINUX_FBDEV`和`LV_USE_EVDEV`，置0`LV_USE_SDL`
 
     ```sh
     cd ./build
