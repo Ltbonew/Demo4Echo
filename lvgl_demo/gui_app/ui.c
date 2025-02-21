@@ -15,7 +15,7 @@ lv_lib_pm_t page_manager;
 
 ///////////////////// all apps ////////////////////
 
-#define _APP_NUMS 3 // number of apps (including HomePage)
+#define _APP_NUMS 4 // number of apps (including HomePage)
 
 ui_app_data_t ui_apps[_APP_NUMS] = {
     {
