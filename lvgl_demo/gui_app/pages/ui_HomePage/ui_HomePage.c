@@ -28,7 +28,7 @@ lv_timer_t * ui_home_timer;
 
 static void ui_home_timer_cb(lv_timer_t * timer)
 {
-    lv_obj_t * timelabel = timer->user_data;
+    lv_obj_t * timelabel = lv_timer_get_user_data(timer);
     get_current_time(&ui_desktop_para.hour, &ui_desktop_para.minute);
     char time_str[6];
     sprintf(time_str, "%02d:%02d", ui_desktop_para.hour, ui_desktop_para.minute);
