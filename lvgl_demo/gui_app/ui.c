@@ -1,6 +1,6 @@
 #include "ui.h"
 #include "./pages/ui_HomePage/ui_HomePage.h"
-
+#include "./pages/ui_CalendarPage/ui_CalendarPage.h"
 #include "./pages/ui_ChatBotPage/ui_ChatBotPage.h"
 #include "./pages/ui_GameMemoryPage/ui_GameMemoryPage.h"
 ///////////////////// VARIABLES ////////////////////
@@ -36,12 +36,12 @@ ui_app_data_t ui_apps[_APP_NUMS] = {
     //     .deinit = NULL,
     //     .page_obj = NULL
     // },
-    // {
-    //     .name = "CalendarPage",
-    //     .init = NULL,
-    //     .deinit = NULL,
-    //     .page_obj = NULL
-    // },
+    {
+        .name = "CalendarPage",
+        .init = ui_CalendarPage_init,
+        .deinit = ui_CalendarPage_deinit,
+        .page_obj = NULL
+    },
     // {
     //     .name = "MemoPage",
     //     .init = NULL,
