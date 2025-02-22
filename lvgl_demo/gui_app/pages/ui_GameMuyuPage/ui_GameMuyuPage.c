@@ -6,40 +6,23 @@ lv_obj_t * ui_MuyuImg;
 lv_obj_t * ui_LabelTolal;
 lv_obj_t * ui_LabelAdd;
 
+int16_t tolal_clicks = 0;
+
 ///////////////////// ANIMATIONS ////////////////////
-
-static void _ui_anim_callback_set_scale(void * var, int32_t v)
-{
-    lv_image_set_scale(var, v);
-}
-
-static void _ui_user_Animation(lv_obj_t * TagetObj, uint16_t delay, uint16_t time, int16_t start_value, int16_t end_value,
-                                uint16_t playback_delay, uint16_t playback_time, uint16_t repeat_delay, uint16_t repeat_count,
-                                lv_anim_path_cb_t path_cb, lv_anim_exec_xcb_t exec_cb)
-{
-    lv_anim_t Animation;
-    lv_anim_init(&Animation);
-    lv_anim_set_var(&Animation, TagetObj);
-    lv_anim_set_time(&Animation, time);
-    lv_anim_set_values(&Animation, start_value, end_value);
-    lv_anim_set_exec_cb(&Animation, exec_cb);
-    lv_anim_set_path_cb(&Animation, path_cb);
-    lv_anim_set_delay(&Animation, delay);
-    lv_anim_set_playback_time(&Animation, playback_time);
-    lv_anim_set_playback_delay(&Animation, playback_delay);
-    lv_anim_set_repeat_count(&Animation, repeat_count);
-    lv_anim_set_repeat_delay(&Animation, repeat_delay);
-    lv_anim_set_early_apply(&Animation, false);
-    lv_anim_start(&Animation);
-}
 
 static void _Click_Animation()
 {
     int16_t MuyuScale_now = 256;
 
-    _ui_user_Animation(ui_MuyuImg, 0, 200, MuyuScale_now, MuyuScale_now-20, 0, 0, 0, 0, lv_anim_path_ease_in_out, _ui_anim_callback_set_scale);
+    lv_lib_anim_user_animation(ui_MuyuImg, 0, 100, MuyuScale_now, MuyuScale_now-30, 0, 0, 0, 0, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_scale, NULL);
+    MuyuScale_now-=30;
+    lv_lib_anim_user_animation(ui_MuyuImg, 100, 100, MuyuScale_now, MuyuScale_now+30, 0, 0, 0, 0, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_scale, NULL);
+    MuyuScale_now+=30;
 
+    lv_lib_anim_user_animation(ui_LabelAdd, 0, 100, 0, 255, 0, 0, 0, 0, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_opacity, NULL);
+    lv_lib_anim_user_animation(ui_LabelAdd, 100, 100, 255, 0, 0, 0, 0, 0, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_opacity, NULL);
 
+    lv_lib_anim_user_animation(ui_LabelAdd, 0, 200, -70, -90, 0, 0, 0, 0, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_y, NULL);
 }
 
 ///////////////////// FUNCTIONS ////////////////////
@@ -49,7 +32,11 @@ void ui_event_click(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * obj = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
-        LV_LOG_USER("clicked");
+        _Click_Animation();
+        tolal_clicks++;
+        char clicks_str[18];
+        sprintf(clicks_str, "今日功德 %4d", tolal_clicks);
+        lv_label_set_text(ui_LabelTolal, clicks_str);
     }
 }
 
@@ -77,7 +64,9 @@ void ui_GameMuyuPage_init(void)
     lv_obj_set_x(ui_LabelTolal, 75);
     lv_obj_set_y(ui_LabelTolal, -85);
     lv_obj_set_align(ui_LabelTolal, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_LabelTolal, "今日功德 9999");
+    char clicks_str[18];
+    sprintf(clicks_str, "今日功德 %4d", tolal_clicks);
+    lv_label_set_text(ui_LabelTolal, clicks_str);
     lv_obj_set_style_text_color(ui_LabelTolal, lv_color_hex(0xF8BA14), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_LabelTolal, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_LabelTolal, &ui_font_shuhei22, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -92,6 +81,7 @@ void ui_GameMuyuPage_init(void)
     lv_obj_set_style_text_color(ui_LabelAdd, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_LabelAdd, 208, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_LabelAdd, &ui_font_shuhei22, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_opa(ui_LabelAdd, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_t * ui_MainPanel = lv_obj_create(ui_GameMuyuPage);
     lv_obj_set_width(ui_MainPanel, 320);
