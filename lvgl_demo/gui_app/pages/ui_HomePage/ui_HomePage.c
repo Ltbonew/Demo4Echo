@@ -14,7 +14,7 @@ ui_desktop_data_t ui_desktop_data = {
     .scroll_busy = false        
 };
 
-ui_desktop_para_t ui_desktop_para = {
+ui_system_para_t ui_system_para = {
     .brightness = 50,
     .sound = 50,
     .wifi_connected = true
@@ -29,9 +29,9 @@ lv_timer_t * ui_home_timer;
 static void ui_home_timer_cb(lv_timer_t * timer)
 {
     lv_obj_t * timelabel = lv_timer_get_user_data(timer);
-    get_current_time(&ui_desktop_para.hour, &ui_desktop_para.minute);
+    get_current_time(&ui_system_para.hour, &ui_system_para.minute);
     char time_str[6];
-    sprintf(time_str, "%02d:%02d", ui_desktop_para.hour, ui_desktop_para.minute);
+    sprintf(time_str, "%02d:%02d", ui_system_para.hour, ui_system_para.minute);
     lv_label_set_text(timelabel, time_str);
 }
 
@@ -174,8 +174,8 @@ static void ui_event_AppsBtn(lv_event_t * e)
 void ui_HomePage_init(void)
 {
     // params init
-    get_current_time(&ui_desktop_para.hour, &ui_desktop_para.minute);
-    get_current_date(&ui_desktop_para.year, &ui_desktop_para.month, &ui_desktop_para.day);
+    get_current_time(&ui_system_para.hour, &ui_system_para.minute);
+    get_current_date(&ui_system_para.year, &ui_system_para.month, &ui_system_para.day);
 
     // home screen
     lv_obj_t * ui_HomeScreen = lv_obj_create(NULL);
@@ -205,7 +205,7 @@ void ui_HomePage_init(void)
     lv_label_set_text(ui_TimeLabel, "11:59");
     lv_obj_set_style_text_font(ui_TimeLabel, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
     char time_str[6];
-    sprintf(time_str, "%02d:%02d", ui_desktop_para.hour, ui_desktop_para.minute);
+    sprintf(time_str, "%02d:%02d", ui_system_para.hour, ui_system_para.minute);
     lv_label_set_text(ui_TimeLabel, time_str);
 
     // wifi connected Label
@@ -489,7 +489,7 @@ void ui_HomePage_init(void)
     lv_obj_set_align(ui_DateLabel, LV_ALIGN_CENTER);
     lv_label_set_text(ui_DateLabel, "7");
     char date_str[2];
-    sprintf(date_str, "%d", ui_desktop_para.day);
+    sprintf(date_str, "%d", ui_system_para.day);
     lv_label_set_text(ui_DateLabel, date_str);
     lv_obj_set_style_text_color(ui_DateLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_DateLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);

@@ -25,7 +25,7 @@ typedef struct {
     uint16_t brightness;            // system brightness
     uint16_t sound;                 // system sound volume
     bool wifi_connected;            // wifi connected or not
-}ui_desktop_para_t;
+}ui_system_para_t;
 
 
 void ui_HomePage_init(void);
