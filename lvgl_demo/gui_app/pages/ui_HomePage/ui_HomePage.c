@@ -37,11 +37,6 @@ static void ui_home_timer_cb(lv_timer_t * timer)
 
 ///////////////////// ANIMATIONS ////////////////////
 
-static void _ui_anim_callback_set_x(void * var, int32_t v)
-{
-    lv_obj_set_x(var, v);
-}
-
 static void _ui_anim_completed_cb()
 {
     ui_desktop_data.scroll_busy = false;
@@ -55,7 +50,7 @@ static void AppContLeft_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_set_var(&PropertyAnimation_0, TargetObject);
     lv_anim_set_time(&PropertyAnimation_0, 250);
     lv_anim_set_values(&PropertyAnimation_0, x_pos_now, x_pos_now - ui_desktop_data.witdh);
-    lv_anim_set_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_x);
+    lv_anim_set_exec_cb(&PropertyAnimation_0, lv_lib_anim_callback_set_x);
     lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_ease_out);
     lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
     lv_anim_set_playback_time(&PropertyAnimation_0, 0);
@@ -76,7 +71,7 @@ static void AppContRight_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_set_var(&PropertyAnimation_0, TargetObject);
     lv_anim_set_time(&PropertyAnimation_0, 250);
     lv_anim_set_values(&PropertyAnimation_0, x_pos_now, x_pos_now + ui_desktop_data.witdh);
-    lv_anim_set_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_x);
+    lv_anim_set_exec_cb(&PropertyAnimation_0, lv_lib_anim_callback_set_x);
     lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_ease_out);
     lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
     lv_anim_set_playback_time(&PropertyAnimation_0, 0);
