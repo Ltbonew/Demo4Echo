@@ -5,7 +5,7 @@
 
 #if LV_USE_LIB_TEMPLATE 
 
-#include "lvgl.h"
+
 
 // YOUR CODE HERE
 
