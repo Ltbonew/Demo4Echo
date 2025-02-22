@@ -21,6 +21,7 @@ LV_IMG_DECLARE(ui_img_364131572);    // assets/问号60.png
 LV_IMG_DECLARE(ui_img_519153304);    // assets/思绪60.png
 LV_IMG_DECLARE(ui_img_1829120061);    // assets/手指60.png
 LV_IMG_DECLARE(ui_img_657561664);    // assets/画笔60.png
+LV_IMG_DECLARE(ui_img_546892240);    // assets/木鱼128.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_iconfont26);
@@ -28,6 +29,7 @@ LV_FONT_DECLARE(ui_font_iconfont36);
 LV_FONT_DECLARE(ui_font_iconfont44);
 LV_FONT_DECLARE(ui_font_iconfont48);
 LV_FONT_DECLARE(ui_font_heiti14);
+LV_FONT_DECLARE(ui_font_shuhei22);
 
 // ui apps data
 typedef lv_lib_pm_page_t ui_app_data_t;

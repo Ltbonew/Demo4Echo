@@ -1,6 +1,7 @@
 #include "ui.h"
 #include "./pages/ui_HomePage/ui_HomePage.h"
 #include "./pages/ui_CalendarPage/ui_CalendarPage.h"
+#include "./pages/ui_GameMuyuPage/ui_GameMuyuPage.h"
 #include "./pages/ui_Game2048Page/ui_Game2048Page.h"
 #include "./pages/ui_ChatBotPage/ui_ChatBotPage.h"
 #include "./pages/ui_GameMemoryPage/ui_GameMemoryPage.h"
@@ -16,7 +17,7 @@ lv_lib_pm_t page_manager;
 
 ///////////////////// all apps ////////////////////
 
-#define _APP_NUMS 5 // number of apps (including HomePage)
+#define _APP_NUMS 6 // number of apps (including HomePage)
 
 ui_app_data_t ui_apps[_APP_NUMS] = {
     {
@@ -49,12 +50,12 @@ ui_app_data_t ui_apps[_APP_NUMS] = {
     //     .deinit = NULL,
     //     .page_obj = NULL
     // },
-    // {
-    //     .name = "GameMuyuPage",
-    //     .init = NULL,
-    //     .deinit = NULL,
-    //     .page_obj = NULL
-    // },
+    {
+        .name = "GameMuyuPage",
+        .init = ui_GameMuyuPage_init,
+        .deinit = ui_GameMuyuPage_deinit,
+        .page_obj = NULL
+    },
     {
         .name = "Game2048Page",
         .init = ui_Game2048Page_init,
