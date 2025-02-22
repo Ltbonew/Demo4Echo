@@ -45,43 +45,13 @@ static void _ui_anim_completed_cb()
 static void AppContLeft_Animation(lv_obj_t * TargetObject, int delay)
 {
     int32_t x_pos_now = lv_obj_get_x(TargetObject);
-    lv_anim_t PropertyAnimation_0;
-    lv_anim_init(&PropertyAnimation_0);
-    lv_anim_set_var(&PropertyAnimation_0, TargetObject);
-    lv_anim_set_time(&PropertyAnimation_0, 250);
-    lv_anim_set_values(&PropertyAnimation_0, x_pos_now, x_pos_now - ui_desktop_data.witdh);
-    lv_anim_set_exec_cb(&PropertyAnimation_0, lv_lib_anim_callback_set_x);
-    lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_ease_out);
-    lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
-    lv_anim_set_playback_time(&PropertyAnimation_0, 0);
-    lv_anim_set_playback_delay(&PropertyAnimation_0, 0);
-    lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
-    lv_anim_set_repeat_delay(&PropertyAnimation_0, 0);
-    lv_anim_set_early_apply(&PropertyAnimation_0, false);
-    lv_anim_set_completed_cb(&PropertyAnimation_0, _ui_anim_completed_cb);
-    lv_anim_start(&PropertyAnimation_0);
-
+    lv_lib_anim_user_animation(TargetObject, 0, 250, x_pos_now, x_pos_now - ui_desktop_data.witdh, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_x, _ui_anim_completed_cb);
 }
 
 static void AppContRight_Animation(lv_obj_t * TargetObject, int delay)
 {
     int32_t x_pos_now = lv_obj_get_x(TargetObject);
-    lv_anim_t PropertyAnimation_0;
-    lv_anim_init(&PropertyAnimation_0);
-    lv_anim_set_var(&PropertyAnimation_0, TargetObject);
-    lv_anim_set_time(&PropertyAnimation_0, 250);
-    lv_anim_set_values(&PropertyAnimation_0, x_pos_now, x_pos_now + ui_desktop_data.witdh);
-    lv_anim_set_exec_cb(&PropertyAnimation_0, lv_lib_anim_callback_set_x);
-    lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_ease_out);
-    lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
-    lv_anim_set_playback_time(&PropertyAnimation_0, 0);
-    lv_anim_set_playback_delay(&PropertyAnimation_0, 0);
-    lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
-    lv_anim_set_repeat_delay(&PropertyAnimation_0, 0);
-    lv_anim_set_early_apply(&PropertyAnimation_0, false);
-    lv_anim_set_completed_cb(&PropertyAnimation_0, _ui_anim_completed_cb);
-    lv_anim_start(&PropertyAnimation_0);
-
+    lv_lib_anim_user_animation(TargetObject, 0, 250, x_pos_now, x_pos_now + ui_desktop_data.witdh, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_x, _ui_anim_completed_cb);
 }
 
 ///////////////////// FUNCTIONS ////////////////////
@@ -128,10 +98,10 @@ static void ui_event_scroll_gesture(lv_event_t * e)
     if(event_code == LV_EVENT_GESTURE && !ui_desktop_data.scroll_busy && !ui_desktop_data.show_dropdown) {
         if(lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT)
         {   
-            ui_desktop_data.scroll_busy = true;
             // not in the end page
-            if(lv_obj_get_x(AppContainer) != (-ui_desktop_data.witdh) * (ui_desktop_data.container_total_pages-1))
+            if(ui_desktop_data.app_container_index < ui_desktop_data.container_total_pages-1)
             {
+                ui_desktop_data.scroll_busy = true;
                 AppContLeft_Animation(AppContainer, 0);
                 lv_obj_set_style_bg_opa(ui_ScrollDots[ui_desktop_data.app_container_index], 96, LV_PART_MAIN | LV_STATE_DEFAULT);
                 ui_desktop_data.app_container_index++;
@@ -140,10 +110,10 @@ static void ui_event_scroll_gesture(lv_event_t * e)
         }
         else if (lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT)
         {
-            ui_desktop_data.scroll_busy = true;
             // not in the first page
-            if(lv_obj_get_x(AppContainer) != 0)
+            if(ui_desktop_data.app_container_index > 0)
             {
+                ui_desktop_data.scroll_busy = true;
                 AppContRight_Animation(AppContainer, 0);
                 lv_obj_set_style_bg_opa(ui_ScrollDots[ui_desktop_data.app_container_index], 96, LV_PART_MAIN | LV_STATE_DEFAULT);
                 ui_desktop_data.app_container_index--;
