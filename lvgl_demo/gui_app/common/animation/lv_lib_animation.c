@@ -37,7 +37,7 @@ void lv_lib_anim_callback_set_opacity(void * var, int32_t v)
 
 void lv_lib_anim_user_animation(lv_obj_t * TagetObj, uint16_t delay, uint16_t time, int16_t start_value, int16_t end_value,
                                 uint16_t playback_delay, uint16_t playback_time, uint16_t repeat_delay, uint16_t repeat_count,
-                                lv_anim_path_cb_t path_cb, lv_anim_exec_xcb_t exec_cb)
+                                lv_anim_path_cb_t path_cb, lv_anim_exec_xcb_t exec_cb, lv_anim_completed_cb_t completed_cb)
 {
     lv_anim_t Animation;
     lv_anim_init(&Animation);
@@ -52,6 +52,7 @@ void lv_lib_anim_user_animation(lv_obj_t * TagetObj, uint16_t delay, uint16_t ti
     lv_anim_set_repeat_count(&Animation, repeat_count);
     lv_anim_set_repeat_delay(&Animation, repeat_delay);
     lv_anim_set_early_apply(&Animation, false);
+    lv_anim_set_completed_cb(&Animation, completed_cb);
     lv_anim_start(&Animation);
 }
 
