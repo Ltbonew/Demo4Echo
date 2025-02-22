@@ -97,7 +97,7 @@ static void ui_event_Game2048Page(lv_event_t * e)
                 update_btnm_map(Game_2048.btnm_map, Game_2048.matrix);
                 lv_btnmatrix_set_map(ui_Game2048BtnM, Game_2048.btnm_map);
                 uint8_t strbuf[11];
-                sprintf(strbuf,"Sc: %04d",Game_2048.score);
+                sprintf(strbuf,"Sc: %4d",Game_2048.score);
                 lv_label_set_text(ui_Game2048ScLabel,strbuf);
             }
         }
@@ -148,7 +148,7 @@ static void ui_event_new_game_btn(lv_event_t * e)
     {
         Game_2048_init();
         uint8_t strbuf[11];
-        sprintf(strbuf,"Sc: %04d",Game_2048.score);
+        sprintf(strbuf,"Sc: %4d",Game_2048.score);
         lv_label_set_text(ui_Game2048ScLabel,strbuf);
     }
 }
@@ -204,7 +204,7 @@ void ui_Game2048Page_init(void)
 
     ui_Game2048ScLabel = lv_label_create(ui_Game2048Page);
     uint8_t strbuf[10];
-    sprintf(strbuf,"Sc: %04d",Game_2048.score);
+    sprintf(strbuf,"Sc: %4d",Game_2048.score);
     lv_label_set_text(ui_Game2048ScLabel,strbuf);
     lv_obj_align(ui_Game2048ScLabel, LV_ALIGN_RIGHT_MID, -6, 0);
     lv_obj_set_style_text_font(ui_Game2048ScLabel, &lv_font_montserrat_20, 0);
