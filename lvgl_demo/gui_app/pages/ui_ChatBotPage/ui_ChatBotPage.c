@@ -14,36 +14,6 @@ lv_obj_t * ui_Mouth;
 
 ///////////////////// ANIMATIONS ////////////////////
 
-static void _ui_anim_callback_set_x(void * var, int32_t v)
-{
-    lv_obj_set_x(var, v);
-}
-
-static void _ui_anim_callback_set_y(void * var, int32_t v)
-{
-    lv_obj_set_y(var, v);
-}
-
-static void _ui_anim_callback_set_hight(void * var, int32_t v)
-{
-    lv_obj_set_height(var, v);
-}
-
-static void _ui_anim_callback_set_width(void * var, int32_t v)
-{
-    lv_obj_set_width(var, v);
-}
-
-static void _ui_anim_callback_set_image_angle(void * var, int32_t v)
-{
-    lv_image_set_rotation(var, v);
-}
-
-static void _ui_anim_callback_set_opacity(void * var, int32_t v)
-{
-    lv_obj_set_style_opa(var, v, LV_PART_MAIN | LV_STATE_DEFAULT);
-}
-
 static void _ui_user_Animation(lv_obj_t * TagetObj, uint16_t delay, uint16_t time, int16_t start_value, int16_t end_value,
                                 uint16_t playback_delay, uint16_t playback_time, uint16_t repeat_delay, uint16_t repeat_count,
                                 lv_anim_path_cb_t path_cb, lv_anim_exec_xcb_t exec_cb)
@@ -69,25 +39,25 @@ static void _IdleMove1_Animation(void)
     int16_t y_pos_now = -25;
     int16_t x_pos_now = 0;
     int16_t hight_now = 80;
-    _ui_user_Animation(ui_EyesPanel, 0, 500, y_pos_now, y_pos_now-20, 0, 0, 0, 0, lv_anim_path_ease_in_out, _ui_anim_callback_set_y);
+    _ui_user_Animation(ui_EyesPanel, 0, 500, y_pos_now, y_pos_now-20, 0, 0, 0, 0, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_y);
     y_pos_now -= 20;
-    _ui_user_Animation(ui_EyesPanel, 0, 500, x_pos_now, x_pos_now-20, 0, 0, 0, 0, lv_anim_path_ease_in_out, _ui_anim_callback_set_x);
+    _ui_user_Animation(ui_EyesPanel, 0, 500, x_pos_now, x_pos_now-20, 0, 0, 0, 0, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_x);
     x_pos_now -= 20;
-    _ui_user_Animation(ui_EyesPanel, 1000, 100, hight_now, 10, 0, 100, 0, 2, lv_anim_path_ease_out, _ui_anim_callback_set_hight);
+    _ui_user_Animation(ui_EyesPanel, 1000, 100, hight_now, 10, 0, 100, 0, 2, lv_anim_path_ease_out, lv_lib_anim_callback_set_hight);
     // hight_now += 0;
-    _ui_user_Animation(ui_EyesPanel, 1500, 500, x_pos_now, x_pos_now+20, 0, 0, 0, 0, lv_anim_path_ease_in_out, _ui_anim_callback_set_x);
+    _ui_user_Animation(ui_EyesPanel, 1500, 500, x_pos_now, x_pos_now+20, 0, 0, 0, 0, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_x);
     x_pos_now += 20;
-    _ui_user_Animation(ui_EyesPanel, 2000, 100, hight_now, 10, 0, 100, 0, 2, lv_anim_path_ease_out, _ui_anim_callback_set_hight);
+    _ui_user_Animation(ui_EyesPanel, 2000, 100, hight_now, 10, 0, 100, 0, 2, lv_anim_path_ease_out, lv_lib_anim_callback_set_hight);
     // hight_now += 0;
-    _ui_user_Animation(ui_EyesPanel, 3000, 500, x_pos_now, x_pos_now+40, 0, 0, 0, 0, lv_anim_path_ease_in_out, _ui_anim_callback_set_x);
+    _ui_user_Animation(ui_EyesPanel, 3000, 500, x_pos_now, x_pos_now+40, 0, 0, 0, 0, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_x);
     x_pos_now += 40;
-    _ui_user_Animation(ui_EyesPanel, 3000, 500, y_pos_now, y_pos_now+40, 0, 0, 0, 0, lv_anim_path_ease_in_out, _ui_anim_callback_set_y);
+    _ui_user_Animation(ui_EyesPanel, 3000, 500, y_pos_now, y_pos_now+40, 0, 0, 0, 0, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_y);
     y_pos_now += 40;
-    _ui_user_Animation(ui_EyesPanel, 4000, 100, hight_now, 10, 0, 100, 0, 2, lv_anim_path_ease_out, _ui_anim_callback_set_hight);
+    _ui_user_Animation(ui_EyesPanel, 4000, 100, hight_now, 10, 0, 100, 0, 2, lv_anim_path_ease_out, lv_lib_anim_callback_set_hight);
     // hight_now += 0;
-    _ui_user_Animation(ui_EyesPanel, 5000, 500, x_pos_now, x_pos_now-40, 0, 0, 0, 0, lv_anim_path_ease_in_out, _ui_anim_callback_set_x);
+    _ui_user_Animation(ui_EyesPanel, 5000, 500, x_pos_now, x_pos_now-40, 0, 0, 0, 0, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_x);
     x_pos_now -= 40;
-    _ui_user_Animation(ui_EyesPanel, 5000, 500, y_pos_now, y_pos_now-20, 0, 0, 0, 0, lv_anim_path_ease_in_out, _ui_anim_callback_set_y);
+    _ui_user_Animation(ui_EyesPanel, 5000, 500, y_pos_now, y_pos_now-20, 0, 0, 0, 0, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_y);
     y_pos_now -= 20;
 }
 
@@ -95,49 +65,49 @@ static void _IdleMove2_Animation(void)
 {
     int16_t VerPanel_y_pos_now = 0;
     int16_t MainPanel_y_pos_now = -25;
-    _ui_user_Animation(ui_EyesVerMovePanel, 0, 500, VerPanel_y_pos_now, VerPanel_y_pos_now-20, 0, 0, 0, 0, lv_anim_path_ease_out, _ui_anim_callback_set_y);
+    _ui_user_Animation(ui_EyesVerMovePanel, 0, 500, VerPanel_y_pos_now, VerPanel_y_pos_now-20, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_y);
     VerPanel_y_pos_now -= 20;
-    _ui_user_Animation(ui_EyesVerMovePanel, 2500, 500, VerPanel_y_pos_now, VerPanel_y_pos_now+20, 0, 0, 0, 0, lv_anim_path_ease_out, _ui_anim_callback_set_y);
+    _ui_user_Animation(ui_EyesVerMovePanel, 2500, 500, VerPanel_y_pos_now, VerPanel_y_pos_now+20, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_y);
     VerPanel_y_pos_now += 20;
 
-    _ui_user_Animation(ui_EyesPanel, 0, 500, MainPanel_y_pos_now, MainPanel_y_pos_now+20, 0, 0, 0, 0, lv_anim_path_ease_out, _ui_anim_callback_set_y);
+    _ui_user_Animation(ui_EyesPanel, 0, 500, MainPanel_y_pos_now, MainPanel_y_pos_now+20, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_y);
     MainPanel_y_pos_now += 20;
-    _ui_user_Animation(ui_EyesPanel, 2500, 500, MainPanel_y_pos_now, MainPanel_y_pos_now-20, 0, 0, 0, 0, lv_anim_path_ease_out, _ui_anim_callback_set_y);
+    _ui_user_Animation(ui_EyesPanel, 2500, 500, MainPanel_y_pos_now, MainPanel_y_pos_now-20, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_y);
     MainPanel_y_pos_now -= 20;
 
-    _ui_user_Animation(ui_thinkImg, 0, 500, -100, 100, 0, 750, 0, 3, lv_anim_path_ease_in_out, _ui_anim_callback_set_image_angle);
-    _ui_user_Animation(ui_thinkImg, 0, 500, 0, 255, 0, 0, 0, 0, lv_anim_path_linear, _ui_anim_callback_set_opacity);
-    _ui_user_Animation(ui_thinkImg, 3000, 500, 255, 0, 0, 0, 0, 0, lv_anim_path_linear, _ui_anim_callback_set_opacity);
+    _ui_user_Animation(ui_thinkImg, 0, 500, -100, 100, 0, 750, 0, 3, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_image_angle);
+    _ui_user_Animation(ui_thinkImg, 0, 500, 0, 255, 0, 0, 0, 0, lv_anim_path_linear, lv_lib_anim_callback_set_opacity);
+    _ui_user_Animation(ui_thinkImg, 3000, 500, 255, 0, 0, 0, 0, 0, lv_anim_path_linear, lv_lib_anim_callback_set_opacity);
 }
 
 static void _ListenMove_Animation(void)
 {
     int16_t eye_width_now = 80;
     int16_t eye_hight_now = 80;
-    _ui_user_Animation(ui_EyeRight, 0, 100, eye_width_now, eye_width_now-30, 0, 0, 0, 0, lv_anim_path_ease_out, _ui_anim_callback_set_width);
-    _ui_user_Animation(ui_EyeLeft, 0, 100, eye_width_now, eye_width_now-30, 0, 0, 0, 0, lv_anim_path_ease_out, _ui_anim_callback_set_width);
+    _ui_user_Animation(ui_EyeRight, 0, 100, eye_width_now, eye_width_now-30, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_width);
+    _ui_user_Animation(ui_EyeLeft, 0, 100, eye_width_now, eye_width_now-30, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_width);
     eye_width_now -= 30;
-    _ui_user_Animation(ui_QuestionImg, 0, 500, 0, 255, 0, 0, 0, 0, lv_anim_path_linear, _ui_anim_callback_set_opacity);
-    _ui_user_Animation(ui_QuestionImg, 0, 500, -100, 100, 0, 750, 0, 4, lv_anim_path_ease_in_out, _ui_anim_callback_set_image_angle);
+    _ui_user_Animation(ui_QuestionImg, 0, 500, 0, 255, 0, 0, 0, 0, lv_anim_path_linear, lv_lib_anim_callback_set_opacity);
+    _ui_user_Animation(ui_QuestionImg, 0, 500, -100, 100, 0, 750, 0, 4, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_image_angle);
 
-    _ui_user_Animation(ui_EyeRight, 1000, 100, eye_width_now, eye_width_now+30, 0, 100, 0, 1, lv_anim_path_ease_out, _ui_anim_callback_set_width);
-    _ui_user_Animation(ui_EyeLeft, 1000, 100, eye_width_now, eye_width_now+30, 0, 100, 0, 1, lv_anim_path_ease_out, _ui_anim_callback_set_width);
-    _ui_user_Animation(ui_EyeRight, 1000, 100, eye_hight_now, eye_hight_now-70, 0, 100, 0, 1, lv_anim_path_ease_out, _ui_anim_callback_set_hight);
-    _ui_user_Animation(ui_EyeLeft, 1000, 100, eye_hight_now, eye_hight_now-70, 0, 100, 0, 1, lv_anim_path_ease_out, _ui_anim_callback_set_hight);
+    _ui_user_Animation(ui_EyeRight, 1000, 100, eye_width_now, eye_width_now+30, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_width);
+    _ui_user_Animation(ui_EyeLeft, 1000, 100, eye_width_now, eye_width_now+30, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_width);
+    _ui_user_Animation(ui_EyeRight, 1000, 100, eye_hight_now, eye_hight_now-70, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_hight);
+    _ui_user_Animation(ui_EyeLeft, 1000, 100, eye_hight_now, eye_hight_now-70, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_hight);
 
-    _ui_user_Animation(ui_EyeRight, 2000, 100, eye_width_now, eye_width_now+30, 0, 100, 0, 1, lv_anim_path_ease_out, _ui_anim_callback_set_width);
-    _ui_user_Animation(ui_EyeLeft, 2000, 100, eye_width_now, eye_width_now+30, 0, 100, 0, 1, lv_anim_path_ease_out, _ui_anim_callback_set_width);
-    _ui_user_Animation(ui_EyeRight, 2000, 100, eye_hight_now, eye_hight_now-70, 0, 100, 0, 1, lv_anim_path_ease_out, _ui_anim_callback_set_hight);
-    _ui_user_Animation(ui_EyeLeft, 2000, 100, eye_hight_now, eye_hight_now-70, 0, 100, 0, 1, lv_anim_path_ease_out, _ui_anim_callback_set_hight);
+    _ui_user_Animation(ui_EyeRight, 2000, 100, eye_width_now, eye_width_now+30, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_width);
+    _ui_user_Animation(ui_EyeLeft, 2000, 100, eye_width_now, eye_width_now+30, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_width);
+    _ui_user_Animation(ui_EyeRight, 2000, 100, eye_hight_now, eye_hight_now-70, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_hight);
+    _ui_user_Animation(ui_EyeLeft, 2000, 100, eye_hight_now, eye_hight_now-70, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_hight);
 
-    _ui_user_Animation(ui_HandImg, 2000, 500, 0, 255, 0, 0, 0, 0, lv_anim_path_linear, _ui_anim_callback_set_opacity);
-    _ui_user_Animation(ui_HandImg, 2000, 500, -250, -150, 0, 750, 0, 2, lv_anim_path_ease_in_out, _ui_anim_callback_set_image_angle);
+    _ui_user_Animation(ui_HandImg, 2000, 500, 0, 255, 0, 0, 0, 0, lv_anim_path_linear, lv_lib_anim_callback_set_opacity);
+    _ui_user_Animation(ui_HandImg, 2000, 500, -250, -150, 0, 750, 0, 2, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_image_angle);
 
-    _ui_user_Animation(ui_QuestionImg, 3500, 500, 255, 0, 0, 0, 0, 0, lv_anim_path_linear, _ui_anim_callback_set_opacity);
-    _ui_user_Animation(ui_HandImg, 3500, 500, 255, 0, 0, 0, 0, 0, lv_anim_path_linear, _ui_anim_callback_set_opacity);
+    _ui_user_Animation(ui_QuestionImg, 3500, 500, 255, 0, 0, 0, 0, 0, lv_anim_path_linear, lv_lib_anim_callback_set_opacity);
+    _ui_user_Animation(ui_HandImg, 3500, 500, 255, 0, 0, 0, 0, 0, lv_anim_path_linear, lv_lib_anim_callback_set_opacity);
 
-    _ui_user_Animation(ui_EyeRight, 4000, 100, eye_width_now, eye_width_now+30, 0, 0, 0, 0, lv_anim_path_ease_out, _ui_anim_callback_set_width);
-    _ui_user_Animation(ui_EyeLeft, 4000, 100, eye_width_now, eye_width_now+30, 0, 0, 0, 0, lv_anim_path_ease_out, _ui_anim_callback_set_width);
+    _ui_user_Animation(ui_EyeRight, 4000, 100, eye_width_now, eye_width_now+30, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_width);
+    _ui_user_Animation(ui_EyeLeft, 4000, 100, eye_width_now, eye_width_now+30, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_width);
     eye_width_now += 30;
 }
 
@@ -147,14 +117,14 @@ static void _SpeakMove_Animation(void)
     int16_t mouth_y_pos_now = -40;
     int16_t eye_panel_hight_now = 80;
     lv_obj_set_style_bg_opa(ui_Mouth, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    _ui_user_Animation(ui_Mouth, 0, 150, mouth_y_pos_now, mouth_y_pos_now-10, 0, 150, 0, 6, lv_anim_path_ease_out, _ui_anim_callback_set_y);
-    _ui_user_Animation(ui_MouthPanel, 0, 150, mouth_panel_y_pos_now, mouth_panel_y_pos_now+10, 0, 150, 0, 6, lv_anim_path_ease_out, _ui_anim_callback_set_y);
+    _ui_user_Animation(ui_Mouth, 0, 150, mouth_y_pos_now, mouth_y_pos_now-10, 0, 150, 0, 6, lv_anim_path_ease_out, lv_lib_anim_callback_set_y);
+    _ui_user_Animation(ui_MouthPanel, 0, 150, mouth_panel_y_pos_now, mouth_panel_y_pos_now+10, 0, 150, 0, 6, lv_anim_path_ease_out, lv_lib_anim_callback_set_y);
     // blink
-    _ui_user_Animation(ui_EyesPanel, 500, 200, eye_panel_hight_now, 10, 0, 200, 0, 1, lv_anim_path_ease_in_out, _ui_anim_callback_set_hight);
-    _ui_user_Animation(ui_EyesPanel, 2000, 200, eye_panel_hight_now, 10, 0, 200, 0, 1, lv_anim_path_ease_in_out, _ui_anim_callback_set_hight);
+    _ui_user_Animation(ui_EyesPanel, 500, 200, eye_panel_hight_now, 10, 0, 200, 0, 1, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_hight);
+    _ui_user_Animation(ui_EyesPanel, 2000, 200, eye_panel_hight_now, 10, 0, 200, 0, 1, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_hight);
 
-    _ui_user_Animation(ui_Mouth, 1500, 150, mouth_y_pos_now, mouth_y_pos_now-10, 0, 150, 0, 4, lv_anim_path_ease_out, _ui_anim_callback_set_y);
-    _ui_user_Animation(ui_MouthPanel, 1500, 150, mouth_panel_y_pos_now, mouth_panel_y_pos_now+10, 0, 150, 0, 4, lv_anim_path_ease_out, _ui_anim_callback_set_y);
+    _ui_user_Animation(ui_Mouth, 1500, 150, mouth_y_pos_now, mouth_y_pos_now-10, 0, 150, 0, 4, lv_anim_path_ease_out, lv_lib_anim_callback_set_y);
+    _ui_user_Animation(ui_MouthPanel, 1500, 150, mouth_panel_y_pos_now, mouth_panel_y_pos_now+10, 0, 150, 0, 4, lv_anim_path_ease_out, lv_lib_anim_callback_set_y);
 
 }
 
