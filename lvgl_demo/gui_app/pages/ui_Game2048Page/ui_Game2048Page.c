@@ -144,7 +144,7 @@ static void ui_event_Game2048BtnM(lv_event_t * e)
 static void ui_event_new_game_btn(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    if(code == LV_EVENT_CLICKED)
+    if(code == LV_EVENT_LONG_PRESSED)
     {
         Game_2048_init();
         uint8_t strbuf[11];
@@ -156,7 +156,7 @@ static void ui_event_new_game_btn(lv_event_t * e)
 static void ui_event_return_btn(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    if(code == LV_EVENT_CLICKED)
+    if(code == LV_EVENT_LONG_PRESSED)
     {
         lv_lib_pm_OpenPrePage(&page_manager);
     }
