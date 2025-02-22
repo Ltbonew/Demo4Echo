@@ -9,6 +9,6 @@
 
 // YOUR CODE HERE
 
-#endif  /*LV_USE_100ASK_PAGE_MANAGER*/
+#endif  /*LV_USE_LIB_TEMPLATE*/
 
 #endif // LV_LIB_TEMPLATE_H
