@@ -15,6 +15,10 @@ extern "C" {
 #include "page_manager/lv_lib_pm.h"
 #endif
 
+#if LV_USE_LIB_ANIMATION
+#include "animation/lv_lib_animation.h"
+#endif
+
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif
