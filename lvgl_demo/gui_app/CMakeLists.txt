@@ -12,6 +12,12 @@ target_include_directories(gui_app PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/common
     ${CMAKE_CURRENT_SOURCE_DIR}/common/stack
     ${CMAKE_CURRENT_SOURCE_DIR}/common/page_manager
-    ${CMAKE_CURRENT_SOURCE_DIR}/pages/ui_HomePage
-    ${CMAKE_CURRENT_SOURCE_DIR}/pages/ui_ChatBotPage
 )
+
+# 查找包
+find_package(json-c REQUIRED)
+find_package(CURL REQUIRED)
+# 将库链接到 gui_app
+target_link_libraries(gui_app PRIVATE json-c)
+target_include_directories(gui_app PRIVATE ${CURL_INCLUDE_DIRS})
+target_link_libraries(gui_app PRIVATE CURL::libcurl)
