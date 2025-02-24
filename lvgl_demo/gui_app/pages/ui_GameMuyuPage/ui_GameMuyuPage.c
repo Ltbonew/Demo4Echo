@@ -84,8 +84,8 @@ void ui_GameMuyuPage_init(void)
     lv_obj_set_style_opa(ui_LabelAdd, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_t * ui_MainPanel = lv_obj_create(ui_GameMuyuPage);
-    lv_obj_set_width(ui_MainPanel, 320);
-    lv_obj_set_height(ui_MainPanel, 240);
+    lv_obj_set_width(ui_MainPanel, UI_SCREEN_WIDTH);
+    lv_obj_set_height(ui_MainPanel, UI_SCREEN_HEIGHT);
     lv_obj_set_align(ui_MainPanel, LV_ALIGN_CENTER);
     lv_obj_remove_flag(ui_MainPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_MainPanel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);

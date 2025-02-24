@@ -31,8 +31,8 @@ void ui_CalendarPage_init()
     lv_obj_t * ui_CalendarPage = lv_obj_create(NULL);
     // lv_obj_remove_flag(ui_CalendarPage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_t * calendar = lv_calendar_create(ui_CalendarPage);
-    lv_obj_set_width(calendar, 320);
-    lv_obj_set_height(calendar, 320);
+    lv_obj_set_width(calendar, UI_SCREEN_WIDTH);
+    lv_obj_set_height(calendar, UI_SCREEN_WIDTH);
     lv_obj_align(calendar, LV_ALIGN_TOP_MID, 0, 0);
     int year, month, day;
     get_current_date(&year, &month, &day);

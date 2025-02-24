@@ -8,6 +8,9 @@ extern "C" {
 #include "../lvgl/lvgl.h"
 #include "./common/lv_lib.h"
 
+#define UI_SCREEN_WIDTH 320
+#define UI_SCREEN_HEIGHT 240
+
 // extern variables
 extern lv_lib_pm_t page_manager;
 

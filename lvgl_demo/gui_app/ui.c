@@ -5,6 +5,7 @@
 #include "./pages/ui_Game2048Page/ui_Game2048Page.h"
 #include "./pages/ui_ChatBotPage/ui_ChatBotPage.h"
 #include "./pages/ui_GameMemoryPage/ui_GameMemoryPage.h"
+#include "./pages/ui_DrawPage/ui_DrawPage.h"
 ///////////////////// VARIABLES ////////////////////
 
 lv_lib_pm_t page_manager;
@@ -17,7 +18,7 @@ lv_lib_pm_t page_manager;
 
 ///////////////////// all apps ////////////////////
 
-#define _APP_NUMS 6 // number of apps (including HomePage)
+#define _APP_NUMS 7 // number of apps (including HomePage)
 
 ui_app_data_t ui_apps[_APP_NUMS] = {
     {
@@ -86,12 +87,12 @@ ui_app_data_t ui_apps[_APP_NUMS] = {
         .deinit = ui_GameMemoryPage_deinit,
         .page_obj = NULL
     },
-    // {
-    //     .name = "DrawPage",
-    //     .init = NULL,
-    //     .deinit = NULL,
-    //     .page_obj = NULL
-    // }
+    {
+        .name = "DrawPage",
+        .init = ui_DrawPage_init,
+        .deinit = ui_DrawPage_deinit,
+        .page_obj = NULL
+    }
 
 };
 
