@@ -1,5 +1,6 @@
 #include "ui.h"
 #include "./pages/ui_HomePage/ui_HomePage.h"
+#include "./pages/ui_WeatherPage/ui_WeatherPage.h"
 #include "./pages/ui_CalendarPage/ui_CalendarPage.h"
 #include "./pages/ui_GameMuyuPage/ui_GameMuyuPage.h"
 #include "./pages/ui_Game2048Page/ui_Game2048Page.h"
