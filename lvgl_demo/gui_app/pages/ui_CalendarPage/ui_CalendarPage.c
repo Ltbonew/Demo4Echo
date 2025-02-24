@@ -1,5 +1,5 @@
 #include "ui_CalendarPage.h"
-#include "app_HomePage.h"
+#include "../ui_HomePage/app_HomePage.h"
 ///////////////////// VARIABLES ////////////////////
 
 static const char *day_names[] =
