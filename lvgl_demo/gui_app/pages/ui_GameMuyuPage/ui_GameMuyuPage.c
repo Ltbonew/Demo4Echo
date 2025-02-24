@@ -27,7 +27,7 @@ static void _Click_Animation()
 
 ///////////////////// FUNCTIONS ////////////////////
 
-void ui_event_click(lv_event_t * e)
+static void ui_event_click(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * obj = lv_event_get_target(e);
@@ -37,6 +37,18 @@ void ui_event_click(lv_event_t * e)
         char clicks_str[18];
         sprintf(clicks_str, "今日功德 %4d", tolal_clicks);
         lv_label_set_text(ui_LabelTolal, clicks_str);
+    }
+}
+
+static void ui_event_gesture(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_GESTURE) 
+    {
+        if(lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT || lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT)
+        {
+            lv_lib_pm_OpenPrePage(&page_manager);
+        }
     }
 }
 
@@ -95,6 +107,7 @@ void ui_GameMuyuPage_init(void)
 
     // event
     lv_obj_add_event_cb(ui_MainPanel, ui_event_click, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(ui_GameMuyuPage, ui_event_gesture, LV_EVENT_GESTURE, NULL);
 
     // load page
     lv_scr_load_anim(ui_GameMuyuPage, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 100, 0, true);
