@@ -228,8 +228,8 @@ void ui_WeatherPage_init(void)
     lv_obj_set_width(ui_IconWind, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_IconWind, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_IconWind, -70);
-    lv_obj_set_y(ui_IconWind, -2);
-    lv_obj_set_align(ui_IconWind, LV_ALIGN_TOP_MID);
+    lv_obj_set_y(ui_IconWind, 0);
+    lv_obj_set_align(ui_IconWind, LV_ALIGN_CENTER);
     lv_label_set_text(ui_IconWind, "");
     lv_obj_set_style_text_color(ui_IconWind, lv_color_hex(0xEEB27D), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_IconWind, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -239,7 +239,7 @@ void ui_WeatherPage_init(void)
     lv_obj_set_width(ui_LabelWind, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_LabelWind, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_LabelWind, -35);
-    lv_obj_set_y(ui_LabelWind, 2);
+    lv_obj_set_y(ui_LabelWind, 0);
     lv_obj_set_align(ui_LabelWind, LV_ALIGN_CENTER);
     sprintf(str, "%s", ui_weather_para.weather_info.windpower);
     lv_label_set_text(ui_LabelWind, str);
@@ -262,7 +262,7 @@ void ui_WeatherPage_init(void)
     lv_obj_set_width(ui_LabelHumi, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_LabelHumi, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_LabelHumi, 75);
-    lv_obj_set_y(ui_LabelHumi, 2);
+    lv_obj_set_y(ui_LabelHumi, 1);
     lv_obj_set_align(ui_LabelHumi, LV_ALIGN_CENTER);
     sprintf(str, "%s%%", ui_weather_para.weather_info.humidity);
     lv_label_set_text(ui_LabelHumi, str);
