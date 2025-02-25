@@ -11,7 +11,7 @@ extern "C" {
 #include <json-c/json.h>
 
 typedef struct {
-    char city[128];
+    char city[36];
     char adcode[16];
 } LocationInfo;
 
