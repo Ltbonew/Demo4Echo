@@ -1,11 +1,10 @@
 /*******************************************************************************
  * Size: 14 px
  * Bpp: 4
- * Opts: --bpp 4 --size 14 --font --format lvgl -r 0x20-0x7f --symbols 零一二三四五六七八九十廿卅
+ * Opts: --bpp 4 --size 14 --font E:/projects/SquareLine_Projects/Echo_mate/main/assets/font/SourceHanSansCN-Medium-2.otf -o E:/projects/SquareLine_Projects/Echo_mate/main/assets/font\ui_font_heiti14.c --format lvgl -r 0x20-0x7f --symbols 零一二三四五六七八九十廿卅
 ><=-+
 初一二三四五六七八九十廿卅
-日月年党军闰夜社
-消费
+日月年党军闰夜社消费
 春分夏至秋分开冬至小寒大寒雨水惊蛰清明谷雨立夏小满芒种夏至小暑大暑立秋处暑白露秋分寒露霜降立冬小雪大雪冬至小寒大寒
 春节元宵清明端午中秋重阳腊八除夕元旦妇女父亲母亲儿童教师护士植树青年万圣感恩平安圣诞情人节愚人劳动国庆建军复活狂欢购物黑色星期五双十一六一七一八一
 ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
