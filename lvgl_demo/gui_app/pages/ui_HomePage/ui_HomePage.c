@@ -427,7 +427,7 @@ void ui_HomePage_init(void)
     lv_obj_add_flag(ui_WeatherBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_WeatherBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_WeatherBtn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_image_src(ui_WeatherBtn, &ui_img_1946976022, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_image_src(ui_WeatherBtn, &ui_img_weather64_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     // event
     lv_obj_add_event_cb(ui_WeatherBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "WeatherPage");
 
@@ -444,7 +444,7 @@ void ui_HomePage_init(void)
     lv_obj_set_style_radius(ui_CalendarBtn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_CalendarBtn, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_CalendarBtn, 224, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_image_src(ui_CalendarBtn, &ui_img_320358418, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_image_src(ui_CalendarBtn, &ui_img_calendar64_png, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_t * ui_DateLabel = lv_label_create(ui_CalendarBtn);
     lv_obj_set_width(ui_DateLabel, LV_SIZE_CONTENT);   /// 1
@@ -475,7 +475,7 @@ void ui_HomePage_init(void)
     lv_obj_set_style_radius(ui_MemoBtn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_MemoBtn, lv_color_hex(0xB83B5E), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_MemoBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_image_src(ui_MemoBtn, &ui_img_634722903, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_image_src(ui_MemoBtn, &ui_img_memo64_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     // event
     lv_obj_add_event_cb(ui_MemoBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "MemoPage");
 
@@ -618,7 +618,7 @@ void ui_HomePage_init(void)
     lv_obj_set_style_radius(ui_GameMemBtn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_GameMemBtn, lv_color_hex(0xDBE2EF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_GameMemBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_image_src(ui_GameMemBtn, &ui_img_21600057, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_image_src(ui_GameMemBtn, &ui_img_gamememory64_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     // event
     lv_obj_add_event_cb(ui_GameMemBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "GameMemoryPage");
 
@@ -633,7 +633,7 @@ void ui_HomePage_init(void)
     lv_obj_set_style_radius(ui_DrawBtn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_DrawBtn, lv_color_hex(0x86A8E5), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_DrawBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_image_src(ui_DrawBtn, &ui_img_657561664, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_image_src(ui_DrawBtn, &ui_img_paint60_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     // event
     lv_obj_add_event_cb(ui_DrawBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "DrawPage");
 

@@ -5,9 +5,10 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#include "../../ui.h"
 
-void ui_weatherpage_test();
+void ui_WeatherPage_init(void);
+void ui_WeatherPage_deinit(void);
 
 #ifdef __cplusplus
 } /*extern "C"*/

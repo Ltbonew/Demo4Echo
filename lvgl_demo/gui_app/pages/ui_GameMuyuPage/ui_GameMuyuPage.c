@@ -60,7 +60,7 @@ void ui_GameMuyuPage_init(void)
     lv_obj_remove_flag(ui_GameMuyuPage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_MuyuImg = lv_image_create(ui_GameMuyuPage);
-    lv_image_set_src(ui_MuyuImg, &ui_img_546892240);
+    lv_image_set_src(ui_MuyuImg, &ui_img_muyu128_png);
     lv_obj_set_width(ui_MuyuImg, LV_SIZE_CONTENT);   /// 177
     lv_obj_set_height(ui_MuyuImg, LV_SIZE_CONTENT);    /// 128
     lv_obj_set_x(ui_MuyuImg, 0);

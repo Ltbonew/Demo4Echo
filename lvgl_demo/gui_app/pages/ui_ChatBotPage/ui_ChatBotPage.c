@@ -247,7 +247,7 @@ void ui_ChatBotPage_init(void)
     lv_obj_set_style_bg_opa(ui_Mouth, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_QuestionImg = lv_image_create(ui_ChatBotPage);
-    lv_image_set_src(ui_QuestionImg, &ui_img_364131572);
+    lv_image_set_src(ui_QuestionImg, &ui_img_question60_png);
     lv_obj_set_width(ui_QuestionImg, LV_SIZE_CONTENT);   /// 60
     lv_obj_set_height(ui_QuestionImg, LV_SIZE_CONTENT);    /// 60
     lv_obj_set_x(ui_QuestionImg, 125);
@@ -257,7 +257,7 @@ void ui_ChatBotPage_init(void)
     lv_obj_set_style_opa(ui_QuestionImg, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_thinkImg = lv_image_create(ui_ChatBotPage);
-    lv_image_set_src(ui_thinkImg, &ui_img_519153304);
+    lv_image_set_src(ui_thinkImg, &ui_img_think60_png);
     lv_obj_set_width(ui_thinkImg, LV_SIZE_CONTENT);   /// 60
     lv_obj_set_height(ui_thinkImg, LV_SIZE_CONTENT);    /// 60
     lv_obj_set_x(ui_thinkImg, 120);
@@ -267,7 +267,7 @@ void ui_ChatBotPage_init(void)
     lv_obj_set_style_opa(ui_thinkImg, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_HandImg = lv_image_create(ui_ChatBotPage);
-    lv_image_set_src(ui_HandImg, &ui_img_1829120061);
+    lv_image_set_src(ui_HandImg, &ui_img_hand60_png);
     lv_obj_set_width(ui_HandImg, LV_SIZE_CONTENT);   /// 64
     lv_obj_set_height(ui_HandImg, LV_SIZE_CONTENT);    /// 64
     lv_obj_set_x(ui_HandImg, 0);
