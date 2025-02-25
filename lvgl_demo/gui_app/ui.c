@@ -19,7 +19,7 @@ lv_lib_pm_t page_manager;
 
 ///////////////////// all apps ////////////////////
 
-#define _APP_NUMS 7 // number of apps (including HomePage)
+#define _APP_NUMS 8 // number of apps (including HomePage)
 
 ui_app_data_t ui_apps[_APP_NUMS] = {
     {
@@ -34,12 +34,12 @@ ui_app_data_t ui_apps[_APP_NUMS] = {
     //     .deinit = NULL,
     //     .page_obj = NULL
     // },
-    // {
-    //     .name = "WeatherPage",
-    //     .init = NULL,
-    //     .deinit = NULL,
-    //     .page_obj = NULL
-    // },
+    {
+        .name = "WeatherPage",
+        .init = ui_WeatherPage_init,
+        .deinit = ui_WeatherPage_deinit,
+        .page_obj = NULL
+    },
     {
         .name = "CalendarPage",
         .init = ui_CalendarPage_init,

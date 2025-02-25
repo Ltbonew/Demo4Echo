@@ -15,24 +15,28 @@ extern "C" {
 extern lv_lib_pm_t page_manager;
 
 // IMAGES AND IMAGE SETS
-LV_IMG_DECLARE(ui_img_1946976022);    // assets/天气64.png
-LV_IMG_DECLARE(ui_img_320358418);    // assets/日历64_nonum.png
-LV_IMG_DECLARE(ui_img_634722903);    // assets/备忘录64.png
-LV_IMG_DECLARE(ui_img_21600057);    // assets/记忆64.png
-LV_IMG_DECLARE(ui_img_1318505016);    // assets/日历64.png
-LV_IMG_DECLARE(ui_img_364131572);    // assets/问号60.png
-LV_IMG_DECLARE(ui_img_519153304);    // assets/思绪60.png
-LV_IMG_DECLARE(ui_img_1829120061);    // assets/手指60.png
-LV_IMG_DECLARE(ui_img_657561664);    // assets/画笔60.png
-LV_IMG_DECLARE(ui_img_546892240);    // assets/木鱼128.png
+LV_IMG_DECLARE(ui_img_weather64_png);    // assets/weather64.png
+LV_IMG_DECLARE(ui_img_calendar64_png);    // assets/calendar64.png
+LV_IMG_DECLARE(ui_img_memo64_png);    // assets/Memo64.png
+LV_IMG_DECLARE(ui_img_gamememory64_png);    // assets/GameMemory64.png
+LV_IMG_DECLARE(ui_img_paint60_png);    // assets/paint60.png
+LV_IMG_DECLARE(ui_img_question60_png);    // assets/question60.png
+LV_IMG_DECLARE(ui_img_think60_png);    // assets/think60.png
+LV_IMG_DECLARE(ui_img_hand60_png);    // assets/hand60.png
+LV_IMG_DECLARE(ui_img_muyu128_png);    // assets/muyu128.png
+LV_IMG_DECLARE(ui_img_sun_png);    // assets/sun.png
+LV_IMG_DECLARE(ui_img_clouds_png);    // assets/clouds.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_iconfont26);
+LV_FONT_DECLARE(ui_font_iconfont30);
 LV_FONT_DECLARE(ui_font_iconfont36);
 LV_FONT_DECLARE(ui_font_iconfont44);
 LV_FONT_DECLARE(ui_font_iconfont48);
 LV_FONT_DECLARE(ui_font_heiti14);
+LV_FONT_DECLARE(ui_font_heiti22);
 LV_FONT_DECLARE(ui_font_shuhei22);
+LV_FONT_DECLARE(ui_font_NuberBig90);
 
 // ui apps data
 typedef lv_lib_pm_page_t ui_app_data_t;
