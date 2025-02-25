@@ -13,7 +13,7 @@ typedef enum {
 } ui_draw_color_t;
 
 struct ui_Draw_para_t{
-    uint32_t line_width; //1, 2, 3, 4
+    uint32_t line_width; // 2, 3, 4, 5
     lv_color_t line_color; //RED, BLUE, BLACK
     uint8_t line_color_index;
 };
@@ -124,9 +124,9 @@ static void ui_event_width_btn(lv_event_t * e)
     if(code == LV_EVENT_CLICKED)
     {
         ui_Draw_para.line_width++;
-        if(ui_Draw_para.line_width > 4)
+        if(ui_Draw_para.line_width > 5)
         {
-            ui_Draw_para.line_width = 1;
+            ui_Draw_para.line_width = 2;
         }
         lv_obj_t * width_btn = lv_event_get_target(e);
         lv_obj_t * width_btn_label = lv_obj_get_child(width_btn, NULL);
@@ -144,7 +144,7 @@ void ui_DrawPage_init()
 
     ui_Draw_para.line_color_index = UI_DRAW_COLOR_RED;
     ui_Draw_para.line_color = lv_palette_main(LV_PALETTE_RED);
-    ui_Draw_para.line_width = 1;
+    ui_Draw_para.line_width = 2;
 
     canvas = lv_canvas_create(DrawPage);
     lv_canvas_set_buffer(canvas, buf_raw, UI_SCREEN_WIDTH, UI_SCREEN_HEIGHT, LV_COLOR_FORMAT_NATIVE);
@@ -154,8 +154,8 @@ void ui_DrawPage_init()
     lv_obj_add_event_cb(DrawPage, ui_canvas_event, LV_EVENT_ALL, NULL);
 
     lv_obj_t * clear_btn = lv_btn_create(DrawPage);
-    lv_obj_align(clear_btn, LV_ALIGN_TOP_RIGHT, -5, 5);
-    lv_obj_set_size(clear_btn, 75,35);
+    lv_obj_align(clear_btn, LV_ALIGN_TOP_RIGHT, -5, 10);
+    lv_obj_set_size(clear_btn, 75,40);
     lv_obj_t * clear_btn_label = lv_label_create(clear_btn);
     lv_label_set_text(clear_btn_label,"Clear");
     lv_obj_align(clear_btn_label, LV_ALIGN_CENTER, 0, 0);
@@ -163,8 +163,8 @@ void ui_DrawPage_init()
     lv_obj_add_event_cb(clear_btn, ui_event_clear_btn, LV_EVENT_ALL, NULL);
 
     lv_obj_t * back_btn = lv_btn_create(DrawPage);
-    lv_obj_align(back_btn, LV_ALIGN_TOP_LEFT, 5, 5);
-    lv_obj_set_size(back_btn, 75,35);
+    lv_obj_align(back_btn, LV_ALIGN_TOP_LEFT, 5, 10);
+    lv_obj_set_size(back_btn, 75,40);
     lv_obj_t * back_btn_label = lv_label_create(back_btn);
     lv_label_set_text(back_btn_label,"Back");
     lv_obj_align(back_btn_label, LV_ALIGN_CENTER, 0, 0);
@@ -172,8 +172,8 @@ void ui_DrawPage_init()
     lv_obj_add_event_cb(back_btn, ui_event_back_btn, LV_EVENT_ALL, NULL);
 
     lv_obj_t * color_btn = lv_btn_create(DrawPage);
-    lv_obj_align(color_btn, LV_ALIGN_TOP_MID, -35, 5);
-    lv_obj_set_size(color_btn, 55, 35);
+    lv_obj_align(color_btn, LV_ALIGN_TOP_MID, -35, 10);
+    lv_obj_set_size(color_btn, 60, 40);
     lv_obj_set_style_bg_color(color_btn, ui_Draw_para.line_color, 0);
     lv_obj_t * color_btn_label = lv_label_create(color_btn);
     lv_label_set_text(color_btn_label,"Color");
@@ -182,8 +182,8 @@ void ui_DrawPage_init()
     lv_obj_add_event_cb(color_btn, ui_event_color_btn, LV_EVENT_ALL, NULL);
 
     lv_obj_t * width_btn = lv_btn_create(DrawPage);
-    lv_obj_align(width_btn, LV_ALIGN_TOP_MID, 35, 5);
-    lv_obj_set_size(width_btn, 55, 35);
+    lv_obj_align(width_btn, LV_ALIGN_TOP_MID, 35, 10);
+    lv_obj_set_size(width_btn, 60, 40);
     lv_obj_set_style_bg_color(width_btn, lv_palette_main(LV_PALETTE_CYAN), 0);
     lv_obj_t * width_btn_label = lv_label_create(width_btn);
     char * width_str[5];
