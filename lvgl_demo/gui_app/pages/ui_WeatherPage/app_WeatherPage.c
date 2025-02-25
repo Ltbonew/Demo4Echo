@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-const char * user_key = "c93a6793c76bc0d04a931760393c840c"; 
+const char * user_key = "you-gaode-api-key"; 
 
 // 回调函数，用于处理libcurl接收到的数据
 static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
