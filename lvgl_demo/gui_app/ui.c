@@ -1,5 +1,6 @@
 #include "ui.h"
 #include "./pages/ui_HomePage/ui_HomePage.h"
+#include "./pages/ui_SettingPage/ui_SettingPage.h"
 #include "./pages/ui_WeatherPage/ui_WeatherPage.h"
 #include "./pages/ui_CalendarPage/ui_CalendarPage.h"
 #include "./pages/ui_GameMuyuPage/ui_GameMuyuPage.h"
@@ -25,7 +26,7 @@ ui_system_para_t ui_system_para = {
 
 ///////////////////// all apps ////////////////////
 
-#define _APP_NUMS 8 // number of apps (including HomePage)
+#define _APP_NUMS 9 // number of apps (including HomePage)
 
 ui_app_data_t ui_apps[_APP_NUMS] = {
     {
@@ -34,12 +35,12 @@ ui_app_data_t ui_apps[_APP_NUMS] = {
         .deinit = ui_HomePage_deinit,
         .page_obj = NULL
     },
-    // {
-    //     .name = "SettingPage",
-    //     .init = NULL,
-    //     .deinit = NULL,
-    //     .page_obj = NULL
-    // },
+    {
+        .name = "SettingPage",
+        .init = ui_SettingPage_init,
+        .deinit = ui_SettingPage_deinit,
+        .page_obj = NULL
+    },
     {
         .name = "WeatherPage",
         .init = ui_WeatherPage_init,

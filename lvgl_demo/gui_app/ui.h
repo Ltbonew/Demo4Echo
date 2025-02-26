@@ -12,13 +12,13 @@ extern "C" {
 #define UI_SCREEN_HEIGHT 240
 
 typedef struct {
-    int year;                       // system time year
-    int month;                      // system time month
-    int day;                        // system time day
-    uint8_t hour;                   // system time hour
-    uint8_t minute;                 // system time minute
-    uint16_t brightness;            // system brightness
-    uint16_t sound;                 // system sound volume
+    int year;                       // system time year         (need store)
+    int month;                      // system time month        (need store)
+    int day;                        // system time day          (need store)
+    uint8_t hour;                   // system time hour         (need store)
+    uint8_t minute;                 // system time minute       (need store)
+    uint16_t brightness;            // system brightness        (need store)
+    uint16_t sound;                 // system sound volume      (need store)
     bool wifi_connected;            // wifi connected or not
 }ui_system_para_t;
 
