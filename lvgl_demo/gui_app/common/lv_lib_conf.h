@@ -11,14 +11,13 @@ extern "C" {
    MODULE CONFIGURATION
  =========================*/
 
-/* Enable or disable the Stack module */
 #define LV_USE_LIB_STACK 1  // 1: Enable, 0: Disable
 
-/* Enable or disable the Page Manager module */
-#define LV_USE_LIB_PAGE_MANAGER 1  // 1: Enable, 0: Disable
+#define LV_USE_LIB_PAGE_MANAGER 1 
 
-/* Enable or disable the user define animation */
-#define LV_USE_LIB_ANIMATION 1  // 1: Enable, 0: Disable
+#define LV_USE_LIB_ANIMATION 1 
+
+#define LV_USE_LIB_TIME 1
 
 /*=========================
    DEPENDENCY MANAGEMENT
@@ -47,6 +46,10 @@ extern "C" {
 /* user define animations */
 #if LV_USE_LIB_ANIMATION
   // Add specific configurations for ANIMATION if needed
+#endif
+
+#if LV_USE_LIB_TIME
+  // Add specific configurations for LIB_TIME if needed
 #endif
 
 #ifdef __cplusplus

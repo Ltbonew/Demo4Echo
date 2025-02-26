@@ -19,6 +19,10 @@ extern "C" {
 #include "animation/lv_lib_animation.h"
 #endif
 
+#if LV_USE_LIB_TIME
+#include "time/lv_lib_time.h"
+#endif
+
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif
