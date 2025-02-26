@@ -21,6 +21,10 @@
 #include "my_include.h"
 #endif
 
+#if 1
+    #include "conf/dev_conf.h"
+#endif
+
 /*====================
    COLOR SETTINGS
  *====================*/
