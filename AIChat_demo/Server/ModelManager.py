@@ -106,7 +106,7 @@ class ModelManager:
             responses = dashscope.Generation.call(
                 # 若没有配置环境变量，请用百炼API Key将下行替换为：api_key="sk-xxx",
                 api_key=dashscope.api_key,
-                model="qwen-turbo", # 模型列表：https://help.aliyun.com/zh/model-studio/getting-started/models
+                model="deepseek-r1-distill-qwen-7b", # 模型列表：https://help.aliyun.com/zh/model-studio/getting-started/models
                 messages=messages,
                 result_format='message',
                 stream=True,

@@ -9,7 +9,7 @@
 这个AI语音助手的项目可以完美部署到轻量级的Linux开发板上~本项目的AI语音助手的大致结构框图如下, 分为Client端和Server端，Client端运行在开发板上，Server可以在电脑上跑，然后开发板连接上即可。
 
 <p align="center">
-	<img border="1px" width="75%" src="./res/AI_Audio_diagram.png">
+	<img border="1px" width="75%" src="./res/AIChatDiagram.png">
 </p>
 
 [FSMN-VAD](https://www.modelscope.cn/models/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch/summary): 阿里达摩院语音端点检测模型，用于检测语音活跃端点
