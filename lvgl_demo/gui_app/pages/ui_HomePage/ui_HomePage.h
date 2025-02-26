@@ -16,18 +16,6 @@ typedef struct {
     bool scroll_busy;               // avoid scroll too fast, and btns click event happen at the same time
 }ui_desktop_data_t;
 
-typedef struct {
-    int year;                       // system time year
-    int month;                      // system time month
-    int day;                        // system time day
-    uint8_t hour;                   // system time hour
-    uint8_t minute;                 // system time minute
-    uint16_t brightness;            // system brightness
-    uint16_t sound;                 // system sound volume
-    bool wifi_connected;            // wifi connected or not
-}ui_system_para_t;
-
-
 void ui_HomePage_init(void);
 void ui_HomePage_deinit(void);
 

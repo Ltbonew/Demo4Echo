@@ -11,8 +11,20 @@ extern "C" {
 #define UI_SCREEN_WIDTH 320
 #define UI_SCREEN_HEIGHT 240
 
+typedef struct {
+    int year;                       // system time year
+    int month;                      // system time month
+    int day;                        // system time day
+    uint8_t hour;                   // system time hour
+    uint8_t minute;                 // system time minute
+    uint16_t brightness;            // system brightness
+    uint16_t sound;                 // system sound volume
+    bool wifi_connected;            // wifi connected or not
+}ui_system_para_t;
+
 // extern variables
 extern lv_lib_pm_t page_manager;
+extern ui_system_para_t ui_system_para;
 
 // IMAGES AND IMAGE SETS
 LV_IMG_DECLARE(ui_img_weather64_png);    // assets/weather64.png

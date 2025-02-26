@@ -11,6 +11,12 @@
 
 lv_lib_pm_t page_manager;
 
+ui_system_para_t ui_system_para = {
+    .brightness = 50,
+    .sound = 50,
+    .wifi_connected = false
+};
+
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 
 #if LV_COLOR_DEPTH != 16

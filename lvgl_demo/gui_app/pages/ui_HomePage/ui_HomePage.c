@@ -1,5 +1,4 @@
 #include "ui_HomePage.h"
-#include "app_HomePage.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -14,12 +13,6 @@ ui_desktop_data_t ui_desktop_data = {
     .scroll_busy = false        
 };
 
-ui_system_para_t ui_system_para = {
-    .brightness = 50,
-    .sound = 50,
-    .wifi_connected = true
-};
-
 lv_obj_t * ui_ScrollDots[_APP_CONTAINER_MAX_PAGES];
 
 lv_timer_t * ui_home_timer;
@@ -29,7 +22,7 @@ lv_timer_t * ui_home_timer;
 static void ui_home_timer_cb(lv_timer_t * timer)
 {
     lv_obj_t * timelabel = lv_timer_get_user_data(timer);
-    get_current_time(&ui_system_para.hour, &ui_system_para.minute);
+    lv_lib_get_time(&ui_system_para.hour, &ui_system_para.minute);
     char time_str[6];
     sprintf(time_str, "%02d:%02d", ui_system_para.hour, ui_system_para.minute);
     lv_label_set_text(timelabel, time_str);
@@ -139,8 +132,8 @@ static void ui_event_AppsBtn(lv_event_t * e)
 void ui_HomePage_init(void)
 {
     // params init
-    get_current_time(&ui_system_para.hour, &ui_system_para.minute);
-    get_current_date(&ui_system_para.year, &ui_system_para.month, &ui_system_para.day);
+    lv_lib_get_time(&ui_system_para.hour, &ui_system_para.minute);
+    lv_lib_get_date(&ui_system_para.year, &ui_system_para.month, &ui_system_para.day);
 
     // home screen
     lv_obj_t * ui_HomeScreen = lv_obj_create(NULL);
@@ -191,8 +184,17 @@ void ui_HomePage_init(void)
     lv_obj_set_y(ui_NoWifiLabel, 7);
     lv_obj_set_align(ui_NoWifiLabel, LV_ALIGN_TOP_MID);
     lv_label_set_text(ui_NoWifiLabel, "");
-    lv_obj_add_flag(ui_NoWifiLabel, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_set_style_text_font(ui_NoWifiLabel, &ui_font_iconfont26, LV_PART_MAIN | LV_STATE_DEFAULT);
+    if(ui_system_para.wifi_connected == true)
+    {
+        lv_obj_remove_flag(ui_WifiLabel, LV_OBJ_FLAG_HIDDEN);     /// Flags
+        lv_obj_add_flag(ui_NoWifiLabel, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    }
+    else
+    {
+        lv_obj_remove_flag(ui_NoWifiLabel, LV_OBJ_FLAG_HIDDEN);     /// Flags
+        lv_obj_add_flag(ui_WifiLabel, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    }
 
     // page dots
     for(int i = 0; i < _APP_CONTAINER_MAX_PAGES; i++)
