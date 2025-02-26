@@ -1,26 +1,5 @@
 #include "app_WeatherPage.h"
 #include "ui_WeatherPage.h"
-#include "../ui_HomePage/app_HomePage.h"
-
-void ui_weatherpage_test()
-{
-    LocationInfo location = {"", ""};
-    if(get_location_info(&location) != 0) {
-        printf("Failed to get location info.\n");
-        return -1;
-    }
-
-    printf("City: %s, Adcode: %s\n", location.city, location.adcode);
-
-    WeatherInfo weather_info = { "", "", "", "" };
-    if(get_weather_info_by_adcode(location.adcode, &weather_info) != 0) {
-        printf("Failed to get weather info.\n");
-    } else {
-        printf("Weather: %s, Temperature: %s, Humidity: %s, Wind Power: %s\n",
-               weather_info.weather, weather_info.temperature, weather_info.humidity, weather_info.windpower);
-    }
-
-}
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -121,8 +100,8 @@ static void _ui_enent_Gesture(lv_event_t * e)
 
 static void _ui_WeatherPage_Para_Init(void)
 {
-    get_current_date(&ui_weather_para.year, &ui_weather_para.month, &ui_weather_para.date);
-    ui_weather_para.day_of_week = calculate_day_of_week(ui_weather_para.year, ui_weather_para.month, ui_weather_para.date);
+    lv_lib_get_date(&ui_weather_para.year, &ui_weather_para.month, &ui_weather_para.date);
+    ui_weather_para.day_of_week = lv_lib_calculate_day_of_week(ui_weather_para.year, ui_weather_para.month, ui_weather_para.date);
 }
 
 ///////////////////// SCREEN init ////////////////////
