@@ -6,7 +6,17 @@ lv_obj_t * ui_MuyuImg;
 lv_obj_t * ui_LabelTolal;
 lv_obj_t * ui_LabelAdd;
 
-int16_t tolal_clicks = 0;
+
+struct ui_muyu_para_t{
+    int16_t tolal_clicks;
+    int day_today; 
+};
+
+struct ui_muyu_para_t ui_muyu_para = {
+    .day_today = -1,
+    .tolal_clicks = 0
+};
+
 
 ///////////////////// ANIMATIONS ////////////////////
 
@@ -27,15 +37,28 @@ static void _Click_Animation()
 
 ///////////////////// FUNCTIONS ////////////////////
 
+static void _para_init(void)
+{
+    int year;
+    int month;
+    int day;
+    lv_lib_get_date(&year, &month, &day);
+    if(day != ui_muyu_para.day_today)
+    {
+        ui_muyu_para.day_today = day;
+        ui_muyu_para.tolal_clicks = 0;
+    }
+}
+
 static void ui_event_click(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * obj = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
         _Click_Animation();
-        tolal_clicks++;
+        ui_muyu_para.tolal_clicks++;
         char clicks_str[18];
-        sprintf(clicks_str, "今日功德 %4d", tolal_clicks);
+        sprintf(clicks_str, "今日功德 %4d", ui_muyu_para.tolal_clicks);
         lv_label_set_text(ui_LabelTolal, clicks_str);
     }
 }
@@ -56,6 +79,7 @@ static void ui_event_gesture(lv_event_t * e)
 
 void ui_GameMuyuPage_init(void)
 {
+    _para_init();
     lv_obj_t * ui_GameMuyuPage = lv_obj_create(NULL);
     lv_obj_remove_flag(ui_GameMuyuPage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
@@ -77,7 +101,7 @@ void ui_GameMuyuPage_init(void)
     lv_obj_set_y(ui_LabelTolal, -85);
     lv_obj_set_align(ui_LabelTolal, LV_ALIGN_CENTER);
     char clicks_str[18];
-    sprintf(clicks_str, "今日功德 %4d", tolal_clicks);
+    sprintf(clicks_str, "今日功德 %4d", ui_muyu_para.tolal_clicks);
     lv_label_set_text(ui_LabelTolal, clicks_str);
     lv_obj_set_style_text_color(ui_LabelTolal, lv_color_hex(0xF8BA14), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_LabelTolal, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
