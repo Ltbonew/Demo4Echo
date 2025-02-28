@@ -1,12 +1,24 @@
 #include "ui_SettingPage.h"
 
 ///////////////////// VARIABLES ////////////////////
+
 typedef enum {
     LV_MENU_ITEM_BUILDER_VARIANT_1,
     LV_MENU_ITEM_BUILDER_VARIANT_2
 } lv_menu_builder_variant_t;
 
 lv_obj_t * root_page;
+lv_obj_t * sub_time_set_cont;
+lv_obj_t * sub_date_set_cont;
+lv_obj_t * time_roller_hour;
+lv_obj_t * time_roller_minute;
+lv_obj_t * time_roller_second;
+// start year is '2025'
+lv_obj_t * date_roller_year ;
+lv_obj_t * date_roller_month;
+lv_obj_t * date_roller_day;
+
+ui_system_para_t ui_temp_sys_para; // template system paras
 
 ///////////////////// ANIMATIONS ////////////////////
 
@@ -76,8 +88,9 @@ static void back_event_handler(lv_event_t * e)
 {
     lv_obj_t * obj = lv_event_get_target(e);
     lv_obj_t * menu = lv_event_get_user_data(e);
-
     if(lv_menu_back_button_is_root(menu, obj)) {
+        // open pre page & set system hardware paras
+
         lv_lib_pm_OpenPrePage(&page_manager);
         // lv_obj_t * mbox1 = lv_msgbox_create(NULL);
         // lv_msgbox_add_title(mbox1, "Hello");
@@ -85,6 +98,27 @@ static void back_event_handler(lv_event_t * e)
         // lv_msgbox_add_close_button(mbox1);
     }
     
+}
+
+static void auto_time_switch_event_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    lv_obj_t * sub_time_section2 = lv_event_get_user_data(e);
+    if(code == LV_EVENT_VALUE_CHANGED) {
+        if(lv_obj_has_state(obj, LV_STATE_CHECKED)) {
+            lv_obj_remove_flag(sub_time_set_cont, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_remove_flag(sub_date_set_cont, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_set_style_bg_opa(sub_time_section2, 0, LV_STATE_DEFAULT);
+            lv_obj_set_style_text_opa(sub_time_section2, 0, LV_STATE_DEFAULT);
+        }
+        else {
+            lv_obj_add_flag(sub_time_set_cont, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_add_flag(sub_date_set_cont, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_set_style_bg_opa(sub_time_section2, 255, LV_STATE_DEFAULT);
+            lv_obj_set_style_text_opa(sub_time_section2, 255, LV_STATE_DEFAULT);
+        }
+    }
 }
 
 static void sidebar_mode_handler(lv_event_t * e)
@@ -146,13 +180,90 @@ void ui_SettingPage_init()
     lv_obj_t * root_common_cont = create_text(root_section1, "", "Common", LV_MENU_ITEM_BUILDER_VARIANT_1);
     lv_menu_set_load_page_event(menu, root_common_cont, sub_common_page);
     
+    // time set sub page in time sub page
+    lv_obj_t * sub_time_set_page = lv_menu_page_create(menu, NULL);
+    lv_obj_t * sub_time_set_section1 = lv_menu_section_create(sub_time_set_page);
+    lv_obj_set_style_bg_color(sub_time_set_section1, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_t * time_roller_cont = lv_menu_cont_create(sub_time_set_section1);
+    time_roller_hour = lv_roller_create(time_roller_cont);
+    lv_obj_set_width(time_roller_hour, 95);
+    lv_obj_set_height(time_roller_hour, 120);
+    lv_obj_set_style_text_color(time_roller_hour, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(time_roller_hour, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(time_roller_hour, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_roller_set_options(time_roller_hour,
+                          "00\n01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23",
+                          LV_ROLLER_MODE_INFINITE);
+    time_roller_minute = lv_roller_create(time_roller_cont);
+    lv_obj_set_width(time_roller_minute, 95);
+    lv_obj_set_height(time_roller_minute, 120);
+    lv_obj_set_style_text_color(time_roller_minute, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(time_roller_minute, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(time_roller_minute, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_roller_set_options(time_roller_minute,
+                          "00\n01\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n51\n52\n53\n54\n55\n56\n57\n58\n59",
+                          LV_ROLLER_MODE_INFINITE);
+    time_roller_second = lv_roller_create(time_roller_cont);
+    lv_obj_set_width(time_roller_second, 95);
+    lv_obj_set_height(time_roller_second, 120);
+    lv_obj_set_style_text_color(time_roller_second, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(time_roller_second, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(time_roller_second, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_roller_set_options(time_roller_second,
+                          "00\n01\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n51\n52\n53\n54\n55\n56\n57\n58\n59",
+                          LV_ROLLER_MODE_INFINITE);
+    // date set sub page in time sub page
+    lv_obj_t * sub_date_set_page = lv_menu_page_create(menu, NULL);
+    lv_obj_t * sub_date_set_section1 = lv_menu_section_create(sub_date_set_page);
+    lv_obj_set_style_bg_color(sub_date_set_section1, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_t * date_roller_cont = lv_menu_cont_create(sub_date_set_section1);
+    date_roller_year = lv_roller_create(date_roller_cont);
+    lv_obj_set_width(date_roller_year, 95);
+    lv_obj_set_height(date_roller_year, 120);
+    lv_obj_set_style_text_color(date_roller_year, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(date_roller_year, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(date_roller_year, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_roller_set_options(date_roller_year,
+                          "2025\n2026\n2027\n2028\n2029\n2030\n2031\n2032\n2033\n2034\n2035\n2036\n2037\n2038\n2039\n2040",
+                          LV_ROLLER_MODE_INFINITE);
+    date_roller_month = lv_roller_create(date_roller_cont);
+    lv_obj_set_width(date_roller_month, 95);
+    lv_obj_set_height(date_roller_month, 120);
+    lv_obj_set_style_text_color(date_roller_month, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(date_roller_month, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(date_roller_month, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_roller_set_options(date_roller_month,
+                          "01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12",
+                          LV_ROLLER_MODE_INFINITE);
+    date_roller_day = lv_roller_create(date_roller_cont);
+    lv_obj_set_width(date_roller_day, 95);
+    lv_obj_set_height(date_roller_day, 120);
+    lv_obj_set_style_text_color(date_roller_day, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(date_roller_day, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(date_roller_day, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_roller_set_options(date_roller_day,
+                          "01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31",
+                          LV_ROLLER_MODE_INFINITE);
+
     // time sub page
     lv_obj_t * sub_time_page = lv_menu_page_create(menu, NULL);
     lv_obj_set_style_pad_hor(sub_time_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
     lv_menu_separator_create(sub_time_page);
     lv_obj_t * sub_time_section1 = lv_menu_section_create(sub_time_page);
     lv_obj_set_style_bg_color(sub_time_section1, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_t * sub_time_cont = create_switch(sub_time_section1, "", "Auto update", true);
+    lv_obj_t * sub_auto_time_switch_cont = create_switch(sub_time_section1, "", "Auto update", true);
+    create_text(sub_time_page, NULL, " ", LV_MENU_ITEM_BUILDER_VARIANT_1);
+    lv_obj_t * sub_time_section2 = lv_menu_section_create(sub_time_page);
+    lv_obj_set_style_bg_color(sub_time_section2, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
+    sub_time_set_cont = create_text(sub_time_section2, "", "Time Set", LV_MENU_ITEM_BUILDER_VARIANT_1);
+    lv_menu_set_load_page_event(menu, sub_time_set_cont, sub_time_set_page);
+    sub_date_set_cont = create_text(sub_time_section2, "", "Date Set", LV_MENU_ITEM_BUILDER_VARIANT_1);
+    lv_menu_set_load_page_event(menu, sub_date_set_cont, sub_date_set_page);
+    lv_obj_remove_flag(sub_time_set_cont, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_remove_flag(sub_date_set_cont, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_set_style_bg_opa(sub_time_section2, 0, LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(sub_time_section2, 0, LV_STATE_DEFAULT);
+    lv_obj_add_event_cb(lv_obj_get_child(sub_auto_time_switch_cont,2), auto_time_switch_event_cb, LV_EVENT_VALUE_CHANGED, sub_time_section2);
     // time root cont
     lv_obj_t * root_time_cont = create_text(root_section1, "", "Time", LV_MENU_ITEM_BUILDER_VARIANT_1);
     lv_menu_set_load_page_event(menu, root_time_cont, sub_time_page);
