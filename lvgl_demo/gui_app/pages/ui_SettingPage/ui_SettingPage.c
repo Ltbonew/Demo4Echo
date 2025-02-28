@@ -87,7 +87,7 @@ static void back_event_handler(lv_event_t * e)
     
 }
 
-static void switch_handler(lv_event_t * e)
+static void sidebar_mode_handler(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * menu = lv_event_get_user_data(e);
@@ -129,6 +129,8 @@ void ui_SettingPage_init()
     /*Create a root page*/
     root_page = lv_menu_page_create(menu, NULL);
     lv_obj_set_style_pad_hor(root_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    // root section1 
+    // create_text(root_page, NULL, "Main", LV_MENU_ITEM_BUILDER_VARIANT_1);
     lv_obj_t * root_section1 = lv_menu_section_create(root_page);
     lv_obj_set_style_bg_color(root_section1, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -150,15 +152,71 @@ void ui_SettingPage_init()
     lv_menu_separator_create(sub_time_page);
     lv_obj_t * sub_time_section1 = lv_menu_section_create(sub_time_page);
     lv_obj_set_style_bg_color(sub_time_section1, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_t * sub_time_cont = create_switch(sub_time_section1, "", "Autosync Time", true);
-    
+    lv_obj_t * sub_time_cont = create_switch(sub_time_section1, "", "Auto update", true);
     // time root cont
     lv_obj_t * root_time_cont = create_text(root_section1, "", "Time", LV_MENU_ITEM_BUILDER_VARIANT_1);
     lv_menu_set_load_page_event(menu, root_time_cont, sub_time_page);
+
+    // location sub page
+    lv_obj_t * sub_location_page = lv_menu_page_create(menu, NULL);
+    lv_obj_set_style_pad_hor(sub_location_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_menu_separator_create(sub_location_page);
+    lv_obj_t * sub_location_section1 = lv_menu_section_create(sub_location_page);
+    lv_obj_set_style_bg_color(sub_location_section1, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_t * sub_location_cont = create_switch(sub_location_section1, "", "IP Locating", false);
+    // location root cont
+    lv_obj_t * root_location_cont = create_text(root_section1, "", "Location", LV_MENU_ITEM_BUILDER_VARIANT_1);
+    lv_menu_set_load_page_event(menu, root_location_cont, sub_location_page);
+
     
+    // root section2
+    create_text(root_page, NULL, "Others", LV_MENU_ITEM_BUILDER_VARIANT_1);
+    lv_obj_t * root_section2 = lv_menu_section_create(root_page);
+    lv_obj_set_style_bg_color(root_section2, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // software sub page in about sub page
+    lv_obj_t * sub_software_page = lv_menu_page_create(menu, NULL);
+    lv_obj_set_style_pad_hor(sub_software_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_menu_separator_create(sub_software_page);
+    lv_obj_t * sub_software_cont = create_text(sub_software_page, NULL, "Software version is V1.1", LV_MENU_ITEM_BUILDER_VARIANT_1);
+    // legal sub page in about sub page
+    lv_obj_t * sub_legal_page = lv_menu_page_create(menu, NULL);
+    lv_obj_set_style_pad_hor(sub_legal_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_menu_separator_create(sub_legal_page);
+    lv_obj_t * sub_legal_cont = create_text(sub_legal_page, NULL, 
+                                            "Legal Info:", 
+                                            LV_MENU_ITEM_BUILDER_VARIANT_1);
+
+    // about sub page
+    lv_obj_t * sub_about_page = lv_menu_page_create(menu, NULL);
+    lv_obj_set_style_pad_hor(sub_about_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_menu_separator_create(sub_about_page);
+    lv_obj_t * sub_about_section1 = lv_menu_section_create(sub_about_page);
+    lv_obj_set_style_bg_color(sub_about_section1, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_t * sub_about_cont = create_text(sub_about_section1, "", "Software Info", LV_MENU_ITEM_BUILDER_VARIANT_1);
+    lv_menu_set_load_page_event(menu, sub_about_cont, sub_software_page);
+    sub_about_cont = create_text(sub_about_section1, "", "Legal Info", LV_MENU_ITEM_BUILDER_VARIANT_1);
+    lv_menu_set_load_page_event(menu, sub_about_cont, sub_legal_page);
+
+    // about root cont
+    lv_obj_t * root_about_cont = create_text(root_section2, "", "About", LV_MENU_ITEM_BUILDER_VARIANT_1);
+    lv_menu_set_load_page_event(menu, root_about_cont, sub_about_page);
     
+    // menu mode sub page
+    lv_obj_t * sub_mode_page = lv_menu_page_create(menu, NULL);
+    lv_obj_set_style_pad_hor(sub_mode_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_menu_separator_create(sub_mode_page);
+    lv_obj_t * sub_mode_section1 = lv_menu_section_create(sub_mode_page);
+    lv_obj_set_style_bg_color(sub_mode_section1, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_t * sub_mode_cont = create_switch(sub_mode_section1, "", "Sidebar enable", false);
+    lv_obj_add_event_cb(lv_obj_get_child(sub_mode_cont, 2), sidebar_mode_handler, LV_EVENT_VALUE_CHANGED, menu);
+
+    // menu mode root cont
+    lv_obj_t * root_mode_cont = create_text(root_section2, "", "Menu mode", LV_MENU_ITEM_BUILDER_VARIANT_1);
+    lv_menu_set_load_page_event(menu, root_mode_cont, sub_mode_page);
+
     lv_menu_set_sidebar_page(menu, NULL);
-    lv_menu_clear_history(menu); /* Clear history because we will be showing the root page later */
+    lv_menu_clear_history(menu);
     lv_menu_set_page(menu, root_page);
 
     // load page
