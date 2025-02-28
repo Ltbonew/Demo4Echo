@@ -640,7 +640,7 @@ void ui_HomePage_init(void)
     lv_obj_add_event_cb(ui_DrawBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "DrawPage");
 
     // timer
-    ui_home_timer = lv_timer_create(ui_home_timer_cb, 1000, ui_TimeLabel);
+    ui_home_timer = lv_timer_create(ui_home_timer_cb, 2000, ui_TimeLabel);
 
     // load page
     lv_scr_load_anim(ui_HomeScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 100, 0, true);
