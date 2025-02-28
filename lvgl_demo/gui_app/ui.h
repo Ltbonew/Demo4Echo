@@ -40,6 +40,7 @@ LV_IMG_DECLARE(ui_img_sun_png);    // assets/sun.png
 LV_IMG_DECLARE(ui_img_clouds_png);    // assets/clouds.png
 
 // FONTS
+LV_FONT_DECLARE(ui_font_iconfont20);
 LV_FONT_DECLARE(ui_font_iconfont26);
 LV_FONT_DECLARE(ui_font_iconfont30);
 LV_FONT_DECLARE(ui_font_iconfont36);
