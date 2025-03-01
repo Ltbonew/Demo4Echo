@@ -52,38 +52,44 @@ static void _ui_weather_timer_cb(void)
     if(ui_weather_para.first_enter) 
     {
         ui_weather_para.first_enter = 0;
-        if(get_location_info(&ui_weather_para.location) != 0) 
+        // get location info
+        if(ui_system_para.auto_location == true)
         {
-            LV_LOG_WARN("Failed to get location info.\n");
-            sprintf(ui_weather_para.location.city, "%s", "未知地");
-            lv_label_set_text(ui_LabelCity, "未知地");
-        } 
-        else 
-        {
-            if(get_weather_info_by_adcode(ui_weather_para.location.adcode, &ui_weather_para.weather_info) != 0) 
+            if(get_auto_location_by_ip(&ui_weather_para.location) != 0) 
             {
-                LV_LOG_WARN("Failed to get weather info.\n");
+                LV_LOG_WARN("Failed to get location info.\n");
+                sprintf(ui_weather_para.location.city, "%s", "未知地");
+                lv_label_set_text(ui_LabelCity, "未知地");
             } 
-            else
-            {
-                char str[36];
-                sprintf(str, "%s", ui_weather_para.location.city);
-                lv_label_set_text(ui_LabelCity, str);
-                sprintf(str, "%02d.%02d %s", ui_weather_para.month, ui_weather_para.date, day[ui_weather_para.day_of_week]);
-                lv_label_set_text(ui_LabelDate, str);
-                sprintf(str, "%s°", ui_weather_para.weather_info.temperature);
-                lv_label_set_text(ui_LabelTemp, str);
-                sprintf(str, "%s", ui_weather_para.weather_info.weather);
-                lv_label_set_text(ui_LabelWeather, str);
-                sprintf(str, "%s", ui_weather_para.weather_info.windpower);
-                lv_label_set_text(ui_LabelWind, str);
-                sprintf(str, "%s%%", ui_weather_para.weather_info.humidity);
-                lv_label_set_text(ui_LabelHumi, str);
-            }
+        }
+        else
+        {
+            sprintf(ui_weather_para.location.city, "%s", ui_system_para.location.city);
+            lv_label_set_text(ui_LabelCity, ui_system_para.location.city);
+        }
+        // get weather info
+        if(get_weather_info_by_adcode(ui_weather_para.location.adcode, &ui_weather_para.weather_info) != 0) 
+        {
+            LV_LOG_WARN("Failed to get weather info.\n");
+        } 
+        else
+        {
+            char str[36];
+            sprintf(str, "%s", ui_weather_para.location.city);
+            lv_label_set_text(ui_LabelCity, str);
+            sprintf(str, "%02d.%02d %s", ui_weather_para.month, ui_weather_para.date, day[ui_weather_para.day_of_week]);
+            lv_label_set_text(ui_LabelDate, str);
+            sprintf(str, "%s°", ui_weather_para.weather_info.temperature);
+            lv_label_set_text(ui_LabelTemp, str);
+            sprintf(str, "%s", ui_weather_para.weather_info.weather);
+            lv_label_set_text(ui_LabelWeather, str);
+            sprintf(str, "%s", ui_weather_para.weather_info.windpower);
+            lv_label_set_text(ui_LabelWind, str);
+            sprintf(str, "%s%%", ui_weather_para.weather_info.humidity);
+            lv_label_set_text(ui_LabelHumi, str);
         }
     }
     _cloud_move_anim();
-
 }
 
 static void _ui_enent_Gesture(lv_event_t * e)
@@ -106,6 +112,8 @@ static void _ui_WeatherPage_Para_Init(void)
     ui_weather_para.month = month;
     ui_weather_para.date = day;
     ui_weather_para.day_of_week = sys_get_day_of_week(ui_weather_para.year, ui_weather_para.month, ui_weather_para.date);
+    strcpy(ui_weather_para.location.city, ui_system_para.location.city);
+    strcpy(ui_weather_para.location.adcode, ui_system_para.location.adcode);
 }
 
 ///////////////////// SCREEN init ////////////////////
