@@ -1,6 +1,6 @@
 #include "app_WeatherPage.h"
 #include "ui_WeatherPage.h"
-#include "../../../common/sys_manager/sys_manager.h"
+
 ///////////////////// VARIABLES ////////////////////
 
 static char * day[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };

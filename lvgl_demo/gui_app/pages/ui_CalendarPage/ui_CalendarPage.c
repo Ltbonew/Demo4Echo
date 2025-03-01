@@ -1,5 +1,5 @@
 #include "ui_CalendarPage.h"
-#include "../../../common/sys_manager/sys_manager.h"
+
 ///////////////////// VARIABLES ////////////////////
 
 static const char *day_names[] =

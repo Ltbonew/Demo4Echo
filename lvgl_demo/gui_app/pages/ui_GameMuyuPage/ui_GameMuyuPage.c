@@ -1,5 +1,5 @@
 #include "ui_GameMuyuPage.h"
-#include "../../../common/sys_manager/sys_manager.h"
+
 ///////////////////// VARIABLES ////////////////////
 
 lv_obj_t * ui_MuyuImg;
