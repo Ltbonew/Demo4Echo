@@ -1,5 +1,5 @@
 #include "ui_CalendarPage.h"
-
+#include "../../../common/sys_manager/sys_manager.h"
 ///////////////////// VARIABLES ////////////////////
 
 static const char *day_names[] =
@@ -34,8 +34,8 @@ void ui_CalendarPage_init()
     lv_obj_set_width(calendar, UI_SCREEN_WIDTH);
     lv_obj_set_height(calendar, UI_SCREEN_WIDTH);
     lv_obj_align(calendar, LV_ALIGN_TOP_MID, 0, 0);
-    int year, month, day;
-    lv_lib_get_date(&year, &month, &day);
+    int year; int month; int day; int hour; int minute; int second;
+    sys_get_system_time(&year, &month, &day, &hour, &minute, &second);
     lv_calendar_set_today_date(calendar, year, month, day);
     lv_calendar_set_showed_date(calendar, year, month);
 
