@@ -6,20 +6,8 @@
 #include <sys/time.h> // For setting system time
 
 // 假设的存储变量，实际应用中应替换为与硬件交互的代码
-static int pwm_frequency = 5000; // 默认PWM频率为5kHz
 static float lcd_backlight_brightness = 0.5f; // 默认背光亮度为50%
 static int volume_level = 75; // 默认音量水平为75%
-
-int sys_set_pwm_frequency(int frequency_hz) {
-    if (frequency_hz <= 0) return -1; // 频率必须大于0
-    pwm_frequency = frequency_hz;
-    // 这里可以添加实际设置硬件PWM频率的代码
-    return 0;
-}
-
-int sys_get_pwm_frequency(void) {
-    return pwm_frequency;
-}
 
 int sys_set_lcd_backlight_brightness(float brightness) {
     if (brightness < 0.0f || brightness > 1.0f) return -1; // 亮度范围应在0.0到1.0之间
@@ -88,4 +76,25 @@ int sys_get_day_of_week(int year, int month, int day) {
 
     // 根据蔡勒公式的定义调整返回值以匹配常见的一周起始日(0=周日, 1=周一, ..., 6=周六)
     return (dayOfWeek + 1) % 7;
+}
+
+int sys_save_system_parameters(const char *filepath, const system_para_t *params) {
+    FILE *file = fopen(filepath, "w");
+    if (!file) return -1;
+
+    fprintf(file, "year=%d\n", params->year);
+    fprintf(file, "month=%d\n", params->month);
+    fprintf(file, "day=%d\n", params->day);
+    fprintf(file, "hour=%u\n", params->hour);
+    fprintf(file, "minute=%u\n", params->minute);
+    fprintf(file, "brightness=%u\n", params->brightness);
+    fprintf(file, "sound=%u\n", params->sound);
+    fprintf(file, "wifi_connected=%s\n", params->wifi_connected ? "true" : "false");
+    fprintf(file, "auto_time=%s\n", params->auto_time ? "true" : "false");
+    fprintf(file, "auto_location=%s\n", params->auto_location ? "true" : "false");
+    fprintf(file, "city=%s\n", params->location.city);
+    fprintf(file, "adcode=%s\n", params->location.adcode);
+
+    fclose(file);
+    return 0;
 }

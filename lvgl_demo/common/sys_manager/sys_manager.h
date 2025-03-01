@@ -6,12 +6,27 @@ extern "C" {
 #endif
 
 #include "../../conf/dev_conf.h"
+#include <stdint.h>
+#include <stdbool.h>
 
-// 设置PWM频率（单位: Hz）
-int sys_set_pwm_frequency(int frequency_hz);
+typedef struct {
+    char city[36];
+    char adcode[16]; // 'gao de' Amap adcode
+} LocationInfo_t;
 
-// 获取PWM频率（单位: Hz）
-int sys_get_pwm_frequency(void);
+typedef struct {
+    int year;                       // system time year             (need store)
+    int month;                      // system time month            (need store)
+    int day;                        // system time day              (need store)
+    int hour;                       // system time hour             (need store)
+    int minute;                     // system time minute           (need store)
+    uint16_t brightness;            // system brightness            (need store)
+    uint16_t sound;                 // system sound volume(0-30)    (need store)
+    bool wifi_connected;            // wifi connected or not
+    bool auto_time;                 // auto update time or not      (need store)
+    bool auto_location;             // auto update location or not  (need store)
+    LocationInfo_t location;        // location info                (need store)
+}system_para_t;
 
 // 设置LCD背光亮度（0.0到1.0之间）
 int sys_set_lcd_backlight_brightness(float brightness);
