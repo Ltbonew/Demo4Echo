@@ -117,7 +117,7 @@ void _sys_para_init(void)
         ui_system_para.sound = 50;
         ui_system_para.wifi_connected = false;
         ui_system_para.auto_time = true;
-        ui_system_para.auto_location = true;
+        ui_system_para.auto_location = false;
         strcpy(ui_system_para.location.city, "东城区");
         strcpy(ui_system_para.location.adcode, "110101");
         sys_save_system_parameters(sys_config_path, &ui_system_para);
