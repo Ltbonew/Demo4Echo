@@ -10,8 +10,8 @@ struct ui_weather_para_t{
     int year;
     int month;
     int date;
-    LocationInfo location;
-    WeatherInfo weather_info;
+    LocationInfo_t location;
+    WeatherInfo_t weather_info;
     bool first_enter;
 };
 
@@ -100,7 +100,11 @@ static void _ui_enent_Gesture(lv_event_t * e)
 
 static void _ui_WeatherPage_Para_Init(void)
 {
-    lv_lib_get_date(&ui_weather_para.year, &ui_weather_para.month, &ui_weather_para.date);
+    int year; int month; int day; int hour; int minute; int second;
+    sys_get_system_time(&year, &month, &day, &hour, &minute, &second);
+    ui_weather_para.year = year;
+    ui_weather_para.month = month;
+    ui_weather_para.date = day;
     ui_weather_para.day_of_week = lv_lib_calculate_day_of_week(ui_weather_para.year, ui_weather_para.month, ui_weather_para.date);
 }
 

@@ -20,7 +20,7 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
     return realsize;
 }
 
-int get_location_info(LocationInfo* location) {
+int get_location_info(LocationInfo_t* location) {
     CURL* curl_handle;
     CURLcode res;
     char url[256];
@@ -73,7 +73,7 @@ int get_location_info(LocationInfo* location) {
     return 0;
 }
 
-int get_weather_info_by_adcode(const char* adcode, WeatherInfo* weather_info) {
+int get_weather_info_by_adcode(const char* adcode, WeatherInfo_t* weather_info) {
     CURL* curl_handle;
     CURLcode res;
     char url[256];

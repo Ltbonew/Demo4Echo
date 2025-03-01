@@ -5,22 +5,18 @@
 extern "C" {
 #endif
 
+#include "ui_WeatherPage.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <curl/curl.h>
 #include <json-c/json.h>
 
 typedef struct {
-    char city[36];
-    char adcode[16];
-} LocationInfo;
-
-typedef struct {
     char weather[32];
     char temperature[16];
     char humidity[16];
     char windpower[16];
-} WeatherInfo;
+} WeatherInfo_t;
 
 /**
  * @brief 根据IP地址获取地理位置信息，并填充城市名称和adcode。
@@ -28,7 +24,7 @@ typedef struct {
  * @param location 用于存储位置信息的结构体。
  * @return -1: fail, 0: ok
  */
-int get_location_info(LocationInfo* location);
+int get_location_info(LocationInfo_t* location);
 
 /**
  * @brief 根据adcode获取天气信息，并填充WeatherInfo结构体。
@@ -37,7 +33,7 @@ int get_location_info(LocationInfo* location);
  * @param weather_info 用于存储天气信息的结构体。
  * @return 0: success, -1: fail
  */
-int get_weather_info_by_adcode(const char* adcode, WeatherInfo* weather_info);
+int get_weather_info_by_adcode(const char* adcode, WeatherInfo_t* weather_info);
 
 #ifdef __cplusplus
 } /*extern "C"*/
