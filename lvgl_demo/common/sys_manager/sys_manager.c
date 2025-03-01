@@ -72,3 +72,20 @@ void sys_get_system_time(int *year, int *month, int *day, int *hour, int *minute
     if (second) *second = timeinfo->tm_sec;
 }
 
+// 使用蔡勒公式计算星期几，0代表周日，1代表周一，...，6代表周六
+int sys_get_day_of_week(int year, int month, int day) {
+    if (month < 3) {
+        month += 12;
+        year -= 1;
+    }
+
+    int K = year % 100;
+    int J = year / 100;
+
+    // 蔡勒公式
+    int f = day + ((13 * (month + 1)) / 5) + K + (K / 4) + (J / 4) + (5 * J);
+    int dayOfWeek = f % 7;
+
+    // 根据蔡勒公式的定义调整返回值以匹配常见的一周起始日(0=周日, 1=周一, ..., 6=周六)
+    return (dayOfWeek + 1) % 7;
+}
