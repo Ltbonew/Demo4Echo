@@ -10,6 +10,7 @@ extern "C" {
 #include <stdbool.h>
 
 extern const char * sys_config_path;
+extern const char * city_adcode_path;
 
 typedef struct {
     char city[36];
@@ -53,6 +54,9 @@ sys_get_day_of_week(int year, int month, int day);
 
 // 获取wifi连接状态
 bool sys_get_wifi_status(void);
+
+// 获取city name by adcode
+const char* sys_get_city_name_by_adcode(const char *filepath, const char *target_adcode);
 
 // 保存系统参数到文件
 int sys_save_system_parameters(const char *filepath, const system_para_t *params);

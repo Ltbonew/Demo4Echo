@@ -122,6 +122,8 @@ void _sys_para_init(void)
         strcpy(ui_system_para.location.adcode, "110101");
         sys_save_system_parameters(sys_config_path, &ui_system_para);
     }
+    const char *city_name = sys_get_city_name_by_adcode(city_adcode_path, ui_system_para.location.adcode);
+    printf("city: %s, adcode: %s\n", city_name, ui_system_para.location.adcode);
 }
 
 ///////////////////// SCREENS ////////////////////

@@ -4,8 +4,10 @@
 #include <string.h>
 #include <time.h>
 #include <sys/time.h> // For setting system time
+#include <json-c/json.h>
 
 const char * sys_config_path = "./system_para.conf"; // 系统参数配置文件路径与可执行文件同目录
+const char * city_adcode_path = "./gaode_adcode.json"; // 城市adcode对应表文件路径与可执行文件同目录
 
 int sys_set_lcd_brightness(int brightness) {
     if (brightness < 0 || brightness > 100) return -1;
@@ -81,6 +83,91 @@ int sys_get_day_of_week(int year, int month, int day) {
 bool sys_get_wifi_status(void)
 {
     return true;
+}
+
+
+// 递归查找 adcode 对应的城市名称
+const char* find_city_name(struct json_object *districts, const char *target_adcode) {
+    if (!districts || !json_object_is_type(districts, json_type_array)) {
+        return NULL;
+    }
+
+    size_t array_len = json_object_array_length(districts);
+    for (size_t i = 0; i < array_len; i++) {
+        struct json_object *district = json_object_array_get_idx(districts, i);
+        if (!district) continue;
+
+        struct json_object *adcode_obj, *name_obj, *sub_districts_obj;
+
+        // 获取 adcode 和 name
+        if (json_object_object_get_ex(district, "adcode", &adcode_obj) &&
+            json_object_object_get_ex(district, "name", &name_obj) &&
+            json_object_is_type(adcode_obj, json_type_string) &&
+            json_object_is_type(name_obj, json_type_string)) {
+            
+            const char *adcode_str = json_object_get_string(adcode_obj);
+            if (strcmp(adcode_str, target_adcode) == 0) {
+                return json_object_get_string(name_obj);
+            }
+        }
+
+        // 递归查找子地区
+        if (json_object_object_get_ex(district, "districts", &sub_districts_obj)) {
+            const char *result = find_city_name(sub_districts_obj, target_adcode);
+            if (result) {
+                return result;
+            }
+        }
+    }
+
+    return NULL;
+}
+
+// 解析 JSON 文件并查找 adcode
+const char* sys_get_city_name_by_adcode(const char *filepath, const char *target_adcode) {
+    FILE *fp = fopen(filepath, "r");
+    if (!fp) {
+        fprintf(stderr, "Error opening file: %s\n", filepath);
+        return NULL;
+    }
+
+    // 读取整个 JSON 文件内容
+    fseek(fp, 0, SEEK_END);
+    long file_size = ftell(fp);
+    rewind(fp);
+
+    char *json_data = (char *)malloc(file_size + 1);
+    if (!json_data) {
+        fclose(fp);
+        fprintf(stderr, "Memory allocation failed!\n");
+        return NULL;
+    }
+
+    fread(json_data, 1, file_size, fp);
+    json_data[file_size] = '\0';
+    fclose(fp);
+
+    // 解析 JSON
+    struct json_object *root = json_tokener_parse(json_data);
+    free(json_data);  // 释放 JSON 读取的内存
+    if (!root) {
+        fprintf(stderr, "Error parsing JSON file!\n");
+        return NULL;
+    }
+
+    struct json_object *districts;
+    if (!json_object_object_get_ex(root, "districts", &districts)) {
+        fprintf(stderr, "Invalid JSON format: missing 'districts' array.\n");
+        json_object_put(root);  // 释放 JSON 对象
+        return NULL;
+    }
+
+    // 递归查找
+    const char *result = find_city_name(districts, target_adcode);
+
+    // 释放 JSON 对象
+    json_object_put(root);
+    return result;
 }
 
 int sys_save_system_parameters(const char *filepath, const system_para_t *params) {
