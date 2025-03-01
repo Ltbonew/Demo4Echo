@@ -17,8 +17,6 @@ extern "C" {
 
 #define LV_USE_LIB_ANIMATION 1 
 
-#define LV_USE_LIB_TIME 1
-
 /*=========================
    DEPENDENCY MANAGEMENT
  =========================*/
@@ -46,10 +44,6 @@ extern "C" {
 /* user define animations */
 #if LV_USE_LIB_ANIMATION
   // Add specific configurations for ANIMATION if needed
-#endif
-
-#if LV_USE_LIB_TIME
-  // Add specific configurations for LIB_TIME if needed
 #endif
 
 #ifdef __cplusplus
