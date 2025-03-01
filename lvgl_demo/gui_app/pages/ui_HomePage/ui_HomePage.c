@@ -16,17 +16,39 @@ ui_desktop_data_t ui_desktop_data = {
 lv_obj_t * ui_ScrollDots[_APP_CONTAINER_MAX_PAGES];
 
 lv_timer_t * ui_home_timer;
+lv_obj_t * ui_WifiLabel;
+lv_obj_t * ui_NoWifiLabel;
+
 
 //////////////////////// Timer //////////////////////
+
+static void _wifi_connected_icon_set(bool connected)
+{
+    if(connected)
+    {
+        lv_obj_remove_flag(ui_WifiLabel, LV_OBJ_FLAG_HIDDEN);     /// Flags
+        lv_obj_add_flag(ui_NoWifiLabel, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    }
+    else
+    {
+        lv_obj_remove_flag(ui_NoWifiLabel, LV_OBJ_FLAG_HIDDEN);     /// Flags
+        lv_obj_add_flag(ui_WifiLabel, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    }
+}
 
 static void ui_home_timer_cb(lv_timer_t * timer)
 {
     lv_obj_t * timelabel = lv_timer_get_user_data(timer);
     int year; int month; int day; int hour; int minute; int second;
-    sys_get_system_time(&year, &month, &day, &hour, &minute, &second);
+    sys_get_time(&year, &month, &day, &hour, &minute, &second);
     char time_str[6];
     sprintf(time_str, "%02d:%02d", hour, minute);
     lv_label_set_text(timelabel, time_str);
+    if(ui_system_para.wifi_connected != sys_get_wifi_status())
+    {
+        ui_system_para.wifi_connected = sys_get_wifi_status();
+        _wifi_connected_icon_set(ui_system_para.wifi_connected);
+    }
 }
 
 ///////////////////// ANIMATIONS ////////////////////
@@ -123,8 +145,40 @@ static void ui_event_AppsBtn(lv_event_t * e)
     char * pagename = lv_event_get_user_data(e);
     if(event_code == LV_EVENT_CLICKED && !ui_desktop_data.scroll_busy) 
     {
-        LV_LOG_USER("%s-Btn-Clicked", pagename);
         lv_lib_pm_OpenPage(&page_manager, NULL, pagename);
+    }
+}
+
+// sliders
+static void ui_event_SoundSlider(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * slider = lv_event_get_target(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED)
+    {
+        ui_system_para.sound = lv_slider_get_value(slider);
+        sys_set_volume(ui_system_para.sound);
+    }
+}
+
+static void ui_event_LightSlider(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * slider = lv_event_get_target(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED)
+    {
+        ui_system_para.brightness = lv_slider_get_value(slider);
+        sys_set_lcd_brightness(ui_system_para.brightness);
+    }
+}
+
+// btns on dropdown
+static void ui_event_SetBtn(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_CLICKED)
+    {
+        lv_lib_pm_OpenPage(&page_manager, NULL, "SettingPage");   
     }
 }
 
@@ -133,8 +187,10 @@ static void ui_event_AppsBtn(lv_event_t * e)
 void ui_HomePage_init(void)
 {
     // params init
+    ui_desktop_data.scroll_busy = false;
+    ui_desktop_data.show_dropdown = false;
     int year; int month; int day; int hour; int minute; int second;
-    sys_get_system_time(&year, &month, &day, &hour, &minute, &second);
+    sys_get_time(&year, &month, &day, &hour, &minute, &second);
     ui_system_para.hour = hour;
     ui_system_para.minute = minute;
     ui_system_para.year = year;
@@ -173,7 +229,7 @@ void ui_HomePage_init(void)
     lv_label_set_text(ui_TimeLabel, time_str);
 
     // wifi connected Label
-    lv_obj_t * ui_WifiLabel = lv_label_create(ui_HomeScreen);
+    ui_WifiLabel = lv_label_create(ui_HomeScreen);
     lv_obj_set_width(ui_WifiLabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_WifiLabel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_WifiLabel, 130);
@@ -183,7 +239,7 @@ void ui_HomePage_init(void)
     lv_obj_set_style_text_font(ui_WifiLabel, &ui_font_iconfont26, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     // wifi not connected Label
-    lv_obj_t * ui_NoWifiLabel = lv_label_create(ui_HomeScreen);
+    ui_NoWifiLabel = lv_label_create(ui_HomeScreen);
     lv_obj_set_width(ui_NoWifiLabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_NoWifiLabel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_NoWifiLabel, 130);
@@ -250,6 +306,7 @@ void ui_HomePage_init(void)
     lv_obj_t * ui_LightSlider = lv_slider_create(ui_DropdownPanel);
     lv_slider_set_value(ui_LightSlider, 50, LV_ANIM_OFF);
     if(lv_slider_get_mode(ui_LightSlider) == LV_SLIDER_MODE_RANGE) lv_slider_set_left_value(ui_LightSlider, 0, LV_ANIM_OFF);
+    lv_slider_set_value(ui_LightSlider, ui_system_para.brightness, LV_ANIM_OFF);
     lv_obj_set_width(ui_LightSlider, 50);
     lv_obj_set_height(ui_LightSlider, 150);
     lv_obj_set_x(ui_LightSlider, 50);
@@ -266,7 +323,7 @@ void ui_HomePage_init(void)
     lv_obj_set_style_radius(ui_LightSlider, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_LightSlider, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_LightSlider, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
-
+    lv_obj_add_event_cb(ui_LightSlider, ui_event_LightSlider, LV_EVENT_VALUE_CHANGED, NULL);
     //Compensating for LVGL9.1 draw crash with bar/slider max value when top-padding is nonzero and right-padding is 0
     if(lv_obj_get_style_pad_top(ui_LightSlider, LV_PART_MAIN) > 0) lv_obj_set_style_pad_right(ui_LightSlider,
                                                                                                   lv_obj_get_style_pad_right(ui_LightSlider, LV_PART_MAIN) + 1, LV_PART_MAIN);
@@ -284,6 +341,7 @@ void ui_HomePage_init(void)
     lv_obj_t * ui_SoundSlider = lv_slider_create(ui_DropdownPanel);
     lv_slider_set_value(ui_SoundSlider, 50, LV_ANIM_OFF);
     if(lv_slider_get_mode(ui_SoundSlider) == LV_SLIDER_MODE_RANGE) lv_slider_set_left_value(ui_SoundSlider, 0, LV_ANIM_OFF);
+    lv_slider_set_value(ui_SoundSlider, ui_system_para.sound, LV_ANIM_OFF);
     lv_obj_set_width(ui_SoundSlider, 50);
     lv_obj_set_height(ui_SoundSlider, 150);
     lv_obj_set_x(ui_SoundSlider, 115);
@@ -300,6 +358,8 @@ void ui_HomePage_init(void)
     lv_obj_set_style_radius(ui_SoundSlider, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_SoundSlider, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_SoundSlider, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+
+    lv_obj_add_event_cb(ui_SoundSlider, ui_event_SoundSlider, LV_EVENT_VALUE_CHANGED, NULL);
 
     //Compensating for LVGL9.1 draw crash with bar/slider max value when top-padding is nonzero and right-padding is 0
     if(lv_obj_get_style_pad_top(ui_SoundSlider, LV_PART_MAIN) > 0) lv_obj_set_style_pad_right(ui_SoundSlider,
@@ -361,6 +421,7 @@ void ui_HomePage_init(void)
     lv_obj_remove_flag(ui_DropSetBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_DropSetBtn, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_DropSetBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_event_cb(ui_DropSetBtn, ui_event_SetBtn, LV_EVENT_CLICKED, "SettingPage");
 
     lv_obj_t * ui_DropSetIcon = lv_label_create(ui_DropSetBtn);
     lv_obj_set_width(ui_DropSetIcon, LV_SIZE_CONTENT);   /// 1
@@ -559,7 +620,7 @@ void ui_HomePage_init(void)
     lv_obj_set_style_text_color(ui_BotIcon, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_BotIcon, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_BotIcon, &ui_font_iconfont48, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // AI Chat evetn
+    // AI Chat event
     lv_obj_add_event_cb(ui_AIChatBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "ChatBotPage");
 
 
@@ -646,7 +707,7 @@ void ui_HomePage_init(void)
     lv_obj_add_event_cb(ui_DrawBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "DrawPage");
 
     // timer
-    ui_home_timer = lv_timer_create(ui_home_timer_cb, 2000, ui_TimeLabel);
+    ui_home_timer = lv_timer_create(ui_home_timer_cb, 5000, ui_TimeLabel);
 
     // load page
     lv_scr_load_anim(ui_HomeScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 100, 0, true);

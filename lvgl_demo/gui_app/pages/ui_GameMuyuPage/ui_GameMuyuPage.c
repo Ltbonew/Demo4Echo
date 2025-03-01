@@ -40,7 +40,7 @@ static void _Click_Animation()
 static void _para_init(void)
 {
     int year; int month; int day; int hour; int minute; int second;
-    sys_get_system_time(&year, &month, &day, &hour, &minute, &second);
+    sys_get_time(&year, &month, &day, &hour, &minute, &second);
     ui_muyu_para.day_today = day;
     if(day != ui_muyu_para.day_today)
     {
