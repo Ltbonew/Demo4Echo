@@ -101,7 +101,7 @@ static void _ui_enent_Gesture(lv_event_t * e)
 static void _ui_WeatherPage_Para_Init(void)
 {
     int year; int month; int day; int hour; int minute; int second;
-    sys_get_system_time(&year, &month, &day, &hour, &minute, &second);
+    sys_get_time(&year, &month, &day, &hour, &minute, &second);
     ui_weather_para.year = year;
     ui_weather_para.month = month;
     ui_weather_para.date = day;
