@@ -5,34 +5,33 @@
 #include <time.h>
 #include <sys/time.h> // For setting system time
 
-// 假设的存储变量，实际应用中应替换为与硬件交互的代码
-static int lcd_backlight_brightness = 50; // 默认背光亮度为50%
-static int volume_level = 75; // 默认音量水平为75%
 const char * sys_config_path = "./system_para.conf"; // 系统参数配置文件路径与可执行文件同目录
 
-int sys_set_lcd_backlight_brightness(int brightness) {
-    if (brightness < 0.0f || brightness > 1.0f) return -1; // 亮度范围应在0.0到1.0之间
-    lcd_backlight_brightness = brightness;
+int sys_set_lcd_brightness(int brightness) {
+    if (brightness < 0 || brightness > 100) return -1;
     // 这里可以添加实际设置硬件背光亮度的代码
+
     return 0;
 }
 
-float sys_get_lcd_backlight_brightness(void) {
-    return lcd_backlight_brightness;
+int sys_get_lcd_brightness(void) {
+
+    return 50;
 }
 
-int sys_set_volume_level(int level) {
+int sys_set_volume(int level) {
     if (level < 0 || level > 100) return -1; // 音量级别应在0到100之间
-    volume_level = level;
     // 这里可以添加实际设置硬件音量的代码
+
     return 0;
 }
 
-int sys_get_volume_level(void) {
-    return volume_level;
+int sys_get_volume(void) {
+
+    return 50;
 }
 
-int sys_set_system_time(int year, int month, int day, int hour, int minute, int second) {
+int sys_set_time(int year, int month, int day, int hour, int minute, int second) {
     struct tm t = {0};
     t.tm_year = year - 1900; // 年份从1900年起计算
     t.tm_mon = month - 1;    // 月份从0起计算
@@ -46,7 +45,7 @@ int sys_set_system_time(int year, int month, int day, int hour, int minute, int 
     return 0;
 }
 
-void sys_get_system_time(int *year, int *month, int *day, int *hour, int *minute, int *second) {
+void sys_get_time(int *year, int *month, int *day, int *hour, int *minute, int *second) {
     time_t rawtime;
     struct tm * timeinfo;
 
@@ -77,6 +76,11 @@ int sys_get_day_of_week(int year, int month, int day) {
 
     // 根据蔡勒公式的定义调整返回值以匹配常见的一周起始日(0=周日, 1=周一, ..., 6=周六)
     return (dayOfWeek + 1) % 7;
+}
+
+bool sys_get_wifi_status(void)
+{
+    return true;
 }
 
 int sys_save_system_parameters(const char *filepath, const system_para_t *params) {

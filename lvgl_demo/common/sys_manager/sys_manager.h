@@ -31,25 +31,33 @@ typedef struct {
 }system_para_t;
 
 // 设置LCD背光亮度（0-100之间）
-int sys_set_lcd_backlight_brightness(int brightness);
+int sys_set_lcd_brightness(int brightness);
 
 // 获取LCD背光亮度
-float sys_get_lcd_backlight_brightness(void);
+int sys_get_lcd_brightness(void);
 
 // 设置系统音量（0到100之间）
-int sys_set_volume_level(int level);
+int sys_set_volume(int level);
 
 // 获取系统音量
-int sys_get_volume_level(void);
+int sys_get_volume(void);
 
 // 设置系统时间
-int sys_set_system_time(int year, int month, int day, int hour, int minute, int second);
+int sys_set_time(int year, int month, int day, int hour, int minute, int second);
 
 // 获取系统时间
-void sys_get_system_time(int *year, int *month, int *day, int *hour, int *minute, int *second);
+void sys_get_time(int *year, int *month, int *day, int *hour, int *minute, int *second);
 
+// 获取指定日期是星期几
+sys_get_day_of_week(int year, int month, int day);
+
+// 获取wifi连接状态
+bool sys_get_wifi_status(void);
+
+// 保存系统参数到文件
 int sys_save_system_parameters(const char *filepath, const system_para_t *params);
 
+// 从文件加载系统参数
 int sys_load_system_parameters(const char *filepath, system_para_t *params);
 
 #ifdef __cplusplus
