@@ -24,7 +24,7 @@ typedef struct {
  * @param location 用于存储位置信息的结构体。
  * @return -1: fail, 0: ok
  */
-int get_location_info(LocationInfo_t* location);
+int get_auto_location_by_ip(LocationInfo_t* location);
 
 /**
  * @brief 根据adcode获取天气信息，并填充WeatherInfo结构体。

@@ -20,7 +20,7 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
     return realsize;
 }
 
-int get_location_info(LocationInfo_t* location) {
+int get_auto_location_by_ip(LocationInfo_t* location) {
     CURL* curl_handle;
     CURLcode res;
     char url[256];
