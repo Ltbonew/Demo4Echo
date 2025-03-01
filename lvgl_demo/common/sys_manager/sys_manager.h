@@ -9,6 +9,8 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
+extern const char * sys_config_path;
+
 typedef struct {
     char city[36];
     char adcode[16]; // 'gao de' Amap adcode
@@ -28,8 +30,8 @@ typedef struct {
     LocationInfo_t location;        // location info                (need store)
 }system_para_t;
 
-// 设置LCD背光亮度（0.0到1.0之间）
-int sys_set_lcd_backlight_brightness(float brightness);
+// 设置LCD背光亮度（0-100之间）
+int sys_set_lcd_backlight_brightness(int brightness);
 
 // 获取LCD背光亮度
 float sys_get_lcd_backlight_brightness(void);
@@ -45,6 +47,10 @@ int sys_set_system_time(int year, int month, int day, int hour, int minute, int 
 
 // 获取系统时间
 void sys_get_system_time(int *year, int *month, int *day, int *hour, int *minute, int *second);
+
+int sys_save_system_parameters(const char *filepath, const system_para_t *params);
+
+int sys_load_system_parameters(const char *filepath, system_para_t *params);
 
 #ifdef __cplusplus
 } /*extern "C"*/

@@ -7,20 +7,12 @@ extern "C" {
 
 #include "../lvgl/lvgl.h"
 #include "./common/lv_lib.h"
+#include "../common/sys_manager/sys_manager.h"
 
 #define UI_SCREEN_WIDTH 320
 #define UI_SCREEN_HEIGHT 240
 
-typedef struct {
-    int year;                       // system time year         (need store)
-    int month;                      // system time month        (need store)
-    int day;                        // system time day          (need store)
-    uint8_t hour;                   // system time hour         (need store)
-    uint8_t minute;                 // system time minute       (need store)
-    uint16_t brightness;            // system brightness        (need store)
-    uint16_t sound;                 // system sound volume      (need store)
-    bool wifi_connected;            // wifi connected or not
-}ui_system_para_t;
+typedef system_para_t ui_system_para_t;
 
 // extern variables
 extern lv_lib_pm_t page_manager;

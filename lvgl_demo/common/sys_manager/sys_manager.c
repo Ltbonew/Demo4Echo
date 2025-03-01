@@ -6,10 +6,11 @@
 #include <sys/time.h> // For setting system time
 
 // 假设的存储变量，实际应用中应替换为与硬件交互的代码
-static float lcd_backlight_brightness = 0.5f; // 默认背光亮度为50%
+static int lcd_backlight_brightness = 50; // 默认背光亮度为50%
 static int volume_level = 75; // 默认音量水平为75%
+const char * sys_config_path = "./system_para.conf"; // 系统参数配置文件路径与可执行文件同目录
 
-int sys_set_lcd_backlight_brightness(float brightness) {
+int sys_set_lcd_backlight_brightness(int brightness) {
     if (brightness < 0.0f || brightness > 1.0f) return -1; // 亮度范围应在0.0到1.0之间
     lcd_backlight_brightness = brightness;
     // 这里可以添加实际设置硬件背光亮度的代码
@@ -94,6 +95,48 @@ int sys_save_system_parameters(const char *filepath, const system_para_t *params
     fprintf(file, "auto_location=%s\n", params->auto_location ? "true" : "false");
     fprintf(file, "city=%s\n", params->location.city);
     fprintf(file, "adcode=%s\n", params->location.adcode);
+
+    fclose(file);
+    return 0;
+}
+
+int sys_load_system_parameters(const char *filepath, system_para_t *params) {
+    FILE *file = fopen(filepath, "r");
+    if (!file) return -1;
+
+    char line[256];
+    while (fgets(line, sizeof(line), file)) {
+        char key[128], value[128];
+        if (sscanf(line, "%[^=]=%s", key, value) != 2) continue;
+
+        if (strcmp(key, "year") == 0) {
+            params->year = atoi(value);
+        } else if (strcmp(key, "month") == 0) {
+            params->month = atoi(value);
+        } else if (strcmp(key, "day") == 0) {
+            params->day = atoi(value);
+        } else if (strcmp(key, "hour") == 0) {
+            params->hour = (uint8_t)atoi(value);
+        } else if (strcmp(key, "minute") == 0) {
+            params->minute = (uint8_t)atoi(value);
+        } else if (strcmp(key, "brightness") == 0) {
+            params->brightness = (uint16_t)atoi(value);
+        } else if (strcmp(key, "sound") == 0) {
+            params->sound = (uint16_t)atoi(value);
+        } else if (strcmp(key, "wifi_connected") == 0) {
+            params->wifi_connected = strcmp(value, "true") == 0;
+        } else if (strcmp(key, "auto_time") == 0) {
+            params->auto_time = strcmp(value, "true") == 0;
+        } else if (strcmp(key, "auto_location") == 0) {
+            params->auto_location = strcmp(value, "true") == 0;
+        } else if (strcmp(key, "city") == 0) {
+            strncpy(params->location.city, value, sizeof(params->location.city)-1);
+            params->location.city[sizeof(params->location.city)-1] = '\0'; // 确保字符串以null终止
+        } else if (strcmp(key, "adcode") == 0) {
+            strncpy(params->location.adcode, value, sizeof(params->location.adcode)-1);
+            params->location.adcode[sizeof(params->location.adcode)-1] = '\0'; // 确保字符串以null终止
+        }
+    }
 
     fclose(file);
     return 0;

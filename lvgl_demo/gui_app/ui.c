@@ -12,11 +12,7 @@
 
 lv_lib_pm_t page_manager;
 
-ui_system_para_t ui_system_para = {
-    .brightness = 50,
-    .sound = 50,
-    .wifi_connected = false
-};
+ui_system_para_t ui_system_para;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 
@@ -104,11 +100,34 @@ ui_app_data_t ui_apps[_APP_NUMS] = {
 
 };
 
+///////////////////// Function ////////////////////
+
+void _sys_para_init(void)
+{
+    if(sys_load_system_parameters(sys_config_path, &ui_system_para)!=0)
+    {
+        LV_LOG_WARN("Load system parameters failed, create a new config file.");
+        ui_system_para.year = 2025;
+        ui_system_para.month = 1;
+        ui_system_para.day = 1;
+        ui_system_para.hour = 0;
+        ui_system_para.minute = 0;
+        ui_system_para.brightness = 50;
+        ui_system_para.sound = 50;
+        ui_system_para.wifi_connected = false;
+        ui_system_para.auto_time = true;
+        ui_system_para.auto_location = true;
+        strcpy(ui_system_para.location.city, "东城区");
+        strcpy(ui_system_para.location.adcode, "110101");
+        sys_save_system_parameters(sys_config_path, &ui_system_para);
+    }
+}
 
 ///////////////////// SCREENS ////////////////////
 
 void ui_init(void)
 {
+    _sys_para_init();
     lv_disp_t * dispp = lv_display_get_default();
     lv_theme_t * theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
                                                true, LV_FONT_DEFAULT);
