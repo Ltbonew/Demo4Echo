@@ -24,7 +24,8 @@ ui_system_para_t ui_system_para;
 
 #define _APP_NUMS 9 // number of apps (including HomePage)
 
-ui_app_data_t ui_apps[_APP_NUMS] = {
+ui_app_data_t ui_apps[_APP_NUMS] = 
+{
     {
         .name = "HomePage",
         .init = ui_HomePage_init,
@@ -139,6 +140,5 @@ void ui_init(void)
     {
         pm_page[i] = lv_lib_pm_CreatePage(&page_manager, ui_apps[i].name, ui_apps[i].init, ui_apps[i].deinit, NULL);
     }
-    // lv_lib_pm_page_t *pm_HomePage = lv_lib_pm_CreatePage(&page_manager, "HomePage", ui_HomePage_init, ui_HomePage_deinit, NULL);
     lv_lib_pm_OpenPage(&page_manager, NULL, "HomePage");
 }
