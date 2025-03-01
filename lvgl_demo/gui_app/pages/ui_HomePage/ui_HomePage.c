@@ -22,9 +22,10 @@ lv_timer_t * ui_home_timer;
 static void ui_home_timer_cb(lv_timer_t * timer)
 {
     lv_obj_t * timelabel = lv_timer_get_user_data(timer);
-    lv_lib_get_time(&ui_system_para.hour, &ui_system_para.minute);
+    int year; int month; int day; int hour; int minute; int second;
+    sys_get_system_time(&year, &month, &day, &hour, &minute, &second);
     char time_str[6];
-    sprintf(time_str, "%02d:%02d", ui_system_para.hour, ui_system_para.minute);
+    sprintf(time_str, "%02d:%02d", hour, minute);
     lv_label_set_text(timelabel, time_str);
 }
 
@@ -132,8 +133,13 @@ static void ui_event_AppsBtn(lv_event_t * e)
 void ui_HomePage_init(void)
 {
     // params init
-    lv_lib_get_time(&ui_system_para.hour, &ui_system_para.minute);
-    lv_lib_get_date(&ui_system_para.year, &ui_system_para.month, &ui_system_para.day);
+    int year; int month; int day; int hour; int minute; int second;
+    sys_get_system_time(&year, &month, &day, &hour, &minute, &second);
+    ui_system_para.hour = hour;
+    ui_system_para.minute = minute;
+    ui_system_para.year = year;
+    ui_system_para.month = month;
+    ui_system_para.day = day;
 
     // home screen
     lv_obj_t * ui_HomeScreen = lv_obj_create(NULL);
