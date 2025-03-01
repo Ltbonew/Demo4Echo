@@ -1,6 +1,6 @@
 #include "app_WeatherPage.h"
 #include "ui_WeatherPage.h"
-
+#include "../../../common/sys_manager/sys_manager.h"
 ///////////////////// VARIABLES ////////////////////
 
 static char * day[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
@@ -105,7 +105,7 @@ static void _ui_WeatherPage_Para_Init(void)
     ui_weather_para.year = year;
     ui_weather_para.month = month;
     ui_weather_para.date = day;
-    ui_weather_para.day_of_week = lv_lib_calculate_day_of_week(ui_weather_para.year, ui_weather_para.month, ui_weather_para.date);
+    ui_weather_para.day_of_week = sys_get_day_of_week(ui_weather_para.year, ui_weather_para.month, ui_weather_para.date);
 }
 
 ///////////////////// SCREEN init ////////////////////
