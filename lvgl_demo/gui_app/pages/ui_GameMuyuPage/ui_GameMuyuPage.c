@@ -1,5 +1,5 @@
 #include "ui_GameMuyuPage.h"
-
+#include "../../../common/sys_manager/sys_manager.h"
 ///////////////////// VARIABLES ////////////////////
 
 lv_obj_t * ui_MuyuImg;
@@ -39,10 +39,9 @@ static void _Click_Animation()
 
 static void _para_init(void)
 {
-    int year;
-    int month;
-    int day;
-    lv_lib_get_date(&year, &month, &day);
+    int year; int month; int day; int hour; int minute; int second;
+    sys_get_system_time(&year, &month, &day, &hour, &minute, &second);
+    ui_muyu_para.day_today = day;
     if(day != ui_muyu_para.day_today)
     {
         ui_muyu_para.day_today = day;
