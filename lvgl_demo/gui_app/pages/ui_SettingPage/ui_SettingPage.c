@@ -10,6 +10,9 @@ typedef enum {
 lv_obj_t * root_page;
 lv_obj_t * sub_time_set_cont;
 lv_obj_t * sub_date_set_cont;
+lv_obj_t * sub_adcode_set_cont;
+lv_obj_t * location_name_in_adcode_set_page;
+lv_obj_t * location_name_label;
 lv_obj_t * time_roller_hour;
 lv_obj_t * time_roller_minute;
 lv_obj_t * time_roller_second;
@@ -17,6 +20,12 @@ lv_obj_t * time_roller_second;
 lv_obj_t * date_roller_year ;
 lv_obj_t * date_roller_month;
 lv_obj_t * date_roller_day;
+lv_obj_t * roller_location_adcode0;
+lv_obj_t * roller_location_adcode1;
+lv_obj_t * roller_location_adcode2;
+lv_obj_t * roller_location_adcode3;
+lv_obj_t * roller_location_adcode4;
+lv_obj_t * roller_location_adcode5;
 
 ui_system_para_t ui_temp_sys_para; // template system paras
 
@@ -122,12 +131,16 @@ static void auto_time_switch_event_cb(lv_event_t * e)
     lv_obj_t * sub_time_section2 = lv_event_get_user_data(e);
     if(code == LV_EVENT_VALUE_CHANGED) {
         if(lv_obj_has_state(obj, LV_STATE_CHECKED)) {
+            ui_system_para.auto_time = true;
             lv_obj_remove_flag(sub_time_set_cont, LV_OBJ_FLAG_CLICKABLE);
             lv_obj_remove_flag(sub_date_set_cont, LV_OBJ_FLAG_CLICKABLE);
             lv_obj_set_style_bg_opa(sub_time_section2, 0, LV_STATE_DEFAULT);
             lv_obj_set_style_text_opa(sub_time_section2, 0, LV_STATE_DEFAULT);
+            // get time via network
+
         }
         else {
+            ui_system_para.auto_time = false;
             lv_obj_add_flag(sub_time_set_cont, LV_OBJ_FLAG_CLICKABLE);
             lv_obj_add_flag(sub_date_set_cont, LV_OBJ_FLAG_CLICKABLE);
             lv_obj_set_style_bg_opa(sub_time_section2, 255, LV_STATE_DEFAULT);
@@ -136,16 +149,94 @@ static void auto_time_switch_event_cb(lv_event_t * e)
     }
 }
 
+static void auto_locating_switch_event_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    lv_obj_t * sub_location_section2 = lv_event_get_user_data(e);
+    if(code == LV_EVENT_VALUE_CHANGED) {
+        if(lv_obj_has_state(obj, LV_STATE_CHECKED)) {
+            ui_system_para.auto_location = true;
+            lv_obj_remove_flag(sub_adcode_set_cont, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_set_style_bg_opa(sub_location_section2, 0, LV_STATE_DEFAULT);
+            lv_obj_set_style_text_opa(sub_location_section2, 0, LV_STATE_DEFAULT);
+            // get location via network
+            
+        }
+        else {
+            ui_system_para.auto_location = false;
+            lv_obj_add_flag(sub_adcode_set_cont, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_set_style_bg_opa(sub_location_section2, 255, LV_STATE_DEFAULT);
+            lv_obj_set_style_text_opa(sub_location_section2, 255, LV_STATE_DEFAULT);
+        }
+        
+    }
+}
+
 static void time_confirm_event_cb(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     if(code == LV_EVENT_CLICKED) {
         // set system time
+        sys_get_time(&ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL);
+        ui_system_para.hour = lv_roller_get_selected(time_roller_hour);
+        ui_system_para.minute = lv_roller_get_selected(time_roller_minute);
+        sys_set_time(ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute, 0);
         // show msg box
         lv_obj_t * mbox1 = lv_msgbox_create(NULL);
         lv_msgbox_add_title(mbox1, "Note");
         lv_msgbox_add_text(mbox1, "Time set success.");
         lv_msgbox_add_close_button(mbox1);
+    }
+}
+
+static void date_confirm_event_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_CLICKED) {
+        // set system date
+        sys_get_time(&ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL);
+        ui_system_para.year = lv_roller_get_selected(date_roller_year) + 2025;
+        ui_system_para.month = lv_roller_get_selected(date_roller_month) + 1;
+        ui_system_para.day = lv_roller_get_selected(date_roller_day) + 1;
+        sys_set_time(ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute, 0);
+        // show msg box
+        lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+        lv_msgbox_add_title(mbox1, "Note");
+        lv_msgbox_add_text(mbox1, "Date set success.");
+        lv_msgbox_add_close_button(mbox1);
+    }
+}
+
+static void loc_confirm_event_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_CLICKED) {
+        // set system location
+        ui_system_para.location.adcode[0] = lv_roller_get_selected(roller_location_adcode0) + '0';
+        ui_system_para.location.adcode[1] = lv_roller_get_selected(roller_location_adcode1) + '0';
+        ui_system_para.location.adcode[2] = lv_roller_get_selected(roller_location_adcode2) + '0';
+        ui_system_para.location.adcode[3] = lv_roller_get_selected(roller_location_adcode3) + '0';
+        ui_system_para.location.adcode[4] = lv_roller_get_selected(roller_location_adcode4) + '0';
+        ui_system_para.location.adcode[5] = lv_roller_get_selected(roller_location_adcode5) + '0';
+        char * city_name = sys_get_city_name_by_adcode(city_adcode_path, ui_system_para.location.adcode);
+        if(city_name) {
+            strcpy(ui_system_para.location.city, city_name);
+            lv_label_set_text(location_name_in_adcode_set_page, city_name);
+            lv_label_set_text(location_name_label, city_name);
+            // show msg box
+            lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+            lv_msgbox_add_title(mbox1, "Note");
+            lv_msgbox_add_text(mbox1, "Location set success.");
+            lv_msgbox_add_close_button(mbox1);
+        }
+        else {
+            // show msg box
+            lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+            lv_msgbox_add_title(mbox1, "Error");
+            lv_msgbox_add_text(mbox1, "Location set failed.");
+            lv_msgbox_add_close_button(mbox1);
+        }
     }
 }
 
@@ -231,7 +322,7 @@ void ui_SettingPage_init()
     lv_obj_set_style_text_opa(time_roller_minute, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(time_roller_minute, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_roller_set_options(time_roller_minute,
-                          "00\n01\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n51\n52\n53\n54\n55\n56\n57\n58\n59",
+                          "00\n01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n51\n52\n53\n54\n55\n56\n57\n58\n59",
                           LV_ROLLER_MODE_INFINITE);
     time_roller_second = lv_roller_create(time_roller_cont);
     lv_obj_set_width(time_roller_second, 95);
@@ -240,8 +331,13 @@ void ui_SettingPage_init()
     lv_obj_set_style_text_opa(time_roller_second, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(time_roller_second, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_roller_set_options(time_roller_second,
-                          "00\n01\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n51\n52\n53\n54\n55\n56\n57\n58\n59",
+                          "00\n01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n51\n52\n53\n54\n55\n56\n57\n58\n59",
                           LV_ROLLER_MODE_INFINITE);
+
+    // set roller value
+    lv_roller_set_selected(time_roller_hour, ui_system_para.hour, LV_ANIM_OFF);
+    lv_roller_set_selected(time_roller_minute, ui_system_para.minute, LV_ANIM_OFF);
+
     // confirm btn
     lv_obj_t * time_confirm_btn = lv_btn_create(sub_time_set_page);
     lv_obj_set_width(time_confirm_btn, 70);
@@ -292,6 +388,7 @@ void ui_SettingPage_init()
     lv_label_set_text(date_confirm_btn_label, "Set");
     lv_obj_set_align(date_confirm_btn_label, LV_ALIGN_CENTER);
     lv_obj_set_style_text_font(date_confirm_btn_label, &lv_font_montserrat_20, LV_PART_MAIN);
+    lv_obj_add_event_cb(date_confirm_btn, date_confirm_event_cb, LV_EVENT_CLICKED, NULL);
 
     // time sub page
     lv_obj_t * sub_time_page = lv_menu_page_create(menu, NULL);
@@ -299,7 +396,7 @@ void ui_SettingPage_init()
     lv_menu_separator_create(sub_time_page);
     lv_obj_t * sub_time_section1 = lv_menu_section_create(sub_time_page);
     lv_obj_set_style_bg_color(sub_time_section1, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_t * sub_auto_time_switch_cont = create_switch(sub_time_section1, "", "Auto update", true);
+    lv_obj_t * sub_auto_time_switch_cont = create_switch(sub_time_section1, "", "Auto update", ui_system_para.auto_time);
     create_text(sub_time_page, NULL, " ", LV_MENU_ITEM_BUILDER_VARIANT_1);
     lv_obj_t * sub_time_section2 = lv_menu_section_create(sub_time_page);
     lv_obj_set_style_bg_color(sub_time_section2, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -307,33 +404,30 @@ void ui_SettingPage_init()
     lv_menu_set_load_page_event(menu, sub_time_set_cont, sub_time_set_page);
     sub_date_set_cont = create_text(sub_time_section2, "", "Date Set", LV_MENU_ITEM_BUILDER_VARIANT_1);
     lv_menu_set_load_page_event(menu, sub_date_set_cont, sub_date_set_page);
-    lv_obj_remove_flag(sub_time_set_cont, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_remove_flag(sub_date_set_cont, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_set_style_bg_opa(sub_time_section2, 0, LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(sub_time_section2, 0, LV_STATE_DEFAULT);
+    if(ui_system_para.auto_time == true) {
+        lv_obj_remove_flag(sub_time_set_cont, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_remove_flag(sub_date_set_cont, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_set_style_bg_opa(sub_time_section2, 0, LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(sub_time_section2, 0, LV_STATE_DEFAULT);
+    }
     lv_obj_add_event_cb(lv_obj_get_child(sub_auto_time_switch_cont,2), auto_time_switch_event_cb, LV_EVENT_VALUE_CHANGED, sub_time_section2);
     // time root cont
     lv_obj_t * root_time_cont = create_text(root_section1, "", "Time", LV_MENU_ITEM_BUILDER_VARIANT_1);
     lv_menu_set_load_page_event(menu, root_time_cont, sub_time_page);
 
-    // location sub page
-    lv_obj_t * sub_location_page = lv_menu_page_create(menu, NULL);
-    lv_obj_set_style_pad_hor(sub_location_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    lv_menu_separator_create(sub_location_page);
-    lv_obj_t * sub_location_section1 = lv_menu_section_create(sub_location_page);
-    lv_obj_set_style_bg_color(sub_location_section1, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_t * sub_location_cont = create_switch(sub_location_section1, "", "IP Locating", false);
-    lv_obj_t * location_name_label = lv_label_create(sub_location_page);
-    lv_label_set_text(location_name_label, "东城区");
-    lv_obj_set_style_text_opa(location_name_label, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_t * sub_location_section2 = lv_menu_section_create(sub_location_page);
-    lv_obj_set_style_bg_color(sub_location_section2, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(location_name_label, &ui_font_heiti22, LV_PART_MAIN);
-    lv_obj_set_align(location_name_label, LV_ALIGN_CENTER);
-    lv_obj_t * location_roller_cont = lv_menu_cont_create(sub_location_section2);
+    // adcode set page in location sub page
+    lv_obj_t * sub_adcode_set_page = lv_menu_page_create(menu, NULL);
+    lv_obj_t * sub_adcode_section1 = lv_menu_section_create(sub_adcode_set_page);
+    lv_obj_set_style_bg_color(sub_adcode_section1, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_t * location_roller_cont = lv_menu_cont_create(sub_adcode_section1);
+    // location name
+    location_name_in_adcode_set_page = lv_label_create(sub_adcode_set_page);
+    lv_label_set_text(location_name_in_adcode_set_page, "东城区");
+    lv_obj_set_style_text_font(location_name_in_adcode_set_page, &ui_font_heiti22, LV_PART_MAIN);
+    lv_obj_set_align(location_name_in_adcode_set_page, LV_ALIGN_CENTER);
     // location roller 0
-    lv_obj_t * roller_location_adcode0 = lv_roller_create(location_roller_cont);
-    lv_obj_set_width(roller_location_adcode0, 40);
+    roller_location_adcode0 = lv_roller_create(location_roller_cont);
+    lv_obj_set_width(roller_location_adcode0, 43);
     lv_obj_set_height(roller_location_adcode0, 80);
     lv_obj_set_style_text_color(roller_location_adcode0, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(roller_location_adcode0, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -342,8 +436,8 @@ void ui_SettingPage_init()
                           "0\n1\n2\n3\n4\n5\n6\n7\n8\n9",
                           LV_ROLLER_MODE_INFINITE);
     // location roller 1
-    lv_obj_t * roller_location_adcode1 = lv_roller_create(location_roller_cont);
-    lv_obj_set_width(roller_location_adcode1, 40);
+    roller_location_adcode1 = lv_roller_create(location_roller_cont);
+    lv_obj_set_width(roller_location_adcode1, 43);
     lv_obj_set_height(roller_location_adcode1, 80);
     lv_obj_set_style_text_color(roller_location_adcode1, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(roller_location_adcode1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -352,8 +446,8 @@ void ui_SettingPage_init()
                           "0\n1\n2\n3\n4\n5\n6\n7\n8\n9",
                           LV_ROLLER_MODE_INFINITE);
     // loaction roller 2
-    lv_obj_t * roller_location_adcode2 = lv_roller_create(location_roller_cont);
-    lv_obj_set_width(roller_location_adcode2, 40);
+    roller_location_adcode2 = lv_roller_create(location_roller_cont);
+    lv_obj_set_width(roller_location_adcode2, 43);
     lv_obj_set_height(roller_location_adcode2, 80);
     lv_obj_set_pos(roller_location_adcode2, 100, 0);
     lv_obj_set_style_text_color(roller_location_adcode2, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -363,8 +457,8 @@ void ui_SettingPage_init()
                           "0\n1\n2\n3\n4\n5\n6\n7\n8\n9",
                           LV_ROLLER_MODE_INFINITE);
     // location roller 3
-    lv_obj_t * roller_location_adcode3 = lv_roller_create(location_roller_cont);
-    lv_obj_set_width(roller_location_adcode3, 40);
+    roller_location_adcode3 = lv_roller_create(location_roller_cont);
+    lv_obj_set_width(roller_location_adcode3, 43);
     lv_obj_set_height(roller_location_adcode3, 80);
     lv_obj_set_style_text_color(roller_location_adcode3, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(roller_location_adcode3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -373,8 +467,8 @@ void ui_SettingPage_init()
                           "0\n1\n2\n3\n4\n5\n6\n7\n8\n9",
                           LV_ROLLER_MODE_INFINITE);
     // location roller 4
-    lv_obj_t * roller_location_adcode4 = lv_roller_create(location_roller_cont);
-    lv_obj_set_width(roller_location_adcode4, 40);
+    roller_location_adcode4 = lv_roller_create(location_roller_cont);
+    lv_obj_set_width(roller_location_adcode4, 43);
     lv_obj_set_height(roller_location_adcode4, 80);
     lv_obj_set_style_text_color(roller_location_adcode4, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(roller_location_adcode4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -383,8 +477,8 @@ void ui_SettingPage_init()
                           "0\n1\n2\n3\n4\n5\n6\n7\n8\n9",
                           LV_ROLLER_MODE_INFINITE);
     // location roller 5
-    lv_obj_t * roller_location_adcode5 = lv_roller_create(location_roller_cont);
-    lv_obj_set_width(roller_location_adcode5, 40);
+    roller_location_adcode5 = lv_roller_create(location_roller_cont);
+    lv_obj_set_width(roller_location_adcode5, 43);
     lv_obj_set_height(roller_location_adcode5, 80);
     lv_obj_set_style_text_color(roller_location_adcode5, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(roller_location_adcode5, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -392,15 +486,48 @@ void ui_SettingPage_init()
     lv_roller_set_options(roller_location_adcode5,
                           "0\n1\n2\n3\n4\n5\n6\n7\n8\n9",
                           LV_ROLLER_MODE_INFINITE);
+    
+    // set roller value
+    lv_roller_set_selected(roller_location_adcode0, ui_system_para.location.adcode[0] - '0', LV_ANIM_OFF);
+    lv_roller_set_selected(roller_location_adcode1, ui_system_para.location.adcode[1] - '0', LV_ANIM_OFF);
+    lv_roller_set_selected(roller_location_adcode2, ui_system_para.location.adcode[2] - '0', LV_ANIM_OFF);
+    lv_roller_set_selected(roller_location_adcode3, ui_system_para.location.adcode[3] - '0', LV_ANIM_OFF);
+    lv_roller_set_selected(roller_location_adcode4, ui_system_para.location.adcode[4] - '0', LV_ANIM_OFF);
+    lv_roller_set_selected(roller_location_adcode5, ui_system_para.location.adcode[5] - '0', LV_ANIM_OFF);
+
     // confirm btn
-    lv_obj_t * loc_confirm_btn = lv_btn_create(sub_location_page);
+    lv_obj_t * loc_confirm_btn = lv_btn_create(sub_adcode_set_page);
     lv_obj_set_width(loc_confirm_btn, 70);
     lv_obj_set_height(loc_confirm_btn, 40);
     lv_obj_t * loc_confirm_btn_label = lv_label_create(loc_confirm_btn);
     lv_label_set_text(loc_confirm_btn_label, "Set");
     lv_obj_set_align(loc_confirm_btn_label, LV_ALIGN_CENTER);
     lv_obj_set_style_text_font(loc_confirm_btn_label, &lv_font_montserrat_20, LV_PART_MAIN);
+    lv_obj_add_event_cb(loc_confirm_btn, loc_confirm_event_cb, LV_EVENT_CLICKED, NULL);
 
+    // location sub page
+    lv_obj_t * sub_location_page = lv_menu_page_create(menu, NULL);
+    lv_obj_set_style_pad_hor(sub_location_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_menu_separator_create(sub_location_page);
+    lv_obj_t * sub_location_section1 = lv_menu_section_create(sub_location_page);
+    lv_obj_set_style_bg_color(sub_location_section1, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_t * sub_location_cont = create_switch(sub_location_section1, "", "IP Locating", ui_system_para.auto_location);
+    
+    location_name_label = lv_label_create(sub_location_page);
+    lv_label_set_text(location_name_label, "东城区");
+    lv_obj_set_style_text_font(location_name_label, &ui_font_heiti22, LV_PART_MAIN);
+    lv_obj_set_align(location_name_label, LV_ALIGN_CENTER);
+    
+    lv_obj_t * sub_location_section2 = lv_menu_section_create(sub_location_page);
+    lv_obj_set_style_bg_color(sub_location_section2, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
+    sub_adcode_set_cont = create_text(sub_location_section2, "", "adcode set", LV_MENU_ITEM_BUILDER_VARIANT_1);
+    lv_menu_set_load_page_event(menu, sub_adcode_set_cont, sub_adcode_set_page);
+    if(ui_system_para.auto_location == true) {
+        lv_obj_remove_flag(sub_adcode_set_cont, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_set_style_bg_opa(sub_location_section2, 0, LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(sub_location_section2, 0, LV_STATE_DEFAULT);
+    }
+    lv_obj_add_event_cb(lv_obj_get_child(sub_location_cont,2), auto_locating_switch_event_cb, LV_EVENT_VALUE_CHANGED, sub_location_section2);
     // location root cont
     lv_obj_t * root_location_cont = create_text(root_section1, "", "Location", LV_MENU_ITEM_BUILDER_VARIANT_1);
     lv_menu_set_load_page_event(menu, root_location_cont, sub_location_page);
