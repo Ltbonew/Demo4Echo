@@ -51,7 +51,7 @@ int sys_set_time(int year, int month, int day, int hour, int minute, int second)
 void sys_get_time(int *year, int *month, int *day, int *hour, int *minute, int *second);
 
 // 获取指定日期是星期几
-sys_get_day_of_week(int year, int month, int day);
+int sys_get_day_of_week(int year, int month, int day);
 
 // 获取wifi连接状态
 bool sys_get_wifi_status(void);
