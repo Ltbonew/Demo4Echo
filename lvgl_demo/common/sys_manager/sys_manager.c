@@ -186,6 +186,7 @@ int sys_save_system_parameters(const char *filepath, const system_para_t *params
     fprintf(file, "auto_location=%s\n", params->auto_location ? "true" : "false");
     fprintf(file, "city=%s\n", params->location.city);
     fprintf(file, "adcode=%s\n", params->location.adcode);
+    fprintf(file, "gaode_api_key=%s\n", params->gaode_api_key);
 
     fclose(file);
     return 0;
@@ -226,6 +227,8 @@ int sys_load_system_parameters(const char *filepath, system_para_t *params) {
         } else if (strcmp(key, "adcode") == 0) {
             strncpy(params->location.adcode, value, sizeof(params->location.adcode)-1);
             params->location.adcode[sizeof(params->location.adcode)-1] = '\0'; // 确保字符串以null终止
+        } else if (strcmp(key, "gaode_api_key") == 0) {
+            strncpy(params->gaode_api_key, value, sizeof(params->gaode_api_key)-1);
         }
     }
 
