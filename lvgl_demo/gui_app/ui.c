@@ -123,8 +123,7 @@ void _sys_para_init(void)
         strcpy(ui_system_para.gaode_api_key, "your_amap_key");
         sys_save_system_parameters(sys_config_path, &ui_system_para);
     }
-    const char *city_name = sys_get_city_name_by_adcode(city_adcode_path, ui_system_para.location.adcode);
-    LV_LOG_USER("city: %s, adcode: %s, gaode_api_key: %s", city_name, ui_system_para.location.adcode, ui_system_para.gaode_api_key);
+    
     if(ui_system_para.auto_time == true)
     {
         if(sys_get_time_from_ntp("ntp1.aliyun.com", &ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL))
@@ -137,6 +136,26 @@ void _sys_para_init(void)
             LV_LOG_USER("Auto NTP time year: %d, month: %d, day: %d, hour: %d, minute: %d", ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute);
         }
 
+    }
+    if(ui_system_para.auto_location == true)
+    {
+        if(sys_get_auto_location_by_ip(&ui_system_para.location, ui_system_para.gaode_api_key) == 0)
+        {
+            LV_LOG_USER("Auto location city: %s, adcode: %s", ui_system_para.location.city, ui_system_para.location.adcode);
+        }
+        else
+        {
+            LV_LOG_WARN("Get location by IP failed, use system location.");
+            const char *city_name = sys_get_city_name_by_adcode(city_adcode_path, ui_system_para.location.adcode);
+            strcpy(ui_system_para.location.city, city_name);
+            LV_LOG_USER("Manual location city: %s, adcode: %s", ui_system_para.location.city, ui_system_para.location.adcode);
+        }
+    }
+    else
+    {
+        const char *city_name = sys_get_city_name_by_adcode(city_adcode_path, ui_system_para.location.adcode);
+        strcpy(ui_system_para.location.city, city_name);
+        LV_LOG_USER("Manual location city: %s, adcode: %s", ui_system_para.location.city, ui_system_para.location.adcode);
     }
 }
 
