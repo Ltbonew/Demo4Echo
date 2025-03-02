@@ -161,7 +161,15 @@ static void auto_locating_switch_event_cb(lv_event_t * e)
             lv_obj_set_style_bg_opa(sub_location_section2, 0, LV_STATE_DEFAULT);
             lv_obj_set_style_text_opa(sub_location_section2, 0, LV_STATE_DEFAULT);
             // get location via network
-            
+            if(sys_get_auto_location_by_ip(&ui_system_para.location, ui_system_para.gaode_api_key) == 0) {
+                lv_label_set_text(location_name_in_adcode_set_page, ui_system_para.location.city);
+                lv_label_set_text(location_name_label, ui_system_para.location.city);
+                // show msg box
+                lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+                lv_msgbox_add_title(mbox1, "Note");
+                lv_msgbox_add_text(mbox1, "Auto Location get success.");
+                lv_msgbox_add_close_button(mbox1);
+            }
         }
         else {
             ui_system_para.auto_location = false;
@@ -428,7 +436,7 @@ void ui_SettingPage_init()
     // location roller 0
     roller_location_adcode0 = lv_roller_create(location_roller_cont);
     lv_obj_set_width(roller_location_adcode0, 43);
-    lv_obj_set_height(roller_location_adcode0, 80);
+    lv_obj_set_height(roller_location_adcode0, 95);
     lv_obj_set_style_text_color(roller_location_adcode0, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(roller_location_adcode0, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(roller_location_adcode0, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -438,7 +446,7 @@ void ui_SettingPage_init()
     // location roller 1
     roller_location_adcode1 = lv_roller_create(location_roller_cont);
     lv_obj_set_width(roller_location_adcode1, 43);
-    lv_obj_set_height(roller_location_adcode1, 80);
+    lv_obj_set_height(roller_location_adcode1, 95);
     lv_obj_set_style_text_color(roller_location_adcode1, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(roller_location_adcode1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(roller_location_adcode1, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -448,7 +456,7 @@ void ui_SettingPage_init()
     // loaction roller 2
     roller_location_adcode2 = lv_roller_create(location_roller_cont);
     lv_obj_set_width(roller_location_adcode2, 43);
-    lv_obj_set_height(roller_location_adcode2, 80);
+    lv_obj_set_height(roller_location_adcode2, 95);
     lv_obj_set_pos(roller_location_adcode2, 100, 0);
     lv_obj_set_style_text_color(roller_location_adcode2, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(roller_location_adcode2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -459,7 +467,7 @@ void ui_SettingPage_init()
     // location roller 3
     roller_location_adcode3 = lv_roller_create(location_roller_cont);
     lv_obj_set_width(roller_location_adcode3, 43);
-    lv_obj_set_height(roller_location_adcode3, 80);
+    lv_obj_set_height(roller_location_adcode3, 95);
     lv_obj_set_style_text_color(roller_location_adcode3, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(roller_location_adcode3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(roller_location_adcode3, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -469,7 +477,7 @@ void ui_SettingPage_init()
     // location roller 4
     roller_location_adcode4 = lv_roller_create(location_roller_cont);
     lv_obj_set_width(roller_location_adcode4, 43);
-    lv_obj_set_height(roller_location_adcode4, 80);
+    lv_obj_set_height(roller_location_adcode4, 95);
     lv_obj_set_style_text_color(roller_location_adcode4, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(roller_location_adcode4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(roller_location_adcode4, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -479,7 +487,7 @@ void ui_SettingPage_init()
     // location roller 5
     roller_location_adcode5 = lv_roller_create(location_roller_cont);
     lv_obj_set_width(roller_location_adcode5, 43);
-    lv_obj_set_height(roller_location_adcode5, 80);
+    lv_obj_set_height(roller_location_adcode5, 95);
     lv_obj_set_style_text_color(roller_location_adcode5, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(roller_location_adcode5, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(roller_location_adcode5, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
