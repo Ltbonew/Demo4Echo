@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-const char * user_key = "you-gaode-api-key"; 
-
 // 回调函数，用于处理libcurl接收到的数据
 static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     size_t realsize = size * nmemb;
@@ -24,7 +22,7 @@ int get_auto_location_by_ip(LocationInfo_t* location) {
     CURL* curl_handle;
     CURLcode res;
     char url[256];
-    snprintf(url, sizeof(url), "https://restapi.amap.com/v3/ip?key=%s", user_key);
+    snprintf(url, sizeof(url), "https://restapi.amap.com/v3/ip?key=%s", ui_system_para.gaode_api_key);
 
     char* response_string = malloc(1); // 初始化为空字符串
     response_string[0] = '\0';
@@ -77,7 +75,7 @@ int get_weather_info_by_adcode(const char* adcode, WeatherInfo_t* weather_info) 
     CURL* curl_handle;
     CURLcode res;
     char url[256];
-    snprintf(url, sizeof(url), "https://restapi.amap.com/v3/weather/weatherInfo?city=%s&key=%s", adcode, user_key);
+    snprintf(url, sizeof(url), "https://restapi.amap.com/v3/weather/weatherInfo?city=%s&key=%s", adcode, ui_system_para.gaode_api_key);
 
     char* response_string = malloc(1); // 初始化为空字符串
     response_string[0] = '\0';
