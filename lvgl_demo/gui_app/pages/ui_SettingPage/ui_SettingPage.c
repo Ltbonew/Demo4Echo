@@ -170,6 +170,13 @@ static void auto_locating_switch_event_cb(lv_event_t * e)
                 lv_msgbox_add_text(mbox1, "Auto Location get success.");
                 lv_msgbox_add_close_button(mbox1);
             }
+            else {
+                // show msg box
+                lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+                lv_msgbox_add_title(mbox1, "Error");
+                lv_msgbox_add_text(mbox1, "Auto Location get failed.");
+                lv_msgbox_add_close_button(mbox1);
+            }
         }
         else {
             ui_system_para.auto_location = false;
