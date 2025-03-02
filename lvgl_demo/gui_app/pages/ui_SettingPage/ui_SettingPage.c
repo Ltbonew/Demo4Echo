@@ -137,7 +137,23 @@ static void auto_time_switch_event_cb(lv_event_t * e)
             lv_obj_set_style_bg_opa(sub_time_section2, 0, LV_STATE_DEFAULT);
             lv_obj_set_style_text_opa(sub_time_section2, 0, LV_STATE_DEFAULT);
             // get time via network
-
+            if(sys_get_time_from_ntp("ntp1.aliyun.com", &ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL))
+            {
+                // show msg box
+                lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+                lv_msgbox_add_title(mbox1, "Error");
+                lv_msgbox_add_text(mbox1, "Auto NTP time get fail.");
+                lv_msgbox_add_close_button(mbox1);
+            }
+            else
+            {
+                sys_set_time(ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute, 0);
+                // show msg box
+                lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+                lv_msgbox_add_title(mbox1, "Note");
+                lv_msgbox_add_text(mbox1, "Auto NTP time get success.");
+                lv_msgbox_add_close_button(mbox1);
+            }
         }
         else {
             ui_system_para.auto_time = false;
@@ -395,6 +411,12 @@ void ui_SettingPage_init()
     lv_roller_set_options(date_roller_day,
                           "01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31",
                           LV_ROLLER_MODE_INFINITE);
+
+    // set roller value
+    lv_roller_set_selected(date_roller_year, ui_system_para.year - 2025, LV_ANIM_OFF);
+    lv_roller_set_selected(date_roller_month, ui_system_para.month - 1, LV_ANIM_OFF);
+    lv_roller_set_selected(date_roller_day, ui_system_para.day - 1, LV_ANIM_OFF);
+
     // confirm btn
     lv_obj_t * date_confirm_btn = lv_btn_create(sub_date_set_page);
     lv_obj_set_width(date_confirm_btn, 70);
