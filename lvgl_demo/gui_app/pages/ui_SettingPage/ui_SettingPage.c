@@ -437,7 +437,7 @@ void ui_SettingPage_init()
     lv_obj_t * location_roller_cont = lv_menu_cont_create(sub_adcode_section1);
     // location name
     location_name_in_adcode_set_page = lv_label_create(sub_adcode_set_page);
-    lv_label_set_text(location_name_in_adcode_set_page, "东城区");
+    lv_label_set_text(location_name_in_adcode_set_page, ui_system_para.location.city);
     lv_obj_set_style_text_font(location_name_in_adcode_set_page, &ui_font_heiti22, LV_PART_MAIN);
     lv_obj_set_align(location_name_in_adcode_set_page, LV_ALIGN_CENTER);
     // location roller 0
@@ -529,7 +529,7 @@ void ui_SettingPage_init()
     lv_obj_t * sub_location_cont = create_switch(sub_location_section1, "", "IP Locating", ui_system_para.auto_location);
     
     location_name_label = lv_label_create(sub_location_page);
-    lv_label_set_text(location_name_label, "东城区");
+    lv_label_set_text(location_name_label, ui_system_para.location.city);
     lv_obj_set_style_text_font(location_name_label, &ui_font_heiti22, LV_PART_MAIN);
     lv_obj_set_align(location_name_label, LV_ALIGN_CENTER);
     
