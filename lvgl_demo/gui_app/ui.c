@@ -120,10 +120,11 @@ void _sys_para_init(void)
         ui_system_para.auto_location = false;
         strcpy(ui_system_para.location.city, "东城区");
         strcpy(ui_system_para.location.adcode, "110101");
+        strcpy(ui_system_para.gaode_api_key, "your_amap_key");
         sys_save_system_parameters(sys_config_path, &ui_system_para);
     }
     const char *city_name = sys_get_city_name_by_adcode(city_adcode_path, ui_system_para.location.adcode);
-    printf("city: %s, adcode: %s\n", city_name, ui_system_para.location.adcode);
+    LV_LOG_USER("city: %s, adcode: %s, gaode_api_key: %s\n", city_name, ui_system_para.location.adcode, ui_system_para.gaode_api_key);
 }
 
 ///////////////////// SCREENS ////////////////////
