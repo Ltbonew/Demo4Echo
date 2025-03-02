@@ -62,6 +62,9 @@ const char* sys_get_city_name_by_adcode(const char *filepath, const char *target
 // 通过IP获取自动定位信息
 int sys_get_auto_location_by_ip(LocationInfo_t* location, const char *api_key);
 
+// 通过NTP服务器获取时间
+int sys_get_time_from_ntp(const char* ntp_server, int *year, int *month, int *day, int *hour, int *minute, int *second);
+
 // 保存系统参数到文件
 int sys_save_system_parameters(const char *filepath, const system_para_t *params);
 

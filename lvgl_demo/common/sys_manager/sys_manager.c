@@ -6,6 +6,13 @@
 #include <sys/time.h> // For setting system time
 #include <json-c/json.h>
 #include <curl/curl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
+#define NTP_PORT 123
+#define NTP_TIMESTAMP_DELTA 2208988800ull // 时间戳差值，从1900年到1970年的秒数
 
 const char * sys_config_path = "./system_para.conf"; // 系统参数配置文件路径与可执行文件同目录
 const char * city_adcode_path = "./gaode_adcode.json"; // 城市adcode对应表文件路径与可执行文件同目录
@@ -236,6 +243,75 @@ int sys_get_auto_location_by_ip(LocationInfo_t* location, const char *api_key) {
     free(response_string);
     curl_easy_cleanup(curl_handle);
     curl_global_cleanup();
+
+    return 0;
+}
+
+int sys_get_time_from_ntp(const char* ntp_server, int *year, int *month, int *day, int *hour, int *minute, int *second) {
+    struct addrinfo hints, *res;
+    int sockfd;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC; // Allow IPv4 or IPv6
+    hints.ai_socktype = SOCK_DGRAM; // UDP
+    hints.ai_protocol = IPPROTO_UDP;
+
+    if (getaddrinfo(ntp_server, "123", &hints, &res) != 0) {
+        perror("getaddrinfo failed");
+        return -1;
+    }
+
+    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (sockfd == -1) {
+        perror("socket creation failed");
+        freeaddrinfo(res);
+        return -1;
+    }
+
+    // NTP packet structure
+    unsigned char buf[48] = {0};
+    buf[0] = 0x1b; // LI, Version, Mode
+
+    // Send packet to NTP server
+    if (sendto(sockfd, buf, sizeof(buf), 0, res->ai_addr, res->ai_addrlen) == -1) {
+        perror("sendto failed");
+        close(sockfd);
+        freeaddrinfo(res);
+        return -1;
+    }
+
+    // Receive response from NTP server
+    if (recvfrom(sockfd, buf, sizeof(buf), 0, NULL, NULL) == -1) {
+        perror("recvfrom failed");
+        close(sockfd);
+        freeaddrinfo(res);
+        return -1;
+    }
+
+    // Close the socket and free address info
+    close(sockfd);
+    freeaddrinfo(res);
+
+    // Convert received time to seconds since Jan 1, 1900
+    uint32_t secsSince1900;
+    memcpy(&secsSince1900, &buf[40], sizeof(secsSince1900));
+    secsSince1900 = ntohl(secsSince1900); // Network byte order to host byte order
+
+    // Convert to Unix time (seconds since Jan 1, 1970)
+    time_t unixTime = (time_t)(secsSince1900 - NTP_TIMESTAMP_DELTA);
+
+    // Convert Unix time to broken-down time
+    struct tm *timeinfo = localtime(&unixTime);
+    if (!timeinfo) {
+        perror("localtime failed");
+        return -1;
+    }
+
+    if (year) *year = timeinfo->tm_year + 1900;
+    if (month) *month = timeinfo->tm_mon + 1;
+    if (day) *day = timeinfo->tm_mday;
+    if (hour) *hour = timeinfo->tm_hour;
+    if (minute) *minute = timeinfo->tm_min;
+    if (second) *second = timeinfo->tm_sec;
 
     return 0;
 }
