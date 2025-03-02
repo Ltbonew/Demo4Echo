@@ -95,6 +95,26 @@ static void back_event_handler(lv_event_t * e)
     }
 }
 
+static void light_slider_event_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_VALUE_CHANGED) {
+        // set system brightness
+        ui_system_para.brightness = lv_slider_get_value(lv_event_get_target(e));
+        sys_set_lcd_brightness(ui_system_para.brightness);
+    }
+}
+
+static void sound_slider_event_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_VALUE_CHANGED) {
+        // set system sound
+        ui_system_para.sound = lv_slider_get_value(lv_event_get_target(e));
+        sys_set_volume(ui_system_para.sound);
+    }
+}
+
 static void auto_time_switch_event_cb(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
@@ -182,8 +202,10 @@ void ui_SettingPage_init()
     lv_menu_separator_create(sub_common_page);
     lv_obj_t * sub_common_section1 = lv_menu_section_create(sub_common_page);
     lv_obj_set_style_bg_color(sub_common_section1, lv_color_hex(0x404040), LV_PART_MAIN | LV_STATE_DEFAULT);
-    create_slider(sub_common_section1, "", "Brightness", 0, 100, 50);
-    create_slider(sub_common_section1, "", "Sound", 0, 100, 50);
+    lv_obj_t * light_slider_cont = create_slider(sub_common_section1, "", "Brightness", 0, 100, ui_system_para.brightness);
+    lv_obj_t * sound_slider_cont = create_slider(sub_common_section1, "", "Sound", 0, 100, ui_system_para.sound);
+    lv_obj_add_event_cb(lv_obj_get_child(light_slider_cont,2), light_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_add_event_cb(lv_obj_get_child(sound_slider_cont,2), sound_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
     // common root cont
     lv_obj_t * root_common_cont = create_text(root_section1, "", "Common", LV_MENU_ITEM_BUILDER_VARIANT_1);
     lv_menu_set_load_page_event(menu, root_common_cont, sub_common_page);
