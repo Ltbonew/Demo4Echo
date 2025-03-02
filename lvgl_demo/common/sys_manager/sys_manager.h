@@ -59,6 +59,9 @@ bool sys_get_wifi_status(void);
 // 获取city name by adcode
 const char* sys_get_city_name_by_adcode(const char *filepath, const char *target_adcode);
 
+// 通过IP获取自动定位信息
+int sys_get_auto_location_by_ip(LocationInfo_t* location, const char *api_key);
+
 // 保存系统参数到文件
 int sys_save_system_parameters(const char *filepath, const system_para_t *params);
 
