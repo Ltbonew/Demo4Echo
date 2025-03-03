@@ -42,16 +42,39 @@ int sys_get_volume(void) {
 }
 
 int sys_set_time(int year, int month, int day, int hour, int minute, int second) {
-    struct tm t = {0};
-    t.tm_year = year - 1900; // 年份从1900年起计算
-    t.tm_mon = month - 1;    // 月份从0起计算
-    t.tm_mday = day;
-    t.tm_hour = hour;
-    t.tm_min = minute;
-    t.tm_sec = second;
 
-    
+    #if LV_USE_SIMULATOR == 0
+        struct timeval tv;
+        struct tm tm_set;
 
+        // 初始化tm结构体
+        memset(&tm_set, 0, sizeof(struct tm));
+        tm_set.tm_year = year - 1900; // 年份从1900年起计算
+        tm_set.tm_mon = month - 1;    // 月份从0起计算
+        tm_set.tm_mday = day;
+        tm_set.tm_hour = hour;
+        tm_set.tm_min = minute;
+        tm_set.tm_sec = second;
+
+        // 将tm转换为time_t类型
+        time_t t = mktime(&tm_set);
+        if (t == -1) {
+            perror("mktime failed");
+            return -1;
+        }
+
+        // 初始化timeval结构体
+        tv.tv_sec = t;
+        tv.tv_usec = 0; // 设置微秒部分为0
+
+        // 设置系统时间
+        if (settimeofday(&tv, NULL) == -1) {
+            // 输出具体的错误信息
+            fprintf(stderr, "settimeofday failed.\n");
+            return -1;
+        }
+    #endif
+    printf("System time has been successfully updated.\n");
     return 0;
 }
 
