@@ -3,7 +3,7 @@
 
 ///////////////////// VARIABLES ////////////////////
 
-static char * day[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+static char * day[] = { "Sun.", "Mon.", "Tues.", "Wed.", "Thurs.", "Fri.", "Sat." };
 
 struct ui_weather_para_t{
     uint8_t day_of_week;
