@@ -159,6 +159,22 @@ void _sys_para_init(void)
     }
 }
 
+///////////////////// timer //////////////////////
+
+void _maintimer_cb(void)
+{
+    static uint16_t time_count = 0;
+    time_count++;
+    // 每5分钟保存一次系统参数
+    if(time_count >= 300)
+    {
+        sys_get_time(&ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL);
+        sys_save_system_parameters(sys_config_path, &ui_system_para);
+        time_count = 0;
+    }
+    
+}
+
 ///////////////////// SCREENS ////////////////////
 
 void ui_init(void)
@@ -176,4 +192,5 @@ void ui_init(void)
         pm_page[i] = lv_lib_pm_CreatePage(&page_manager, ui_apps[i].name, ui_apps[i].init, ui_apps[i].deinit, NULL);
     }
     lv_lib_pm_OpenPage(&page_manager, NULL, "HomePage");
+    lv_timer_create(_maintimer_cb, 1000, NULL);
 }
