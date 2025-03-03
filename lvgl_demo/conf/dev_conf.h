@@ -1,5 +1,5 @@
-#ifndef _UI_H
-#define _UI_H
+#ifndef _DEV_CONF_H
+#define _DEV_CONF_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -7,7 +7,7 @@ extern "C" {
 
 #define LV_USE_SIMULATOR 1
 
-#ifdef LV_USE_SIMULATOR
+#if LV_USE_SIMULATOR
     #define LV_USE_LINUX_FBDEV 0
     #define LV_USE_EVDEV 0
     #define LV_USE_SDL 1
