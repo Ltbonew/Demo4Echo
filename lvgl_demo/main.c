@@ -72,7 +72,7 @@ int main(void)
     /*Handle LVGL tasks*/
     while(1) {
         lv_timer_handler();
-        usleep(5000);
+        usleep(1000);
     }
 
     return 0;

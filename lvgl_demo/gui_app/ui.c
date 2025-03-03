@@ -121,6 +121,7 @@ void _sys_para_init(void)
         strcpy(ui_system_para.location.city, "东城区");
         strcpy(ui_system_para.location.adcode, "110101");
         strcpy(ui_system_para.gaode_api_key, "your_amap_key");
+        // create a new config file and save
         sys_save_system_parameters(sys_config_path, &ui_system_para);
     }
     
@@ -136,6 +137,11 @@ void _sys_para_init(void)
             LV_LOG_USER("Auto NTP time year: %d, month: %d, day: %d, hour: %d, minute: %d", ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute);
         }
 
+    }
+    else
+    {
+        sys_set_time(ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute, 0);
+        LV_LOG_USER("Manual time year: %d, month: %d, day: %d, hour: %d, minute: %d", ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute);
     }
     if(ui_system_para.auto_location == true)
     {
@@ -157,6 +163,7 @@ void _sys_para_init(void)
         strcpy(ui_system_para.location.city, city_name);
         LV_LOG_USER("Manual location city: %s, adcode: %s", ui_system_para.location.city, ui_system_para.location.adcode);
     }
+    LV_LOG_USER("System para init done.");
 }
 
 ///////////////////// timer //////////////////////

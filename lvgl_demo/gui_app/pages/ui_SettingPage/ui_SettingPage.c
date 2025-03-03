@@ -27,8 +27,6 @@ lv_obj_t * roller_location_adcode3;
 lv_obj_t * roller_location_adcode4;
 lv_obj_t * roller_location_adcode5;
 
-ui_system_para_t ui_temp_sys_para; // template system paras
-
 ///////////////////// ANIMATIONS ////////////////////
 
 
