@@ -35,14 +35,8 @@ typedef struct {
 // 设置LCD背光亮度（0-100之间）
 int sys_set_lcd_brightness(int brightness);
 
-// 获取LCD背光亮度
-int sys_get_lcd_brightness(void);
-
 // 设置系统音量（0到100之间）
 int sys_set_volume(int level);
-
-// 获取系统音量
-int sys_get_volume(void);
 
 // 设置系统时间
 int sys_set_time(int year, int month, int day, int hour, int minute, int second);

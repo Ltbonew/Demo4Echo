@@ -10,6 +10,21 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#if LV_USE_SIMULATOR == 0 
+#include <fcntl.h>      // open
+    #include <unistd.h>
+    #define BRIGHTNESS_PATH "/sys/class/backlight/backlight/brightness"
+    // 给定的亮度级别数组
+    const int brightness_levels[] = {
+        0, 3, 5, 8, 10, 13, 16, 18, 21, 24, 26, 29, 32, 34, 37, 40, 42, 45, 48, 50,
+        52, 54, 56, 58, 61, 64, 66, 69, 72, 74, 77, 80, 82, 85, 88, 90, 93, 96, 98,
+        101, 104, 106, 109, 112, 114, 117, 120, 122, 125, 128, 130, 133, 136, 138,
+        141, 144, 146, 149, 152, 154, 157, 160, 162, 165, 168, 170, 173, 176, 178,
+        180, 182, 184, 186, 188, 190, 192, 194, 197, 200, 202, 205, 208, 210, 213,
+        216, 218, 221, 224, 226, 229, 232, 234, 237, 240, 242, 245, 248, 250, 253, 255
+    };
+    const int num_brightness_levels = 100;
+#endif
 
 #define NTP_PORT 123
 #define NTP_TIMESTAMP_DELTA 2208988800ull // 时间戳差值，从1900年到1970年的秒数
@@ -17,16 +32,30 @@
 const char * sys_config_path = "./system_para.conf"; // 系统参数配置文件路径与可执行文件同目录
 const char * city_adcode_path = "./gaode_adcode.json"; // 城市adcode对应表文件路径与可执行文件同目录
 
+// 设置背光亮度
 int sys_set_lcd_brightness(int brightness) {
-    if (brightness < 0 || brightness > 100) return -1;
-    // 这里可以添加实际设置硬件背光亮度的代码
+    #if LV_USE_SIMULATOR == 0
+        if (brightness < 0 || brightness > 100) return -1;
+        if (brightness < 10) brightness = 10; // 亮度太低可能导致屏幕无法显示
+        if (brightness > 95) brightness = 95;
+        int fd = open(BRIGHTNESS_PATH, O_WRONLY);
+        if (fd == -1) {
+            perror("Failed to open brightness file for writing");
+            return -1;
+        }
 
+        char buffer[8]; // 应该足够存储任何可能的亮度值
+        int n = snprintf(buffer, sizeof(buffer), "%d", brightness);
+
+        if (write(fd, buffer, n) == -1) {
+            perror("Failed to write brightness value");
+            close(fd);
+            return -1;
+        }
+
+        close(fd);
+    #endif
     return 0;
-}
-
-int sys_get_lcd_brightness(void) {
-
-    return 50;
 }
 
 int sys_set_volume(int level) {
@@ -34,11 +63,6 @@ int sys_set_volume(int level) {
     // 这里可以添加实际设置硬件音量的代码
 
     return 0;
-}
-
-int sys_get_volume(void) {
-
-    return 50;
 }
 
 int sys_set_time(int year, int month, int day, int hour, int minute, int second) {
