@@ -49,6 +49,14 @@ static void _cloud_move_anim(void)
 
 static void _ui_weather_timer_cb(void)
 {
+    static uint16_t time_count = 0;
+    time_count++;
+    // 5分钟更新一次weather info
+    if(time_count >= 5*60/3)
+    {
+        time_count = 0;
+        ui_weather_para.first_enter = 1;
+    }
     if(ui_weather_para.first_enter) 
     {
         ui_weather_para.first_enter = 0;
@@ -57,7 +65,7 @@ static void _ui_weather_timer_cb(void)
         {
             if(get_auto_location_by_ip(&ui_weather_para.location) != 0) 
             {
-                LV_LOG_WARN("Failed to get location info.\n");
+                LV_LOG_WARN("Failed to get location info.");
                 sprintf(ui_weather_para.location.city, "%s", "未知地");
                 lv_label_set_text(ui_LabelCity, "未知地");
             } 
@@ -70,7 +78,7 @@ static void _ui_weather_timer_cb(void)
         // get weather info
         if(get_weather_info_by_adcode(ui_weather_para.location.adcode, &ui_weather_para.weather_info) != 0) 
         {
-            LV_LOG_WARN("Failed to get weather info.\n");
+            LV_LOG_WARN("Failed to get weather info.");
         } 
         else
         {
