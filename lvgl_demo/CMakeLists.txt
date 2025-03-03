@@ -60,6 +60,23 @@ include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
 target_link_libraries(main lvgl lvgl::examples lvgl::demos lvgl::thorvg ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${Libdrm_LIBRARIES} m pthread)
 add_custom_target (run COMMAND ${EXECUTABLE_OUTPUT_PATH}/main DEPENDS main)
 
+# 以下内容用于复制配置文件
+add_custom_command(
+    TARGET main POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${PROJECT_SOURCE_DIR}/utils/system_para.conf
+            ${EXECUTABLE_OUTPUT_PATH}/system_para.conf
+    COMMENT "Copying system_para.conf to bin directory"
+)
+
+add_custom_command(
+    TARGET main POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${PROJECT_SOURCE_DIR}/utils/gaode_adcode.json
+            ${EXECUTABLE_OUTPUT_PATH}/gaode_adcode.json
+    COMMENT "Copying gaode_adcode.json to bin directory"
+)
+
 # Custom command to clean up generated files
 add_custom_target(clean-all
     COMMAND find "${CMAKE_BINARY_DIR}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
