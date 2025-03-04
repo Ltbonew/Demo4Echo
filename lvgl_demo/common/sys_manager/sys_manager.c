@@ -10,9 +10,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <fcntl.h> // for fcntl
+#include <errno.h>
+
 #if LV_USE_SIMULATOR == 0 
-#include <fcntl.h>      // open
-    #include <unistd.h>
     #define BRIGHTNESS_PATH "/sys/class/backlight/backlight/brightness"
     // 给定的亮度级别数组
     const int brightness_levels[] = {
@@ -135,11 +138,81 @@ int sys_get_day_of_week(int year, int month, int day) {
     return (dayOfWeek + 1) % 7;
 }
 
-bool sys_get_wifi_status(void)
-{
+bool is_internet_reachable(void) {
+    int sockfd;
+    struct sockaddr_in servaddr;
+
+    // 创建socket
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        perror("Socket creation failed");
+        return false;
+    }
+
+    // 设置socket为非阻塞
+    int flags = fcntl(sockfd, F_GETFL, 0);
+    if (fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
+        perror("Failed to set socket as non-blocking");
+        close(sockfd);
+        return false;
+    }
+
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(53); // Google DNS服务端口
+    servaddr.sin_addr.s_addr = inet_addr("8.8.8.8"); // Google Public DNS IP地址
+
+    // 尝试连接
+    if (connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
+        if (errno != EINPROGRESS) {
+            close(sockfd);
+            return false;
+        }
+
+        // 使用select等待连接完成或超时
+        fd_set writefds;
+        FD_ZERO(&writefds);
+        FD_SET(sockfd, &writefds);
+
+        struct timeval timeout;
+        timeout.tv_sec = 5; // 超时时间为5秒
+        timeout.tv_usec = 0;
+
+        int ret = select(sockfd + 1, NULL, &writefds, NULL, &timeout);
+        if (ret == 0) { // 超时
+            fprintf(stderr, "Connection timed out\n");
+            close(sockfd);
+            return false;
+        } else if (ret < 0) { // 错误发生
+            perror("Select failed");
+            close(sockfd);
+            return false;
+        }
+
+        // 检查是否成功连接
+        int so_error;
+        socklen_t len = sizeof(so_error);
+        if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &so_error, &len) < 0 || so_error != 0) {
+            if (so_error != 0) {
+                errno = so_error;
+            }
+            perror("Connect failed");
+            close(sockfd);
+            return false;
+        }
+    }
+
+    close(sockfd);
     return true;
 }
 
+bool sys_get_wifi_status(void) {
+
+    // 检查网络是否可达
+    if (!is_internet_reachable()) {
+        return false;
+    }
+
+    return true;
+}
 
 // 递归查找 adcode 对应的城市名称
 const char* find_city_name(struct json_object *districts, const char *target_adcode) {

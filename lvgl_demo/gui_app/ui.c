@@ -164,6 +164,9 @@ void _sys_para_init(void)
         LV_LOG_USER("Manual location city: %s, adcode: %s", ui_system_para.location.city, ui_system_para.location.adcode);
     }
     LV_LOG_USER("System para init done.");
+    // check network status
+    ui_system_para.wifi_connected = sys_get_wifi_status();
+    LV_LOG_USER("Wifi connected: %s", ui_system_para.wifi_connected ? "true" : "false");
 }
 
 ///////////////////// timer //////////////////////
@@ -172,14 +175,19 @@ void _maintimer_cb(void)
 {
     static uint16_t time_count = 0;
     time_count++;
+    // 每分钟检测网络状态
+    if(time_count >= 60)
+    {
+        ui_system_para.wifi_connected = sys_get_wifi_status();
+    }
     // 每5分钟保存一次系统参数
     if(time_count >= 300)
     {
         sys_get_time(&ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL);
         sys_save_system_parameters(sys_config_path, &ui_system_para);
         time_count = 0;
+        
     }
-    
 }
 
 ///////////////////// SCREENS ////////////////////

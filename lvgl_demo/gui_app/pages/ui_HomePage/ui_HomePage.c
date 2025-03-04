@@ -44,11 +44,7 @@ static void ui_home_timer_cb(lv_timer_t * timer)
     char time_str[6];
     sprintf(time_str, "%02d:%02d", hour, minute);
     lv_label_set_text(timelabel, time_str);
-    if(ui_system_para.wifi_connected != sys_get_wifi_status())
-    {
-        ui_system_para.wifi_connected = sys_get_wifi_status();
-        _wifi_connected_icon_set(ui_system_para.wifi_connected);
-    }
+    _wifi_connected_icon_set(ui_system_para.wifi_connected);
 }
 
 ///////////////////// ANIMATIONS ////////////////////
