@@ -173,7 +173,7 @@ bool is_internet_reachable(void) {
         FD_SET(sockfd, &writefds);
 
         struct timeval timeout;
-        timeout.tv_sec = 5; // 超时时间为5秒
+        timeout.tv_sec = 1; // 超时时间为1秒
         timeout.tv_usec = 0;
 
         int ret = select(sockfd + 1, NULL, &writefds, NULL, &timeout);
