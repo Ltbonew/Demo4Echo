@@ -41,9 +41,17 @@ static void ui_home_timer_cb(lv_timer_t * timer)
     lv_obj_t * timelabel = lv_timer_get_user_data(timer);
     int year; int month; int day; int hour; int minute; int second;
     sys_get_time(&year, &month, &day, &hour, &minute, &second);
-    char time_str[6];
-    sprintf(time_str, "%02d:%02d", hour, minute);
-    lv_label_set_text(timelabel, time_str);
+    if(minute!=ui_system_para.minute)
+    {
+        char time_str[6];
+        sprintf(time_str, "%02d:%02d", hour, minute);
+        lv_label_set_text(timelabel, time_str);
+        ui_system_para.year = year;
+        ui_system_para.month = month;
+        ui_system_para.day = day;
+        ui_system_para.hour = hour;
+        ui_system_para.minute = minute;
+    }
     _wifi_connected_icon_set(ui_system_para.wifi_connected);
 }
 
@@ -192,6 +200,7 @@ void ui_HomePage_init(void)
     ui_system_para.year = year;
     ui_system_para.month = month;
     ui_system_para.day = day;
+    ui_system_para.wifi_connected = sys_get_wifi_status();
 
     // home screen
     lv_obj_t * ui_HomeScreen = lv_obj_create(NULL);

@@ -173,20 +173,22 @@ void _sys_para_init(void)
 
 void _maintimer_cb(void)
 {
-    static uint16_t time_count = 0;
-    time_count++;
+    static uint16_t time_count1 = 0;
+    static uint16_t time_count2 = 0;
+    time_count1++;
+    time_count2++;
     // 每分钟检测网络状态
-    if(time_count >= 60)
+    if(time_count1 >= 60)
     {
+        time_count1 = 0;
         ui_system_para.wifi_connected = sys_get_wifi_status();
     }
     // 每5分钟保存一次系统参数
-    if(time_count >= 300)
+    if(time_count2 >= 300)
     {
         sys_get_time(&ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL);
         sys_save_system_parameters(sys_config_path, &ui_system_para);
-        time_count = 0;
-        
+        time_count2 = 0; 
     }
 }
 
