@@ -124,10 +124,9 @@ void _sys_para_init(void)
         // create a new config file and save
         sys_save_system_parameters(sys_config_path, &ui_system_para);
     }
-    
     if(ui_system_para.auto_time == true)
     {
-        if(sys_get_time_from_ntp("ntp1.aliyun.com", &ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL))
+        if(sys_get_time_from_ntp("ntp.aliyun.com", &ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL))
         {
             LV_LOG_WARN("Get time from NTP failed, use system time.");
         }
@@ -136,7 +135,6 @@ void _sys_para_init(void)
             sys_set_time(ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute, 0);
             LV_LOG_USER("Auto NTP time year: %d, month: %d, day: %d, hour: %d, minute: %d", ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute);
         }
-
     }
     else
     {
@@ -164,9 +162,6 @@ void _sys_para_init(void)
         LV_LOG_USER("Manual location city: %s, adcode: %s", ui_system_para.location.city, ui_system_para.location.adcode);
     }
     LV_LOG_USER("System para init done.");
-    // check network status
-    ui_system_para.wifi_connected = sys_get_wifi_status();
-    LV_LOG_USER("Wifi connected: %s", ui_system_para.wifi_connected ? "true" : "false");
 }
 
 ///////////////////// timer //////////////////////
@@ -178,7 +173,15 @@ void _maintimer_cb(void)
     // 每5分钟保存一次系统参数
     if(time_count2 >= 300)
     {
-        sys_get_time(&ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL);
+        if(sys_get_time_from_ntp("ntp.aliyun.com", &ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL))
+        {
+            LV_LOG_WARN("Get time from NTP failed, use system time.");
+        }
+        else
+        {
+            sys_set_time(ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute, 0);
+            LV_LOG_USER("Auto NTP time year: %d, month: %d, day: %d, hour: %d, minute: %d", ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute);
+        }
         sys_save_system_parameters(sys_config_path, &ui_system_para);
         time_count2 = 0; 
     }

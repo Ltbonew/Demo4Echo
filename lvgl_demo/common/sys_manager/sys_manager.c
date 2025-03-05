@@ -68,39 +68,61 @@ int sys_set_volume(int level) {
     return 0;
 }
 
+// 判断是否是闰年
+int is_leap_year(int year) {
+    return (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+}
+
+// 验证日期是否有效
+int validate_date(int year, int month, int day) {
+    // 每个月的最大天数
+    int days_in_month[] = { 31, 28 + is_leap_year(year), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+    if (year < 1900 || month < 1 || month > 12 || day < 1 || day > days_in_month[month - 1]) {
+        return -1;
+    }
+    return 0;
+}
+
 int sys_set_time(int year, int month, int day, int hour, int minute, int second) {
 
-    #if LV_USE_SIMULATOR == 0
-        struct timeval tv;
-        struct tm tm_set;
+#if LV_USE_SIMULATOR == 0
+    struct timeval tv;
+    struct tm tm_set;
 
-        // 初始化tm结构体
-        memset(&tm_set, 0, sizeof(struct tm));
-        tm_set.tm_year = year - 1900; // 年份从1900年起计算
-        tm_set.tm_mon = month - 1;    // 月份从0起计算
-        tm_set.tm_mday = day;
-        tm_set.tm_hour = hour;
-        tm_set.tm_min = minute;
-        tm_set.tm_sec = second;
+    // 验证日期有效性
+    if (validate_date(year, month, day) != 0) {
+        fprintf(stderr, "Invalid date.\n");
+        return -1;
+    }
 
-        // 将tm转换为time_t类型
-        time_t t = mktime(&tm_set);
-        if (t == -1) {
-            perror("mktime failed");
-            return -1;
-        }
+    // 初始化tm结构体
+    memset(&tm_set, 0, sizeof(struct tm));
+    tm_set.tm_year = year - 1900; // 年份从1900年起计算
+    tm_set.tm_mon = month - 1;    // 月份从0起计算
+    tm_set.tm_mday = day;
+    tm_set.tm_hour = hour;
+    tm_set.tm_min = minute;
+    tm_set.tm_sec = second;
 
-        // 初始化timeval结构体
-        tv.tv_sec = t;
-        tv.tv_usec = 0; // 设置微秒部分为0
+    // 将tm转换为time_t类型
+    time_t t = mktime(&tm_set);
+    if (t == -1) {
+        perror("mktime failed");
+        return -1;
+    }
 
-        // 设置系统时间
-        if (settimeofday(&tv, NULL) == -1) {
-            // 输出具体的错误信息
-            fprintf(stderr, "settimeofday failed.\n");
-            return -1;
-        }
-    #endif
+    // 初始化timeval结构体
+    tv.tv_sec = t;
+    tv.tv_usec = 0; // 设置微秒部分为0
+
+    // 设置系统时间
+    if (settimeofday(&tv, NULL) == -1) {
+        // 输出具体的错误信息
+        perror("settimeofday failed");
+        return -1;
+    }
+#endif
     printf("System time has been successfully updated.\n");
     return 0;
 }
@@ -298,18 +320,22 @@ const char* sys_get_city_name_by_adcode(const char *filepath, const char *target
     return result;
 }
 
-// 回调函数，用于处理libcurl接收到的数据
-static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+// 回调函数用于处理CURL接收到的数据
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     size_t realsize = size * nmemb;
-    char** response = (char**)userp;
+    char** response_string = (char**)userp;
 
-    *response = realloc(*response, strlen(*response) + realsize + 1);
-    if (*response == NULL) {
+    char* new_string = realloc(*response_string, realsize + 1);
+    if(new_string == NULL) {
+        // 内存分配失败
         fprintf(stderr, "Failed to allocate memory\n");
         return 0;
     }
 
-    strncat(*response, (char*)contents, realsize);
+    *response_string = new_string;
+    memcpy(*response_string + strlen(*response_string), contents, realsize);
+    (*response_string)[realsize] = '\0';
+
     return realsize;
 }
 
@@ -321,14 +347,28 @@ int sys_get_auto_location_by_ip(LocationInfo_t* location, const char *api_key) {
     snprintf(url, sizeof(url), "https://restapi.amap.com/v3/ip?key=%s", api_key);
 
     char* response_string = malloc(1); // 初始化为空字符串
+    if (!response_string) {
+        fprintf(stderr, "Failed to allocate memory\n");
+        return -1;
+    }
     response_string[0] = '\0';
 
     curl_global_init(CURL_GLOBAL_ALL);
     curl_handle = curl_easy_init();
 
+    if (!curl_handle) {
+        fprintf(stderr, "Failed to initialize CURL\n");
+        free(response_string);
+        curl_global_cleanup();
+        return -1;
+    }
+
     curl_easy_setopt(curl_handle, CURLOPT_URL, url);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteCallback);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &response_string);
+
+    // 设置超时时间为2秒
+    curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 2L);
 
     res = curl_easy_perform(curl_handle);
 
@@ -387,24 +427,61 @@ int sys_get_time_from_ntp(const char* ntp_server, int *year, int *month, int *da
         return -1;
     }
 
+    // 设置socket为非阻塞
+    int flags = fcntl(sockfd, F_GETFL, 0);
+    if (fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
+        perror("Failed to set socket as non-blocking");
+        close(sockfd);
+        freeaddrinfo(res);
+        return -1;
+    }
+
     // NTP packet structure
     unsigned char buf[48] = {0};
     buf[0] = 0x1b; // LI, Version, Mode
 
     // Send packet to NTP server
-    if (sendto(sockfd, buf, sizeof(buf), 0, res->ai_addr, res->ai_addrlen) == -1) {
-        perror("sendto failed");
+    ssize_t sent_bytes = sendto(sockfd, buf, sizeof(buf), 0, res->ai_addr, res->ai_addrlen);
+    if (sent_bytes == -1) {
+        if (errno != EAGAIN && errno != EWOULDBLOCK) {
+            perror("sendto failed");
+            close(sockfd);
+            freeaddrinfo(res);
+            return -1;
+        }
+    }
+
+    // 使用select等待接收数据或超时
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(sockfd, &readfds);
+
+    struct timeval timeout;
+    timeout.tv_sec = 2; // 超时时间为2秒
+    timeout.tv_usec = 0;
+
+    int ret = select(sockfd + 1, &readfds, NULL, NULL, &timeout);
+    if (ret == 0) { // 超时
+        fprintf(stderr, "Receive from NTP server timed out\n");
+        close(sockfd);
+        freeaddrinfo(res);
+        return -1;
+    } else if (ret < 0) { // 错误发生
+        perror("Select failed");
         close(sockfd);
         freeaddrinfo(res);
         return -1;
     }
 
     // Receive response from NTP server
-    if (recvfrom(sockfd, buf, sizeof(buf), 0, NULL, NULL) == -1) {
-        perror("recvfrom failed");
-        close(sockfd);
-        freeaddrinfo(res);
-        return -1;
+    ssize_t received_bytes = recvfrom(sockfd, buf, sizeof(buf), 0, NULL, NULL);
+    if (received_bytes == -1) {
+        if (errno != EAGAIN && errno != EWOULDBLOCK) {
+            perror("recvfrom failed");
+            close(sockfd);
+            freeaddrinfo(res);
+            return -1;
+        }
     }
 
     // Close the socket and free address info
