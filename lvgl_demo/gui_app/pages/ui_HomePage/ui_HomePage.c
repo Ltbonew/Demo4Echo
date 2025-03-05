@@ -200,7 +200,7 @@ void ui_HomePage_init(void)
     ui_system_para.year = year;
     ui_system_para.month = month;
     ui_system_para.day = day;
-    ui_system_para.wifi_connected = sys_get_wifi_status();
+    // ui_system_para.wifi_connected = sys_get_wifi_status();
 
     // home screen
     lv_obj_t * ui_HomeScreen = lv_obj_create(NULL);

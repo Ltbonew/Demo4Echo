@@ -2,10 +2,10 @@
 
 ///////////////////// VARIABLES ////////////////////
 
-lv_obj_t * ui_SettingRootMenu;
 // start year is 2025
-
-
+lv_obj_t * ui_SettingRootMenu;
+lv_obj_t * ui_LabelLocationName;
+lv_obj_t * ui_LabelLocationName2;
 ///////////////////// ANIMATIONS ////////////////////
 
 
@@ -52,7 +52,7 @@ static void sound_slider_event_cb(lv_event_t * e)
     }
 }
 
-static void ui_event_AutoTime(lv_event_t * e)
+static void AutoTime_event_cb(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
@@ -61,6 +61,24 @@ static void ui_event_AutoTime(lv_event_t * e)
     if(event_code == LV_EVENT_VALUE_CHANGED &&  lv_obj_has_state(target, LV_STATE_CHECKED)) {
         lv_obj_add_flag(ui_TimeDateSection2, LV_OBJ_FLAG_HIDDEN);
         ui_system_para.auto_time = true;
+        // get time via network
+        if(sys_get_time_from_ntp("ntp.aliyun.com", &ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL))
+        {
+            // show msg box
+            lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+            lv_msgbox_add_title(mbox1, "Error");
+            lv_msgbox_add_text(mbox1, "Auto NTP time get fail.");
+            lv_msgbox_add_close_button(mbox1);
+        }
+        else
+        {
+            sys_set_time(ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute, 0);
+            // show msg box
+            lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+            lv_msgbox_add_title(mbox1, "Note");
+            lv_msgbox_add_text(mbox1, "Auto NTP time get success.");
+            lv_msgbox_add_close_button(mbox1);
+        }
     }
     if(event_code == LV_EVENT_VALUE_CHANGED &&  !lv_obj_has_state(target, LV_STATE_CHECKED)) {
         lv_obj_remove_flag(ui_TimeDateSection2, LV_OBJ_FLAG_HIDDEN);
@@ -68,7 +86,7 @@ static void ui_event_AutoTime(lv_event_t * e)
     }
 }
 
-static void ui_event_IPlocatiing(lv_event_t * e)
+static void IPlocatiing_event_cb(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
@@ -77,6 +95,23 @@ static void ui_event_IPlocatiing(lv_event_t * e)
     if(event_code == LV_EVENT_VALUE_CHANGED &&  lv_obj_has_state(target, LV_STATE_CHECKED)) {
         lv_obj_add_flag(ui_LocationSection2, LV_OBJ_FLAG_HIDDEN);
         ui_system_para.auto_location = true;
+        // get location via network
+        if(sys_get_auto_location_by_ip(&ui_system_para.location, ui_system_para.gaode_api_key) == 0) {
+            lv_label_set_text(ui_LabelLocationName, ui_system_para.location.city);
+            lv_label_set_text(ui_LabelLocationName2, ui_system_para.location.city);
+            // show msg box
+            lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+            lv_msgbox_add_title(mbox1, "Note");
+            lv_msgbox_add_text(mbox1, "Auto Location get success.");
+            lv_msgbox_add_close_button(mbox1);
+        }
+        else {
+            // show msg box
+            lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+            lv_msgbox_add_title(mbox1, "Error");
+            lv_msgbox_add_text(mbox1, "Auto Location get failed.");
+            lv_msgbox_add_close_button(mbox1);
+        }
     }
     if(event_code == LV_EVENT_VALUE_CHANGED &&  !lv_obj_has_state(target, LV_STATE_CHECKED)) {
         lv_obj_remove_flag(ui_LocationSection2, LV_OBJ_FLAG_HIDDEN);
@@ -87,9 +122,9 @@ static void ui_event_IPlocatiing(lv_event_t * e)
 static void time_set_confirm_cb(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * ui_TimeDateSection2 = lv_event_get_user_data(e);
-    lv_obj_t * ui_RollerHour = lv_obj_get_child(ui_TimeDateSection2, 0);
-    lv_obj_t * ui_RollerMinute = lv_obj_get_child(ui_TimeDateSection2, 1);
+    lv_obj_t * ui_TimeSetSection1 = lv_event_get_user_data(e);
+    lv_obj_t * ui_RollerHour = lv_obj_get_child(ui_TimeSetSection1, 0);
+    lv_obj_t * ui_RollerMinute = lv_obj_get_child(ui_TimeSetSection1, 1);
     
     if(code == LV_EVENT_CLICKED) {
         // set system time
@@ -108,10 +143,10 @@ static void time_set_confirm_cb(lv_event_t * e)
 static void date_set_confirm_cb(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * ui_TimeDateSection2 = lv_event_get_user_data(e);
-    lv_obj_t * ui_RollerYear = lv_obj_get_child(ui_TimeDateSection2, 0);
-    lv_obj_t * ui_RollerMonth = lv_obj_get_child(ui_TimeDateSection2, 1);
-    lv_obj_t * ui_RollerDay = lv_obj_get_child(ui_TimeDateSection2, 2);
+    lv_obj_t * ui_DateSetSection1 = lv_event_get_user_data(e);
+    lv_obj_t * ui_RollerYear = lv_obj_get_child(ui_DateSetSection1, 0);
+    lv_obj_t * ui_RollerMonth = lv_obj_get_child(ui_DateSetSection1, 1);
+    lv_obj_t * ui_RollerDay = lv_obj_get_child(ui_DateSetSection1, 2);
     if(code == LV_EVENT_CLICKED) {
         // set system date
         sys_get_time(&ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL);
@@ -123,6 +158,45 @@ static void date_set_confirm_cb(lv_event_t * e)
         lv_obj_t * mbox1 = lv_msgbox_create(NULL);
         lv_msgbox_add_title(mbox1, "Note");
         lv_msgbox_add_text(mbox1, "Date set success.");
+        lv_msgbox_add_close_button(mbox1);
+    }
+}
+
+static void adcode_set_confirm_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * ui_AdcodeSetSection1 = lv_event_get_user_data(e);
+    lv_obj_t * ui_RollerLocation0 = lv_obj_get_child(ui_AdcodeSetSection1, 0);
+    lv_obj_t * ui_RollerLocation1 = lv_obj_get_child(ui_AdcodeSetSection1, 1);
+    lv_obj_t * ui_RollerLocation2 = lv_obj_get_child(ui_AdcodeSetSection1, 2);
+    lv_obj_t * ui_RollerLocation3 = lv_obj_get_child(ui_AdcodeSetSection1, 3);
+    lv_obj_t * ui_RollerLocation4 = lv_obj_get_child(ui_AdcodeSetSection1, 4);
+    lv_obj_t * ui_RollerLocation5 = lv_obj_get_child(ui_AdcodeSetSection1, 5);
+    lv_obj_t * ui_LabelLocationName = lv_obj_get_child(ui_AdcodeSetSection1, 6);
+
+    // set system location
+    ui_system_para.location.adcode[0] = lv_roller_get_selected(ui_RollerLocation0) + '0';
+    ui_system_para.location.adcode[1] = lv_roller_get_selected(ui_RollerLocation1) + '0';
+    ui_system_para.location.adcode[2] = lv_roller_get_selected(ui_RollerLocation2) + '0';
+    ui_system_para.location.adcode[3] = lv_roller_get_selected(ui_RollerLocation3) + '0';
+    ui_system_para.location.adcode[4] = lv_roller_get_selected(ui_RollerLocation4) + '0';
+    ui_system_para.location.adcode[5] = lv_roller_get_selected(ui_RollerLocation5) + '0';
+    char * city_name = sys_get_city_name_by_adcode(city_adcode_path, ui_system_para.location.adcode);
+    if(city_name) {
+        strcpy(ui_system_para.location.city, city_name);
+        lv_label_set_text(ui_LabelLocationName, city_name);
+        lv_label_set_text(ui_LabelLocationName2, city_name);
+        // show msg box
+        lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+        lv_msgbox_add_title(mbox1, "Note");
+        lv_msgbox_add_text(mbox1, "Location set success.");
+        lv_msgbox_add_close_button(mbox1);
+    }
+    else {
+        // show msg box
+        lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+        lv_msgbox_add_title(mbox1, "Error");
+        lv_msgbox_add_text(mbox1, "Location set failed.");
         lv_msgbox_add_close_button(mbox1);
     }
 }
@@ -408,7 +482,7 @@ static void ui_TimeDateMenu_init(void)
     if(ui_system_para.auto_time == true) {
         lv_obj_add_flag(ui_TimeDateSection2, LV_OBJ_FLAG_HIDDEN);
     }
-    lv_obj_add_event_cb(ui_SwitchAutoTime, ui_event_AutoTime, LV_EVENT_ALL, ui_TimeDateSection2);
+    lv_obj_add_event_cb(ui_SwitchAutoTime, AutoTime_event_cb, LV_EVENT_ALL, ui_TimeDateSection2);
     lv_obj_add_event_cb(ui_PanelTimeSet, sub_menu_click_cb, LV_EVENT_CLICKED, "TimeSetMenu");
     lv_obj_add_event_cb(ui_PanelDateSet, sub_menu_click_cb, LV_EVENT_CLICKED, "DateSetMenu");
 
@@ -542,19 +616,19 @@ static void ui_LocationMenu_init(void)
     lv_label_set_text(ui_IconLocCodeSet, "");
     lv_obj_set_style_text_font(ui_IconLocCodeSet, &ui_font_iconfont20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_t * ui_LabelLocationName = lv_label_create(ui_PanelLocationMenu);
+    ui_LabelLocationName = lv_label_create(ui_PanelLocationMenu);
     lv_obj_set_width(ui_LabelLocationName, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_LabelLocationName, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_LabelLocationName, 0);
     lv_obj_set_y(ui_LabelLocationName, -25);
     lv_obj_set_align(ui_LabelLocationName, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_LabelLocationName, "罗湖区");
+    lv_label_set_text(ui_LabelLocationName, ui_system_para.location.city);
     lv_obj_set_style_text_font(ui_LabelLocationName, &ui_font_heiti22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     if(ui_system_para.auto_location == true) {
         lv_obj_add_flag(ui_LocationSection2, LV_OBJ_FLAG_HIDDEN);
     }
-    lv_obj_add_event_cb(ui_SwitchIPlocatiing, ui_event_IPlocatiing, LV_EVENT_ALL, ui_LocationSection2);
+    lv_obj_add_event_cb(ui_SwitchIPlocatiing, IPlocatiing_event_cb, LV_EVENT_ALL, ui_LocationSection2);
     lv_obj_add_event_cb(ui_PanelADCodeSet, sub_menu_click_cb, LV_EVENT_CLICKED, "AdcodeSetMenu");
 
     // load page
@@ -1040,14 +1114,16 @@ static void ui_AdcodeSetMenu_init(void)
     lv_label_set_text(ui_LabelAdcodeSetConfirm, "Set");
     lv_obj_set_style_text_font(ui_LabelAdcodeSetConfirm, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_t * ui_LabelLocationName2 = lv_label_create(ui_PanelAdcodeSetMenu);
+    ui_LabelLocationName2 = lv_label_create(ui_PanelAdcodeSetMenu);
     lv_obj_set_width(ui_LabelLocationName2, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_LabelLocationName2, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_LabelLocationName2, 0);
     lv_obj_set_y(ui_LabelLocationName2, 25);
     lv_obj_set_align(ui_LabelLocationName2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_LabelLocationName2, "罗湖区");
+    lv_label_set_text(ui_LabelLocationName2, ui_system_para.location.city);
     lv_obj_set_style_text_font(ui_LabelLocationName2, &ui_font_heiti22, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_add_event_cb(ui_BtnAdcodeSetConfirme, adcode_set_confirm_cb, LV_EVENT_CLICKED, ui_AdcodeSetSection1);
 
     // load page
     lv_scr_load_anim(ui_AdcodeSetMenu, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 100, 0, true);

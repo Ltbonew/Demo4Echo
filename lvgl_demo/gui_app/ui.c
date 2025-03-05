@@ -173,14 +173,21 @@ void _maintimer_cb(void)
     // 每5分钟保存一次系统参数
     if(time_count2 >= 300)
     {
-        if(sys_get_time_from_ntp("ntp.aliyun.com", &ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL))
+        if(ui_system_para.auto_time == true)
         {
-            LV_LOG_WARN("Get time from NTP failed, use system time.");
+            if(sys_get_time_from_ntp("ntp.aliyun.com", &ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL))
+            {
+                LV_LOG_WARN("Get time from NTP failed, use system time.");
+            }
+            else
+            {
+                sys_set_time(ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute, 0);
+                LV_LOG_USER("Auto NTP time year: %d, month: %d, day: %d, hour: %d, minute: %d", ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute);
+            }
         }
         else
         {
             sys_set_time(ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute, 0);
-            LV_LOG_USER("Auto NTP time year: %d, month: %d, day: %d, hour: %d, minute: %d", ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute);
         }
         sys_save_system_parameters(sys_config_path, &ui_system_para);
         time_count2 = 0; 
