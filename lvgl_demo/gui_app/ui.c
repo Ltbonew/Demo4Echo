@@ -124,6 +124,7 @@ void _sys_para_init(void)
         // create a new config file and save
         sys_save_system_parameters(sys_config_path, &ui_system_para);
     }
+    ui_system_para.wifi_connected = sys_get_wifi_status();
     if(ui_system_para.auto_time == true)
     {
         if(sys_get_time_from_ntp("ntp.aliyun.com", &ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL))
