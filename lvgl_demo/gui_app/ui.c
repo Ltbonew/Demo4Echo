@@ -168,7 +168,7 @@ void _sys_para_init(void)
 
 void _maintimer_cb(void)
 {
-    static uint16_t time_count2 = 0;
+    static uint16_t time_count2 = 299;
     time_count2++;
     // 每5分钟保存一次系统参数
     if(time_count2 >= 300)

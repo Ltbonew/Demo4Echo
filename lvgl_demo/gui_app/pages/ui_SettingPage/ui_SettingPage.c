@@ -98,7 +98,6 @@ static void IPlocatiing_event_cb(lv_event_t * e)
         // get location via network
         if(sys_get_auto_location_by_ip(&ui_system_para.location, ui_system_para.gaode_api_key) == 0) {
             lv_label_set_text(ui_LabelLocationName, ui_system_para.location.city);
-            lv_label_set_text(ui_LabelLocationName2, ui_system_para.location.city);
             // show msg box
             lv_obj_t * mbox1 = lv_msgbox_create(NULL);
             lv_msgbox_add_title(mbox1, "Note");
@@ -184,7 +183,6 @@ static void adcode_set_confirm_cb(lv_event_t * e)
     char * city_name = sys_get_city_name_by_adcode(city_adcode_path, ui_system_para.location.adcode);
     if(city_name) {
         strcpy(ui_system_para.location.city, city_name);
-        lv_label_set_text(ui_LabelLocationName, city_name);
         lv_label_set_text(ui_LabelLocationName2, city_name);
         // show msg box
         lv_obj_t * mbox1 = lv_msgbox_create(NULL);
@@ -1099,6 +1097,14 @@ static void ui_AdcodeSetMenu_init(void)
     lv_obj_set_y(ui_RollerAdcode6, 0);
     lv_obj_set_align(ui_RollerAdcode6, LV_ALIGN_LEFT_MID);
     lv_obj_set_style_text_font(ui_RollerAdcode6, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // set roller value
+    lv_roller_set_selected(ui_RollerAdcode1, ui_system_para.location.adcode[0] - '0', LV_ANIM_OFF);
+    lv_roller_set_selected(ui_RollerAdcode2, ui_system_para.location.adcode[1] - '0', LV_ANIM_OFF);
+    lv_roller_set_selected(ui_RollerAdcode3, ui_system_para.location.adcode[2] - '0', LV_ANIM_OFF);
+    lv_roller_set_selected(ui_RollerAdcode4, ui_system_para.location.adcode[3] - '0', LV_ANIM_OFF);
+    lv_roller_set_selected(ui_RollerAdcode5, ui_system_para.location.adcode[4] - '0', LV_ANIM_OFF);
+    lv_roller_set_selected(ui_RollerAdcode6, ui_system_para.location.adcode[5] - '0', LV_ANIM_OFF);
 
     lv_obj_t * ui_BtnAdcodeSetConfirme = lv_button_create(ui_PanelAdcodeSetMenu);
     lv_obj_set_width(ui_BtnAdcodeSetConfirme, 75);
