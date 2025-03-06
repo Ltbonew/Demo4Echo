@@ -33,6 +33,7 @@ int get_auto_location_by_ip(LocationInfo_t* location) {
     curl_easy_setopt(curl_handle, CURLOPT_URL, url);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteCallback);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &response_string);
+    curl_easy_setopt(curl_handle, CURLOPT_CAINFO, "cacert.pem");
 
     res = curl_easy_perform(curl_handle);
 
@@ -86,6 +87,7 @@ int get_weather_info_by_adcode(const char* adcode, WeatherInfo_t* weather_info) 
     curl_easy_setopt(curl_handle, CURLOPT_URL, url);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteCallback);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &response_string);
+    curl_easy_setopt(curl_handle, CURLOPT_CAINFO, "cacert.pem");
 
     res = curl_easy_perform(curl_handle);
 
