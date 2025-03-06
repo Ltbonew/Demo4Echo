@@ -78,7 +78,11 @@ static void _ui_weather_timer_cb(void)
         // get weather info
         if(get_weather_info_by_adcode(ui_weather_para.location.adcode, &ui_weather_para.weather_info) != 0) 
         {
-            LV_LOG_WARN("Failed to get weather info.");
+            // show msg box
+            lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+            lv_msgbox_add_title(mbox1, "Error");
+            lv_msgbox_add_text(mbox1, "weather info get fail.");
+            lv_msgbox_add_close_button(mbox1);
         } 
         else
         {
@@ -122,6 +126,7 @@ static void _ui_WeatherPage_Para_Init(void)
     ui_weather_para.day_of_week = sys_get_day_of_week(ui_weather_para.year, ui_weather_para.month, ui_weather_para.date);
     strcpy(ui_weather_para.location.city, ui_system_para.location.city);
     strcpy(ui_weather_para.location.adcode, ui_system_para.location.adcode);
+    ui_weather_para.first_enter = 1;
 }
 
 ///////////////////// SCREEN init ////////////////////
