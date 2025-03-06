@@ -77,6 +77,14 @@ add_custom_command(
     COMMENT "Copying gaode_adcode.json to bin directory"
 )
 
+add_custom_command(
+    TARGET main POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${PROJECT_SOURCE_DIR}/utils/cacert.pem
+            ${EXECUTABLE_OUTPUT_PATH}/cacert.pem
+    COMMENT "Copying cacert.pem to bin directory"
+)
+
 # Custom command to clean up generated files
 add_custom_target(clean-all
     COMMAND find "${CMAKE_BINARY_DIR}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
