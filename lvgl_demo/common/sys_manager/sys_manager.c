@@ -366,9 +366,10 @@ int sys_get_auto_location_by_ip(LocationInfo_t* location, const char *api_key) {
     curl_easy_setopt(curl_handle, CURLOPT_URL, url);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteCallback);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &response_string);
+    curl_easy_setopt(curl_handle, CURLOPT_CAINFO, "cacert.pem");
 
-    // 设置超时时间为2秒
-    curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 2L);
+    // 设置超时时间为5秒
+    curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 5L);
 
     res = curl_easy_perform(curl_handle);
 
