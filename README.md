@@ -8,7 +8,7 @@ Echo-Mate桌面助手机器人[DeskBot_demo](./DeskBot_demo/README.md)就是把�
 
 ### :ledger: Overview
 
-这个AI语音助手的项目可以完美部署到轻量级的Linux开发板上~本项目的AI语音助手的大致结构框图如下, 分为Client端和Server端，Client端运行在开发板上，Server可以在电脑上跑，然后开发板连接上即可。
+这个AI语音助手的项目可以完美部署到轻量级的Linux开发板上~本项目的AI语音助手的大致结构框图如下, 分为Client端和Server端，Client端运行在开发板上，Server可以在电脑上跑，然后开发板通过wifi等连接上即可。
 
 <p align="center">
 	<img border="1px" width="75%" src="./res/AIChatDiagram.png">
