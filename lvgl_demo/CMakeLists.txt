@@ -30,7 +30,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 add_subdirectory(lvgl)          # LVGL 核心模块
 add_subdirectory(gui_app)       # GUI_APP 应用模块
 add_subdirectory(utils)         # 公共工具模块
-add_subdirectory(common)         # common
+add_subdirectory(common)        # common
 
 # Include 配置头文件路径
 target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR})
@@ -85,8 +85,37 @@ add_custom_command(
     COMMENT "Copying cacert.pem to bin directory"
 )
 
-# Custom command to clean up generated files
-add_custom_target(clean-all
-    COMMAND find "${CMAKE_BINARY_DIR}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-    COMMENT "Cleaning all generated files."
+# 引用AIChat_demo中的库
+add_subdirectory(${PROJECT_SOURCE_DIR}/../AIChat_demo/Client ${CMAKE_BINARY_DIR}/AIChat_build)
+target_link_libraries(main AIchat-c-interface AIChatCore)
+
+# 复制AIchat所需文件
+add_custom_command(
+    TARGET main POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${PROJECT_SOURCE_DIR}../AIChat_demo/Client/third_party/snowboy/resources/common.res
+            ${EXECUTABLE_OUTPUT_PATH}/third_party/snowboy/resources/common.res
+    COMMENT "Copying third_party/snowboy/resources/common.res to bin directory"
 )
+add_custom_command(
+    TARGET main POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${PROJECT_SOURCE_DIR}../AIChat_demo/Client/third_party/snowboy/resources/models/echo.pmdl
+            ${EXECUTABLE_OUTPUT_PATH}/third_party/snowboy/resources/models/echo.pmdl
+    COMMENT "Copying third_party/snowboy/resources/models/echo.pmdl to bin directory"
+)
+add_custom_command(
+    TARGET main POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${PROJECT_SOURCE_DIR}../AIChat_demo/Client/third_party/audio/waked.pcm
+            ${EXECUTABLE_OUTPUT_PATH}/third_party/audio/waked.pcm
+    COMMENT "Copying third_party/audio/waked.pcm to bin directory"
+)
+
+# Custom command to clean up generated files
+if(NOT TARGET clean-all)
+    add_custom_target(clean-all
+        COMMAND find "${CMAKE_BINARY_DIR}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+        COMMENT "Cleaning all generated files."
+    )
+endif()

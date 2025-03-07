@@ -8,5 +8,5 @@ add_library(common STATIC ${COMMON_SOURCES})
 
 # 设置 common 的头文件路径
 target_include_directories(common PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/event_manager
+    ${CMAKE_CURRENT_SOURCE_DIR}/sys_manager
 )

@@ -73,10 +73,12 @@ target_link_libraries(AIChatClient AIChatCore)
 add_subdirectory(c_interface)
 
 # Custom command to clean up generated files
-add_custom_target(clean-all
-    COMMAND find "${CMAKE_BINARY_DIR}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-    COMMENT "Cleaning all generated files."
-)
+if(NOT TARGET clean-all)
+    add_custom_target(clean-all
+        COMMAND find "${CMAKE_BINARY_DIR}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+        COMMENT "Cleaning all generated files."
+    )
+endif()
 
 set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/rv1106_AIChatClient_demo")
 # 安装可执行文件到/bin子目录
