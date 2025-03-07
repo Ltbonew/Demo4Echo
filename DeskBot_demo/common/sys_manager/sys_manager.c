@@ -547,6 +547,15 @@ int sys_save_system_parameters(const char *filepath, const system_para_t *params
     fprintf(file, "city=%s\n", params->location.city);
     fprintf(file, "adcode=%s\n", params->location.adcode);
     fprintf(file, "gaode_api_key=%s\n", params->gaode_api_key);
+    fprintf(file, "AIChat_server_url=%s\n", params->aichat_app_info.addr);
+    fprintf(file, "AIChat_server_port=%d\n", params->aichat_app_info.port);
+    fprintf(file, "AIChat_server_token=%s\n", params->aichat_app_info.token);
+    fprintf(file, "AIChat_Client_ID=%s\n", params->aichat_app_info.device_id);
+    fprintf(file, "aliyun_api_key=%s\n", params->aichat_app_info.aliyun_api_key);
+    fprintf(file, "AIChat_protocol_version=%d\n", params->aichat_app_info.protocol_version);
+    fprintf(file, "AIChat_sample_rate=%d\n", params->aichat_app_info.sample_rate);
+    fprintf(file, "AIChat_channels=%d\n", params->aichat_app_info.channels);
+    fprintf(file, "AIChat_frame_duration=%d\n", params->aichat_app_info.frame_duration);
 
     fclose(file);
     return 0;
@@ -583,14 +592,35 @@ int sys_load_system_parameters(const char *filepath, system_para_t *params) {
             params->auto_location = strcmp(value, "true") == 0;
         } else if (strcmp(key, "city") == 0) {
             strncpy(params->location.city, value, sizeof(params->location.city)-1);
-            params->location.city[sizeof(params->location.city)-1] = '\0'; // 确保字符串以null终止
+            params->location.city[sizeof(params->location.city)-1] = '\0';
         } else if (strcmp(key, "adcode") == 0) {
             strncpy(params->location.adcode, value, sizeof(params->location.adcode)-1);
-            params->location.adcode[sizeof(params->location.adcode)-1] = '\0'; // 确保字符串以null终止
+            params->location.adcode[sizeof(params->location.adcode)-1] = '\0';
         } else if (strcmp(key, "gaode_api_key") == 0) {
             strncpy(params->gaode_api_key, value, sizeof(params->gaode_api_key)-1);
+            params->gaode_api_key[sizeof(params->gaode_api_key)-1] = '\0';
+        } else if(strcmp(key, "AIChat_server_url") == 0) {
+            strncpy(params->aichat_app_info.addr, value, sizeof(params->aichat_app_info.addr)-1);
+            params->aichat_app_info.addr[sizeof(params->aichat_app_info.addr)-1] = '\0';
+        } else if(strcmp(key, "AIChat_server_port") == 0) {
+            params->aichat_app_info.port = atoi(value);
+        } else if(strcmp(key, "AIChat_server_token") == 0) {
+            strncpy(params->aichat_app_info.token, value, sizeof(params->aichat_app_info.token)-1);
+            params->aichat_app_info.token[sizeof(params->aichat_app_info.token)-1] = '\0';
+        } else if(strcmp(key, "AIChat_Client_ID") == 0) {
+            strncpy(params->aichat_app_info.device_id, value, sizeof(params->aichat_app_info.device_id)-1);
+            params->aichat_app_info.device_id[sizeof(params->aichat_app_info.device_id)-1] = '\0';
         } else if(strcmp(key, "aliyun_api_key") == 0) {
-            strncpy(params->aliyun_api_key, value, sizeof(params->aliyun_api_key)-1);
+            strncpy(params->aichat_app_info.aliyun_api_key, value, sizeof(params->aichat_app_info.aliyun_api_key)-1);
+            params->aichat_app_info.aliyun_api_key[sizeof(params->aichat_app_info.aliyun_api_key)-1] = '\0';
+        } else if(strcmp(key, "AIChat_protocol_version") == 0) {
+            params->aichat_app_info.protocol_version = atoi(value);
+        } else if(strcmp(key, "AIChat_sample_rate") == 0) {
+            params->aichat_app_info.sample_rate = atoi(value);
+        } else if(strcmp(key, "AIChat_channels") == 0) {
+            params->aichat_app_info.channels = atoi(value);
+        } else if(strcmp(key, "AIChat_frame_duration") == 0) {
+            params->aichat_app_info.frame_duration = atoi(value);
         }
     }
 

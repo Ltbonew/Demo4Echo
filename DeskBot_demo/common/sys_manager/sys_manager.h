@@ -18,19 +18,31 @@ typedef struct {
 } LocationInfo_t;
 
 typedef struct {
-    int year;                       // system time year             (need store)
-    int month;                      // system time month            (need store)
-    int day;                        // system time day              (need store)
-    int hour;                       // system time hour             (need store)
-    int minute;                     // system time minute           (need store)
-    uint16_t brightness;            // system brightness            (need store)
-    uint16_t sound;                 // system sound volume(0-30)    (need store)
-    bool wifi_connected;            // wifi connected or not
-    bool auto_time;                 // auto update time or not      (need store)
-    bool auto_location;             // auto update location or not  (need store)
-    LocationInfo_t location;        // location info                (need store)
-    char gaode_api_key[33];         // gaode api key for amap api   (need store)
+    char addr[40];
+    int port;
+    char token[20];
+    char device_id[20];
     char aliyun_api_key[36];        // 阿里百炼 api key for deepseek (need store)
+    int protocol_version;
+    int sample_rate;
+    int channels;
+    int frame_duration;
+} AIChatAppInfo_t;
+
+typedef struct {
+    int year;                           // system time year             (need store)
+    int month;                          // system time month            (need store)
+    int day;                            // system time day              (need store)
+    int hour;                           // system time hour             (need store)
+    int minute;                         // system time minute           (need store)
+    uint16_t brightness;                // system brightness            (need store)
+    uint16_t sound;                     // system sound volume(0-30)    (need store)
+    bool wifi_connected;                // wifi connected or not
+    bool auto_time;                     // auto update time or not      (need store)
+    bool auto_location;                 // auto update location or not  (need store)
+    LocationInfo_t location;            // location info                (need store)
+    char gaode_api_key[33];             // gaode api key for amap api   (need store)
+    AIChatAppInfo_t aichat_app_info;    // AI Chat App info             (need store)
 }system_para_t;
 
 // 设置LCD背光亮度（0-100之间）
