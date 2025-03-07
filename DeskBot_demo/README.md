@@ -1,4 +1,4 @@
-## LVGL demo
+## DeskBot demo
 
 ### 1.编译
 1. **在电脑上运行SDL仿真**

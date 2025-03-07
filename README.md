@@ -1,8 +1,10 @@
 <h1 align="center">Demos for Echo</h2>
 
-这个仓库存放着Echo开发板的各种例程, 包括LVGL, AI对话机器人, 机器视觉等独立的demo。Echo-Mate桌面助手机器人就是把他们融合起来做成的, LVGL作为UI界面, 这些高级demo作为子APP～
+这个仓库存放着Echo开发板的各种例程, 包括LVGL, AI对话机器人, 机器视觉等独立的demo。
 
-<h2 align="center">1. AI语音助手 demo</h2>
+Echo-Mate桌面助手机器人[DeskBot_demo](./DeskBot_demo/README.md)就是把他们融合起来做成的, LVGL作为UI界面, 这些高级demo作为子APP～
+
+<h2 align="center">1. AI语音助手 demo (独立)</h2>
 
 ### :ledger: Overview
 
@@ -51,6 +53,38 @@ Client端和Server端通过Webscokets进行通信，通过JSON进行交互，语
 具体内容详见[Client](./AIChat_demo/Client/README.md)和[Server](./AIChat_demo/Server/README.md)的README.
 
 
-  <h2 align="center">2. yolov5 demo</h2>
+<h2 align="center">2. yolov5 demo (独立)</h2>
 
 to be write
+
+<h2 align="center">Echo-Mate 桌面AI助手</h2>
+
+### :ledger: Overview
+
+详见DeskBot_demo文件夹，这个文件夹包含了LVGL和其他demo的内容, 相当于是多个分离demo的融合，组成了Echo-Mate桌面AI助手, 详细如何编译使用见[DsekBot_demo](./DeskBot_demo/README.md).
+
+### :bookmark_tabs:Websockets整体框架：
+
+项目的文件目录如下:
+
+```
+Server/
+├── bin/					# 可执行文件
+├── build/					# build缓存
+├── common/					# build缓存
+│   ├── sys_manager/		# 开发板硬件对应的管理
+│   └── xxx_manager/  		# xxx对应的管理
+├── conf/					# 系统设置
+├── gui_app/				# UI层的软件
+│   ├── common/				# UI层扩展lib
+│   ├── font/				# UI字体
+│   ├── images/				# UI图片
+│   ├── pages/  			# UI层主要pages
+│   └── ui.c/h  			# 
+├── lvgl/					# lvgl核心组件
+├── utils     				# 其他
+├── lv_conf.h     			# lvgl设置
+└── main.c
+```
+
+对于用C++写的AIChat, 转换为了C接口, 以方便在LVGL项目的UI层中访问, 细节详见[AIChat_demo](./AIChat_demo/)
