@@ -573,6 +573,8 @@ int sys_load_system_parameters(const char *filepath, system_para_t *params) {
             params->location.adcode[sizeof(params->location.adcode)-1] = '\0'; // 确保字符串以null终止
         } else if (strcmp(key, "gaode_api_key") == 0) {
             strncpy(params->gaode_api_key, value, sizeof(params->gaode_api_key)-1);
+        } else if(strcmp(key, "aliyun_api_key") == 0) {
+            strncpy(params->aliyun_api_key, value, sizeof(params->aliyun_api_key)-1);
         }
     }
 

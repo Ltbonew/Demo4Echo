@@ -30,6 +30,7 @@ typedef struct {
     bool auto_location;             // auto update location or not  (need store)
     LocationInfo_t location;        // location info                (need store)
     char gaode_api_key[33];         // gaode api key for amap api   (need store)
+    char aliyun_api_key[36];        // 阿里百炼 api key for deepseek (need store)
 }system_para_t;
 
 // 设置LCD背光亮度（0-100之间）

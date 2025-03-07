@@ -121,6 +121,7 @@ void _sys_para_init(void)
         strcpy(ui_system_para.location.city, "东城区");
         strcpy(ui_system_para.location.adcode, "110101");
         strcpy(ui_system_para.gaode_api_key, "your_amap_key");
+        strcpy(ui_system_para.aliyun_api_key, "your_aliyun_key");
         // create a new config file and save
         sys_save_system_parameters(sys_config_path, &ui_system_para);
     }
