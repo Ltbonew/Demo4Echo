@@ -93,21 +93,21 @@ target_link_libraries(main AIchat-c-interface AIChatCore)
 add_custom_command(
     TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${PROJECT_SOURCE_DIR}../AIChat_demo/Client/third_party/snowboy/resources/common.res
+            ${PROJECT_SOURCE_DIR}/../AIChat_demo/Client/third_party/snowboy/resources/common.res
             ${EXECUTABLE_OUTPUT_PATH}/third_party/snowboy/resources/common.res
     COMMENT "Copying third_party/snowboy/resources/common.res to bin directory"
 )
 add_custom_command(
     TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${PROJECT_SOURCE_DIR}../AIChat_demo/Client/third_party/snowboy/resources/models/echo.pmdl
+            ${PROJECT_SOURCE_DIR}/../AIChat_demo/Client/third_party/snowboy/resources/models/echo.pmdl
             ${EXECUTABLE_OUTPUT_PATH}/third_party/snowboy/resources/models/echo.pmdl
     COMMENT "Copying third_party/snowboy/resources/models/echo.pmdl to bin directory"
 )
 add_custom_command(
     TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${PROJECT_SOURCE_DIR}../AIChat_demo/Client/third_party/audio/waked.pcm
+            ${PROJECT_SOURCE_DIR}/../AIChat_demo/Client/third_party/audio/waked.pcm
             ${EXECUTABLE_OUTPUT_PATH}/third_party/audio/waked.pcm
     COMMENT "Copying third_party/audio/waked.pcm to bin directory"
 )
