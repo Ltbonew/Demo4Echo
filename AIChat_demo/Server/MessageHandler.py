@@ -132,6 +132,8 @@ class MessageHandler:
         if data.get('type') == 'hello':
             self.audio_proc_reset()
             audio_params = data.get('audio_params', {})
+            api_key = data.get('api_key', None)
+            self.model_manager.Set_API_Key(api_key)
             # 暂时没设定可变的音频参数列表, 所以client发送过来的音频参数不会被使用
             # sample_rate = audio_params.get('sample_rate', AudioProcessor.sample_rate)
             # channels = audio_params.get('channels', AudioProcessor.CHANNELS)

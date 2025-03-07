@@ -12,8 +12,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # 使用方法: python ./main.py --access_token="123456" --aliyun_api_key="sk-xxxx"
-# access_token: 自定义的用于客户端鉴权的访问令牌（必须）
-# aliyun_api_key: 阿里云API密钥（必须）
+# access_token: 自定义的用于客户端鉴权的访问令牌(必须)
+# aliyun_api_key: 阿里云API密钥 (必须输入或client端传入，client发送信息传入api-key后会覆盖原有的key)
 def parse_arguments():
     parser = argparse.ArgumentParser(description="WebSocket Server with configurable parameters.")
     parser.add_argument('--host', type=str, default="0.0.0.0", help='server host addr.')
@@ -21,7 +21,7 @@ def parse_arguments():
     parser.add_argument('--access_token', type=str, required=True, help='Access token for client authentication.')
     parser.add_argument('--device_id', type=str, default=None, help='client Device ID(MAC addr.).')
     parser.add_argument('--protocol_version', type=int, default=1, help='Protocol version. Default is 1.')
-    parser.add_argument('--aliyun_api_key', type=str, required=True, help='API key for aliyun service.')
+    parser.add_argument('--aliyun_api_key', type=str, default='sk-xxx', help='API key for aliyun service.')
 
     return parser.parse_args()
 

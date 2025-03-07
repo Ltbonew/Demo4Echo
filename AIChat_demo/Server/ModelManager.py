@@ -20,7 +20,7 @@ remote_code = "./FunAudioLLM/SenseVoice/model.py"
 # dashscope.api_key = "your-api-key"
 
 class ModelManager:
-    def __init__(self, vad_model_dir=vad_model, asr_model_dir=asr_model, remote_code_dir=remote_code, device="cuda:0", aliyun_api_key=None):
+    def __init__(self, vad_model_dir=vad_model, asr_model_dir=asr_model, remote_code_dir=remote_code, device="cpu", aliyun_api_key=None):
         dashscope.api_key = aliyun_api_key
         # 初始化 VAD 模型
         self.vad_model = AutoModel(
@@ -28,7 +28,8 @@ class ModelManager:
             disable_pbar=True,
             max_end_silence_time=200,
             # vad_kwargs={"max_single_segment_time": 500},
-            disable_update=True
+            disable_update=True,
+            device=device # "cpu" or "cuda"
         )
         self.vad_cache = {}
 
@@ -58,6 +59,9 @@ class ModelManager:
             format=AudioFormat.PCM_16000HZ_MONO_16BIT,
             callback=self.callback
         )
+
+    def Set_API_Key(self, aliyun_api_key):
+        dashscope.api_key = aliyun_api_key
 
     # VAD init
     def VAD_cache_clean(self):
