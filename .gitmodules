@@ -11,6 +11,6 @@
 	url = https://www.modelscope.cn/iic/SenseVoiceSmall.git
 	branch = master
 [submodule "lvgl_demo/lvgl"]
-	path = lvgl_demo/lvgl
+	path = DeskBot_demo/lvgl
 	url = https://github.com/lvgl/lvgl.git
 	branch = release/v9.2
