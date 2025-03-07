@@ -1,4 +1,5 @@
 #include "ui_ChatBotPage.h"
+#include "app_ChatBotPage.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -110,7 +111,7 @@ static void _SpeakMove_Animation(void)
 
 ///////////////////// FUNCTIONS ////////////////////
 
-void ui_ChatBotPage_Objs_reinit(void)
+static void ui_ChatBotPage_Objs_reinit(void)
 {
     lv_obj_set_width(ui_EyesPanel, 210);
     lv_obj_set_height(ui_EyesPanel, 80);
@@ -157,10 +158,6 @@ static void ui_event_ChatBotPage(lv_event_t * e)
 
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_LEFT) {
         lv_indev_wait_release(lv_indev_active());
-        // _IdleMove1_Animation();
-        // _IdleMove2_Animation();
-        // _ListenMove_Animation();
-        _SpeakMove_Animation();
     }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_active());
@@ -169,10 +166,16 @@ static void ui_event_ChatBotPage(lv_event_t * e)
     }
 }
 
+static void ui_ai_chat_app_init(void)
+{
+    
+}
+
 ///////////////////// SCREEN init ////////////////////
 
 void ui_ChatBotPage_init(void)
 {
+    ui_ai_chat_app_init();
     lv_obj_t * ui_ChatBotPage = lv_obj_create(NULL);
     lv_obj_remove_flag(ui_ChatBotPage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 

@@ -121,11 +121,21 @@ void _sys_para_init(void)
         strcpy(ui_system_para.location.city, "东城区");
         strcpy(ui_system_para.location.adcode, "110101");
         strcpy(ui_system_para.gaode_api_key, "your_amap_key");
-        strcpy(ui_system_para.aliyun_api_key, "your_aliyun_key");
+        strcpy(ui_system_para.aichat_app_info.addr, "172.32.0.100");
+        ui_system_para.aichat_app_info.port = 8765;
+        strcpy(ui_system_para.aichat_app_info.token, "123456");
+        strcpy(ui_system_para.aichat_app_info.device_id, "00:11:22:33:44:55");
+        strcpy(ui_system_para.aichat_app_info.aliyun_api_key, "your_aliyun_key");
+        ui_system_para.aichat_app_info.protocol_version = 1;
+        ui_system_para.aichat_app_info.sample_rate = 16000;
+        ui_system_para.aichat_app_info.channels = 1;
+        ui_system_para.aichat_app_info.frame_duration = 40;
         // create a new config file and save
         sys_save_system_parameters(sys_config_path, &ui_system_para);
     }
+    // WIFI
     ui_system_para.wifi_connected = sys_get_wifi_status();
+    // TIME
     if(ui_system_para.auto_time == true)
     {
         if(sys_get_time_from_ntp("ntp.aliyun.com", &ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL))
@@ -143,6 +153,7 @@ void _sys_para_init(void)
         sys_set_time(ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute, 0);
         LV_LOG_USER("Manual time year: %d, month: %d, day: %d, hour: %d, minute: %d", ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute);
     }
+    // LOCATION
     if(ui_system_para.auto_location == true)
     {
         if(sys_get_auto_location_by_ip(&ui_system_para.location, ui_system_para.gaode_api_key) == 0)
