@@ -57,7 +57,7 @@ Client端和Server端通过Webscokets进行通信，通过JSON进行交互，语
 
 to be write
 
-<h2 align="center">Echo-Mate 桌面AI助手</h2>
+<h2 align="center">3. Echo-Mate 桌面AI助手</h2>
 
 ### :ledger: Overview
 
