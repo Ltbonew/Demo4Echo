@@ -21,13 +21,14 @@ int main(int argc, char* argv[]) {
         std::string token = argv[3];
         // 默认值
         std::string deviceId = "00:11:22:33:44:55";
+        std::string aliyun_api_key = "sk-xxx";
         int protocolVersion = 1;
         int sample_rate = 16000;
         int channels = 1;
         int frame_duration = 40;
 
         // 创建 Application 实例
-        Application app(address, port, token, deviceId, protocolVersion, sample_rate, channels, frame_duration);
+        Application app(address, port, token, deviceId, aliyun_api_key, protocolVersion, sample_rate, channels, frame_duration);
 
         // 运行应用程序
         app.Run();

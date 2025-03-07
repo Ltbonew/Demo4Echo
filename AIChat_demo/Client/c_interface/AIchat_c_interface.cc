@@ -4,8 +4,8 @@
 extern "C" {
 
 // 创建并初始化Application对象
-void* create_application(const char* address, int port, const char* token, const char* deviceId, int protocolVersion, int sample_rate, int channels, int frame_duration) {
-    auto* app = new Application(std::string(address), port, std::string(token), std::string(deviceId), protocolVersion, sample_rate, channels, frame_duration);
+void* create_application(const char* address, int port, const char* token, const char* deviceId, const char* aliyun_api_key, int protocolVersion, int sample_rate, int channels, int frame_duration) {
+    auto* app = new Application(std::string(address), port, std::string(token), std::string(deviceId), std::string(aliyun_api_key), protocolVersion, sample_rate, channels, frame_duration);
     return static_cast<void*>(app);
 }
 

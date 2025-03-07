@@ -2,9 +2,10 @@
 #include "../inc/user_log.h"
 #include "../third_party/snowboy/include/snowboy-detect-c-wrapper.h"
 
-Application::Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, int protocolVersion, 
-                         int sample_rate, int channels, int frame_duration)
+Application::Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& aliyun_api_key, 
+                         int protocolVersion, int sample_rate, int channels, int frame_duration)
     : ws_client_(address, port, token, deviceId, protocolVersion),
+      aliyun_api_key_(aliyun_api_key),
       protocolVersion_(protocolVersion),
       client_state_(static_cast<int>(AppState::startup)),
       audio_processor_(sample_rate, channels, frame_duration) {
@@ -159,6 +160,7 @@ void Application::startup_enter() {
         std::string json_message = 
         R"({
             "type": "hello",
+            "api_key": ")" + aliyun_api_key_ + R"(",
             "audio_params": {
                 "format": "opus",
                 "sample_rate": )" + std::to_string(audio_processor_.get_sample_rate()) + R"(,

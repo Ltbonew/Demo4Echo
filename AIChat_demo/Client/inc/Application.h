@@ -75,7 +75,7 @@ private:
 
 class Application {
 public:
-    Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, int protocolVersion, int sample_rate, int channels, int frame_duration);
+    Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& aliyun_api_key, int protocolVersion, int sample_rate, int channels, int frame_duration);
     ~Application();
     void Run();
     int getState();
@@ -110,6 +110,7 @@ private:
     AudioProcess audio_processor_;
     WebSocketClient ws_client_;
     StateMachine client_state_; // 更改成员变量名称
+    std::string aliyun_api_key_;
     int frame_duration_;
     int protocolVersion_;
     std::string asr_text_;
