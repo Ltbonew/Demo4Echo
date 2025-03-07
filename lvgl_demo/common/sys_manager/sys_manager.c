@@ -390,14 +390,30 @@ int sys_get_auto_location_by_ip(LocationInfo_t* location, const char *api_key) {
         return -1;
     }
 
-    struct json_object *city_obj, *adcode_obj;
+    struct json_object *province_obj, *city_obj, *adcode_obj;
+    json_object_object_get_ex(parsed_json, "province", &province_obj);
     json_object_object_get_ex(parsed_json, "city", &city_obj);
     json_object_object_get_ex(parsed_json, "adcode", &adcode_obj);
+
+    // 检查province, city, adcode是否为空数组
+    if(json_object_is_type(province_obj, json_type_array) && json_object_array_length(province_obj) == 0 &&
+       json_object_is_type(city_obj, json_type_array) && json_object_array_length(city_obj) == 0 &&
+       json_object_is_type(adcode_obj, json_type_array) && json_object_array_length(adcode_obj) == 0) {
+        printf("Location information is empty. This might be due to an invalid or foreign IP address.\n");
+        json_object_put(parsed_json); // 释放JSON对象
+        free(response_string);
+        curl_easy_cleanup(curl_handle);
+        curl_global_cleanup();
+        return -2; // 自定义错误码表示位置信息为空
+    }
 
     strncpy(location->city, json_object_get_string(city_obj), sizeof(location->city) - 1);
     location->city[sizeof(location->city) - 1] = '\0'; // 确保字符串以null结尾
     strncpy(location->adcode, json_object_get_string(adcode_obj), sizeof(location->adcode) - 1);
     location->adcode[sizeof(location->adcode) - 1] = '\0'; // 确保字符串以null结尾
+
+    printf("City: %s\n", location->city);
+    printf("Adcode: %s\n", location->adcode);
 
     json_object_put(parsed_json); // 释放JSON对象
 
