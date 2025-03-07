@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <curl/curl.h>
 
 // 回调函数，用于处理libcurl接收到的数据
 static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
@@ -18,60 +19,6 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
     return realsize;
 }
 
-int get_auto_location_by_ip(LocationInfo_t* location) {
-    CURL* curl_handle;
-    CURLcode res;
-    char url[256];
-    snprintf(url, sizeof(url), "https://restapi.amap.com/v3/ip?key=%s", ui_system_para.gaode_api_key);
-
-    char* response_string = malloc(1); // 初始化为空字符串
-    response_string[0] = '\0';
-
-    curl_global_init(CURL_GLOBAL_ALL);
-    curl_handle = curl_easy_init();
-
-    curl_easy_setopt(curl_handle, CURLOPT_URL, url);
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteCallback);
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &response_string);
-    curl_easy_setopt(curl_handle, CURLOPT_CAINFO, "cacert.pem");
-
-    res = curl_easy_perform(curl_handle);
-
-    if(res != CURLE_OK) {
-        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-        free(response_string);
-        curl_easy_cleanup(curl_handle);
-        curl_global_cleanup();
-        return -1;
-    }
-
-    struct json_object *parsed_json = json_tokener_parse(response_string);
-    if (!parsed_json) {
-        printf("Failed to parse JSON\n");
-        free(response_string);
-        curl_easy_cleanup(curl_handle);
-        curl_global_cleanup();
-        return -1;
-    }
-
-    struct json_object *city_obj, *adcode_obj;
-    json_object_object_get_ex(parsed_json, "city", &city_obj);
-    json_object_object_get_ex(parsed_json, "adcode", &adcode_obj);
-
-    strncpy(location->city, json_object_get_string(city_obj), sizeof(location->city) - 1);
-    location->city[sizeof(location->city) - 1] = '\0'; // 确保字符串以null结尾
-    strncpy(location->adcode, json_object_get_string(adcode_obj), sizeof(location->adcode) - 1);
-    location->adcode[sizeof(location->adcode) - 1] = '\0'; // 确保字符串以null结尾
-
-    json_object_put(parsed_json); // 释放JSON对象
-
-    free(response_string);
-    curl_easy_cleanup(curl_handle);
-    curl_global_cleanup();
-
-    return 0;
-}
-
 int get_weather_info_by_adcode(const char* adcode, WeatherInfo_t* weather_info) {
     CURL* curl_handle;
     CURLcode res;
@@ -79,15 +26,29 @@ int get_weather_info_by_adcode(const char* adcode, WeatherInfo_t* weather_info) 
     snprintf(url, sizeof(url), "https://restapi.amap.com/v3/weather/weatherInfo?city=%s&key=%s", adcode, ui_system_para.gaode_api_key);
 
     char* response_string = malloc(1); // 初始化为空字符串
+    if (!response_string) {
+        fprintf(stderr, "Failed to allocate memory\n");
+        return -1;
+    }
     response_string[0] = '\0';
 
     curl_global_init(CURL_GLOBAL_ALL);
     curl_handle = curl_easy_init();
 
+    if (!curl_handle) {
+        fprintf(stderr, "Failed to initialize CURL\n");
+        free(response_string);
+        curl_global_cleanup();
+        return -1;
+    }
+
     curl_easy_setopt(curl_handle, CURLOPT_URL, url);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteCallback);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &response_string);
     curl_easy_setopt(curl_handle, CURLOPT_CAINFO, "cacert.pem");
+
+    // 设置超时时间为5秒（5000毫秒）
+    curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT_MS, 5000L);
 
     res = curl_easy_perform(curl_handle);
 
@@ -111,7 +72,7 @@ int get_weather_info_by_adcode(const char* adcode, WeatherInfo_t* weather_info) 
     struct json_object *lives_array, *live_obj;
     json_object_object_get_ex(parsed_json, "lives", &lives_array);
     if(json_object_get_type(lives_array) == json_type_array && json_object_array_length(lives_array) > 0) {
-        
+
         live_obj = json_object_array_get_idx(lives_array, 0);
         struct json_object *weather, *temperature, *humidity, *windpower;
         json_object_object_get_ex(live_obj, "weather", &weather);

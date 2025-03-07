@@ -19,14 +19,6 @@ typedef struct {
 } WeatherInfo_t;
 
 /**
- * @brief 根据IP地址获取地理位置信息，并填充城市名称和adcode。
- *
- * @param location 用于存储位置信息的结构体。
- * @return -1: fail, 0: ok
- */
-int get_auto_location_by_ip(LocationInfo_t* location);
-
-/**
  * @brief 根据adcode获取天气信息，并填充WeatherInfo结构体。
  *
  * @param adcode 城市adcode。

@@ -63,7 +63,7 @@ static void _ui_weather_timer_cb(void)
         // get location info
         if(ui_system_para.auto_location == true)
         {
-            if(get_auto_location_by_ip(&ui_weather_para.location) != 0) 
+            if(sys_get_auto_location_by_ip(&ui_weather_para.location, ui_system_para.gaode_api_key) != 0) 
             {
                 LV_LOG_WARN("Failed to get location info.");
                 sprintf(ui_weather_para.location.city, "%s", "未知地");
