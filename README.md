@@ -69,21 +69,21 @@ to be write
 
 ```
 Server/
-├── bin/					# 可执行文件
-├── build/					# build缓存
-├── common/					# build缓存
-│   ├── sys_manager/		# 开发板硬件对应的管理
-│   └── xxx_manager/  		# xxx对应的管理
-├── conf/					# 系统设置
-├── gui_app/				# UI层的软件
-│   ├── common/				# UI层扩展lib
-│   ├── font/				# UI字体
-│   ├── images/				# UI图片
-│   ├── pages/  			# UI层主要pages
-│   └── ui.c/h  			# 
-├── lvgl/					# lvgl核心组件
-├── utils     				# 其他
-├── lv_conf.h     			# lvgl设置
+├── bin/                   # 可执行文件
+├── build/                 # build缓存
+├── common/                # build缓存
+│   ├── sys_manager/       # 开发板硬件对应的管理
+│   └── xxx_manager/       # xxx对应的管理
+├── conf/                  # 系统设置
+├── gui_app/               # UI层的软件
+│   ├── common/            # UI层扩展lib
+│   ├── font/              # UI字体
+│   ├── images/            # UI图片
+│   ├── pages/             # UI层主要pages
+│   └── ui.c/h             # 
+├── lvgl/                  # lvgl核心组件
+├── utils                  # 其他
+├── lv_conf.h              # lvgl设置
 └── main.c
 ```
 
