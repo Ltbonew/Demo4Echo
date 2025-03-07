@@ -71,7 +71,7 @@ to be write
 Server/
 ├── bin/                   # 可执行文件
 ├── build/                 # build缓存
-├── common/                # build缓存
+├── common/                # 通用层
 │   ├── sys_manager/       # 开发板硬件对应的管理
 │   └── xxx_manager/       # xxx对应的管理
 ├── conf/                  # 系统设置
