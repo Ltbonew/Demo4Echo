@@ -19,9 +19,9 @@ void* ai_chat_thread_func(void* arg) {
         return NULL;
     }
 
-    LV_LOG_USER("AI Chat App 开始运行...\n");
+    LV_LOG_USER("AI Chat App start running...");
     run_aichat_app(app_instance);  // 运行 AI Chat
-    LV_LOG_USER("AI Chat App 运行结束。\n");
+    LV_LOG_USER("AI Chat App run end");
 
     pthread_mutex_lock(&running_mutex);
     ai_chat_running = 0;
@@ -30,7 +30,7 @@ void* ai_chat_thread_func(void* arg) {
     if (app_instance) {
         destroy_aichat_app(app_instance);
         app_instance = NULL;
-        LV_LOG_USER("AI Chat App 资源已释放。\n");
+        LV_LOG_USER("AI Chat App already destroyed.");
     }
 
     pthread_mutex_lock(&running_mutex);
@@ -48,13 +48,13 @@ int start_ai_chat(const char* address, int port, const char* token, const char* 
     pthread_mutex_lock(&running_mutex);
     // **如果上次线程还在运行，先等待它退出**
     if (ai_chat_thread) {
-        LV_LOG_ERROR("上一次 AI Chat 线程未退出...\n");
+        LV_LOG_ERROR("last AI Chat thread not exit...");
         pthread_mutex_unlock(&running_mutex);
         return -1;
     }
 
     if (ai_chat_running) {
-        LV_LOG_WARN("AI Chat 已经在运行。\n");
+        LV_LOG_WARN("AI Chat already running.");
         pthread_mutex_unlock(&running_mutex);
         return -2;
     }
@@ -62,7 +62,7 @@ int start_ai_chat(const char* address, int port, const char* token, const char* 
 
     // 确保 app 已完全释放
     if (app_instance != NULL) {
-        LV_LOG_ERROR("上一次 AI Chat 还未完全释放，先清理。\n");
+        LV_LOG_ERROR("last AI Chat app not destroyed.");
         destroy_aichat_app(app_instance);
         app_instance = NULL;
         return -3;
@@ -72,7 +72,7 @@ int start_ai_chat(const char* address, int port, const char* token, const char* 
     app_instance = create_aichat_app(address, port, token, deviceId, aliyun_api_key, 
                                      protocolVersion, sample_rate, channels, frame_duration);
     if (app_instance == NULL) {
-        LV_LOG_ERROR("Failed to create application.\n");
+        LV_LOG_ERROR("Failed to create application.");
         return -4;
     }
 
@@ -81,7 +81,7 @@ int start_ai_chat(const char* address, int port, const char* token, const char* 
     pthread_mutex_unlock(&running_mutex);
 
     if (pthread_create(&ai_chat_thread, NULL, ai_chat_thread_func, NULL) != 0) {
-        LV_LOG_ERROR("创建 AI Chat 线程失败。\n");
+        LV_LOG_ERROR("creat AI Chat thread fail");
         pthread_mutex_lock(&running_mutex);
         ai_chat_running = 0;
         pthread_mutex_unlock(&running_mutex);
@@ -95,7 +95,7 @@ int start_ai_chat(const char* address, int port, const char* token, const char* 
 
 void stop_ai_chat(void) {
     if (app_instance == NULL) {
-        LV_LOG_WARN("AI Chat 未初始化。\n");
+        LV_LOG_WARN("AI Chat not init\n");
         return;
     }
 

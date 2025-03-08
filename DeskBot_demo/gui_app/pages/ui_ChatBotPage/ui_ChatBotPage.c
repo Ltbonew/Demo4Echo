@@ -176,7 +176,6 @@ static int ui_ai_chat_app_init(void)
     int errno = start_ai_chat(ui_system_para.aichat_app_info.addr, ui_system_para.aichat_app_info.port, ui_system_para.aichat_app_info.token, ui_system_para.aichat_app_info.device_id, ui_system_para.aichat_app_info.aliyun_api_key, ui_system_para.aichat_app_info.protocol_version, ui_system_para.aichat_app_info.sample_rate, ui_system_para.aichat_app_info.channels, ui_system_para.aichat_app_info.frame_duration);
     if(errno)
     {
-        LV_LOG_ERROR("AI Chat Page启动失败\n");
         // show msg box
         ui_msgbox_info("Error", "AIChat App init failed, wait for a moment and try again.");
         return -1;
@@ -202,6 +201,7 @@ static void _ChatBotTimer_cb(void)
     {
         // show msg box
         ui_msgbox_info("Error", "AIChat App Not exist.");
+        lv_lib_pm_OpenPrePage(&page_manager);
     }
     else if (state==0)
     {
