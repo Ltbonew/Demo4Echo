@@ -110,7 +110,7 @@ static void msgbox_close_click_event_cb(lv_event_t * e)
     *mbox_exist = false;
 }
 
-void ui_Info_msgbox(const char * title, const char * text)
+void ui_msgbox_info(const char * title, const char * text)
 {
     static lv_obj_t * current_mbox;
     static bool mbox_exist = false;

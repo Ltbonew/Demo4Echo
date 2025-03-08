@@ -50,7 +50,7 @@ typedef lv_lib_pm_page_t ui_app_data_t;
 void ui_init(void);
 
 // UI INFO MSGBOX
-void ui_Info_msgbox(const char * title, const char * text);
+void ui_msgbox_info(const char * title, const char * text);
 
 #ifdef __cplusplus
 } /*extern "C"*/

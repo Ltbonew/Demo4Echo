@@ -178,7 +178,7 @@ static int ui_ai_chat_app_init(void)
     {
         LV_LOG_ERROR("AI Chat Page启动失败\n");
         // show msg box
-        ui_Info_msgbox("Error", "AIChat App init failed, wait for a moment and try again.");
+        ui_msgbox_info("Error", "AIChat App init failed, wait for a moment and try again.");
         return -1;
     }
     return 0;
@@ -201,7 +201,7 @@ static void _ChatBotTimer_cb(void)
     if(state == -1)
     {
         // show msg box
-        ui_Info_msgbox("Error", "AIChat App Not exist.");
+        ui_msgbox_info("Error", "AIChat App Not exist.");
     }
     else if (state==0)
     {
