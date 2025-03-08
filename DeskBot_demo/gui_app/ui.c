@@ -103,6 +103,33 @@ ui_app_data_t ui_apps[_APP_NUMS] =
 
 ///////////////////// Function ////////////////////
 
+static void msgbox_close_click_event_cb(lv_event_t * e)
+{
+    lv_obj_t * mbox = lv_event_get_target(e);
+    bool * mbox_exist = lv_event_get_user_data(e);
+    LV_LOG_USER("mbox_exist false.");
+    *mbox_exist = false;
+}
+
+void ui_Info_msgbox(const char * title, const char * text)
+{
+    static lv_obj_t * current_mbox;
+    static bool mbox_exist = false;
+    if(mbox_exist)
+    {
+        LV_LOG_USER("Close current msgbox.");
+        lv_msgbox_close(current_mbox);
+        mbox_exist = false;
+    }
+    // 创建新消息框
+    current_mbox = lv_msgbox_create(NULL);
+    mbox_exist = true;
+    lv_msgbox_add_title(current_mbox, title);
+    lv_msgbox_add_text(current_mbox, text);
+    lv_obj_t * close_btn = lv_msgbox_add_close_button(current_mbox);
+    lv_obj_add_event_cb(close_btn, msgbox_close_click_event_cb, LV_EVENT_PRESSED, &mbox_exist);
+}
+
 void _sys_para_init(void)
 {
     if(sys_load_system_parameters(sys_config_path, &ui_system_para)!=0)
@@ -181,6 +208,8 @@ void _sys_para_init(void)
 
 void _maintimer_cb(void)
 {
+    // show msg box
+    ui_Info_msgbox("test","this is test");
     static uint16_t time_count2 = 299;
     time_count2++;
     // 每5分钟保存一次系统参数
@@ -224,5 +253,5 @@ void ui_init(void)
         pm_page[i] = lv_lib_pm_CreatePage(&page_manager, ui_apps[i].name, ui_apps[i].init, ui_apps[i].deinit, NULL);
     }
     lv_lib_pm_OpenPage(&page_manager, NULL, "HomePage");
-    lv_timer_create(_maintimer_cb, 1000, NULL);
+    lv_timer_create(_maintimer_cb, 5000, NULL);
 }

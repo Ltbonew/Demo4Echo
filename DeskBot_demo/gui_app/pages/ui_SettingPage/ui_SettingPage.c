@@ -65,19 +65,13 @@ static void AutoTime_event_cb(lv_event_t * e)
         if(sys_get_time_from_ntp("ntp.aliyun.com", &ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL))
         {
             // show msg box
-            lv_obj_t * mbox1 = lv_msgbox_create(NULL);
-            lv_msgbox_add_title(mbox1, "Error");
-            lv_msgbox_add_text(mbox1, "Auto NTP time get fail.");
-            lv_msgbox_add_close_button(mbox1);
+            ui_Info_msgbox("Error", "Auto NTP time get fail.");
         }
         else
         {
             sys_set_time(ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute, 0);
             // show msg box
-            lv_obj_t * mbox1 = lv_msgbox_create(NULL);
-            lv_msgbox_add_title(mbox1, "Note");
-            lv_msgbox_add_text(mbox1, "Auto NTP time get success.");
-            lv_msgbox_add_close_button(mbox1);
+            ui_Info_msgbox("Note", "Auto NTP time get success.");
         }
     }
     if(event_code == LV_EVENT_VALUE_CHANGED &&  !lv_obj_has_state(target, LV_STATE_CHECKED)) {
@@ -99,17 +93,11 @@ static void IPlocatiing_event_cb(lv_event_t * e)
         if(sys_get_auto_location_by_ip(&ui_system_para.location, ui_system_para.gaode_api_key) == 0) {
             lv_label_set_text(ui_LabelLocationName, ui_system_para.location.city);
             // show msg box
-            lv_obj_t * mbox1 = lv_msgbox_create(NULL);
-            lv_msgbox_add_title(mbox1, "Note");
-            lv_msgbox_add_text(mbox1, "Auto Location get success.");
-            lv_msgbox_add_close_button(mbox1);
+            ui_Info_msgbox("Note", "Auto Location get success.");
         }
         else {
             // show msg box
-            lv_obj_t * mbox1 = lv_msgbox_create(NULL);
-            lv_msgbox_add_title(mbox1, "Error");
-            lv_msgbox_add_text(mbox1, "Auto Location get failed.");
-            lv_msgbox_add_close_button(mbox1);
+            ui_Info_msgbox("Error", "Auto Location get failed.");
         }
     }
     if(event_code == LV_EVENT_VALUE_CHANGED &&  !lv_obj_has_state(target, LV_STATE_CHECKED)) {
@@ -132,10 +120,7 @@ static void time_set_confirm_cb(lv_event_t * e)
         ui_system_para.minute = lv_roller_get_selected(ui_RollerMinute);
         sys_set_time(ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute, 0);
         // show msg box
-        lv_obj_t * mbox1 = lv_msgbox_create(NULL);
-        lv_msgbox_add_title(mbox1, "Note");
-        lv_msgbox_add_text(mbox1, "Time set success.");
-        lv_msgbox_add_close_button(mbox1);
+        ui_Info_msgbox("Note", "Time set success.");
     }
 }
 
@@ -154,10 +139,7 @@ static void date_set_confirm_cb(lv_event_t * e)
         ui_system_para.day = lv_roller_get_selected(ui_RollerDay) + 1;
         sys_set_time(ui_system_para.year, ui_system_para.month, ui_system_para.day, ui_system_para.hour, ui_system_para.minute, 0);
         // show msg box
-        lv_obj_t * mbox1 = lv_msgbox_create(NULL);
-        lv_msgbox_add_title(mbox1, "Note");
-        lv_msgbox_add_text(mbox1, "Date set success.");
-        lv_msgbox_add_close_button(mbox1);
+        ui_Info_msgbox("Note", "Date set success.");
     }
 }
 
@@ -185,17 +167,11 @@ static void adcode_set_confirm_cb(lv_event_t * e)
         strcpy(ui_system_para.location.city, city_name);
         lv_label_set_text(ui_LabelLocationName2, city_name);
         // show msg box
-        lv_obj_t * mbox1 = lv_msgbox_create(NULL);
-        lv_msgbox_add_title(mbox1, "Note");
-        lv_msgbox_add_text(mbox1, "Location set success.");
-        lv_msgbox_add_close_button(mbox1);
+        ui_Info_msgbox("Note", "Location set success.");
     }
     else {
         // show msg box
-        lv_obj_t * mbox1 = lv_msgbox_create(NULL);
-        lv_msgbox_add_title(mbox1, "Error");
-        lv_msgbox_add_text(mbox1, "Location set failed.");
-        lv_msgbox_add_close_button(mbox1);
+        ui_Info_msgbox("Error", "Location set failed.");
     }
 }
 

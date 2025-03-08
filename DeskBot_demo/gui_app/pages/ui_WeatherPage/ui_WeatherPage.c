@@ -79,10 +79,7 @@ static void _ui_weather_timer_cb(void)
         if(get_weather_info_by_adcode(ui_weather_para.location.adcode, &ui_weather_para.weather_info) != 0) 
         {
             // show msg box
-            lv_obj_t * mbox1 = lv_msgbox_create(NULL);
-            lv_msgbox_add_title(mbox1, "Error");
-            lv_msgbox_add_text(mbox1, "weather info get fail.");
-            lv_msgbox_add_close_button(mbox1);
+            ui_Info_msgbox("Error", "weather info get fail.");
         } 
         else
         {

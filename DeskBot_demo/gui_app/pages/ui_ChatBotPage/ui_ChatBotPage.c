@@ -178,10 +178,7 @@ static int ui_ai_chat_app_init(void)
     {
         LV_LOG_ERROR("AI Chat Page启动失败\n");
         // show msg box
-        lv_obj_t * mbox1 = lv_msgbox_create(NULL);
-        lv_msgbox_add_title(mbox1, "Error");
-        lv_msgbox_add_text(mbox1, "AIChat App init failed, wait for a moment and try again.");
-        lv_msgbox_add_close_button(mbox1);
+        ui_Info_msgbox("Error", "AIChat App init failed, wait for a moment and try again.");
         return -1;
     }
     return 0;
@@ -204,11 +201,7 @@ static void _ChatBotTimer_cb(void)
     if(state == -1)
     {
         // show msg box
-        lv_obj_t * mbox1 = lv_msgbox_create(NULL);
-        lv_msgbox_add_title(mbox1, "Error");
-        lv_msgbox_add_text(mbox1, "AIChat App Not exist.");
-        lv_msgbox_add_close_button(mbox1);
-        lv_lib_pm_OpenPrePage(&page_manager);
+        ui_Info_msgbox("Error", "AIChat App Not exist.");
     }
     else if (state==0)
     {
