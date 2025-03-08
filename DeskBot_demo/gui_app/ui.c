@@ -107,7 +107,6 @@ static void msgbox_close_click_event_cb(lv_event_t * e)
 {
     lv_obj_t * mbox = lv_event_get_target(e);
     bool * mbox_exist = lv_event_get_user_data(e);
-    LV_LOG_USER("mbox_exist false.");
     *mbox_exist = false;
 }
 
@@ -117,7 +116,6 @@ void ui_Info_msgbox(const char * title, const char * text)
     static bool mbox_exist = false;
     if(mbox_exist)
     {
-        LV_LOG_USER("Close current msgbox.");
         lv_msgbox_close(current_mbox);
         mbox_exist = false;
     }
@@ -208,8 +206,6 @@ void _sys_para_init(void)
 
 void _maintimer_cb(void)
 {
-    // show msg box
-    ui_Info_msgbox("test","this is test");
     static uint16_t time_count2 = 299;
     time_count2++;
     // 每5分钟保存一次系统参数
