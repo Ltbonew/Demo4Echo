@@ -77,6 +77,7 @@ class Application {
 public:
     Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& aliyun_api_key, int protocolVersion, int sample_rate, int channels, int frame_duration);
     ~Application();
+    void Stop(void);
     void Run();
     int getState();
 

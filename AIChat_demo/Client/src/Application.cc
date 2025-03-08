@@ -24,6 +24,15 @@ Application::~Application() {
     USER_LOG_WARN("Application destruct.");
 }
 
+void Application::Stop(void) {
+    USER_LOG_INFO("Stopping application...");
+
+    threads_stop_flag_.store(true);
+
+    USER_LOG_INFO("Application stopped.");
+}
+
+
 void Application::ws_msg_callback(const std::string& message, bool is_binary) {
 
     if(!is_binary) {
@@ -149,7 +158,7 @@ void Application::startup_enter() {
     ws_client_.Connect();
     // 等待连接建立, 尝试3次
     int try_count = 3;
-    while(!ws_client_.IsConnected() && try_count) {
+    while(!ws_client_.IsConnected() && try_count && !threads_stop_flag_.load()) {
         try_count--;
         std::this_thread::sleep_for(std::chrono::seconds(10));
         USER_LOG_INFO("Try to connect to server.");

@@ -20,6 +20,9 @@ void* create_aichat_app(const char* address, int port, const char* token, const 
 // 运行Application对象
 void run_aichat_app(void* app_ptr);
 
+// 强制停止Application对象
+void stop_aichat_app(void* app_ptr);
+
 // 获取当前状态
 ChatState get_aichat_app_state(void* app_ptr);
 

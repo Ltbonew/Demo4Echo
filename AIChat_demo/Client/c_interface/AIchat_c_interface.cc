@@ -17,6 +17,14 @@ void run_aichat_app(void* app_ptr) {
     }
 }
 
+// 强制停止Application对象
+void stop_aichat_app(void* app_ptr) {
+    if (app_ptr) {
+        auto* app = static_cast<Application*>(app_ptr);
+        app->Stop();
+    }
+}
+
 // 获取当前状态
 ChatState get_aichat_app_state(void* app_ptr) {
     if (app_ptr) {

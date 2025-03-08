@@ -12,10 +12,14 @@ lv_obj_t * ui_EyeRight;
 lv_obj_t * ui_EyeLeft;
 lv_obj_t * ui_MouthPanel;
 lv_obj_t * ui_Mouth;
+lv_obj_t * ui_LabelInfo;
+lv_timer_t * ui_ChatBot_timer;
+
+bool ChatbotPage_first_enter;
 
 ///////////////////// ANIMATIONS ////////////////////
 
-static void _IdleMove1_Animation(void)
+static void _IdleMofirst_enterve1_Animation(void)
 {
     int16_t y_pos_now = -25;
     int16_t x_pos_now = 0;
@@ -161,21 +165,72 @@ static void ui_event_ChatBotPage(lv_event_t * e)
     }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_active());
-        lv_anim_delete_all();
         ui_ChatBotPage_Objs_reinit();
+        stop_ai_chat();
+        lv_lib_pm_OpenPrePage(&page_manager);
     }
 }
 
-static void ui_ai_chat_app_init(void)
+static int ui_ai_chat_app_init(void)
 {
-    start_ai_chat(ui_system_para.aichat_app_info.addr, ui_system_para.aichat_app_info.port, ui_system_para.aichat_app_info.token, ui_system_para.aichat_app_info.device_id, ui_system_para.aichat_app_info.aliyun_api_key, ui_system_para.aichat_app_info.protocol_version, ui_system_para.aichat_app_info.sample_rate, ui_system_para.aichat_app_info.channels, ui_system_para.aichat_app_info.frame_duration);
+    int errno = start_ai_chat(ui_system_para.aichat_app_info.addr, ui_system_para.aichat_app_info.port, ui_system_para.aichat_app_info.token, ui_system_para.aichat_app_info.device_id, ui_system_para.aichat_app_info.aliyun_api_key, ui_system_para.aichat_app_info.protocol_version, ui_system_para.aichat_app_info.sample_rate, ui_system_para.aichat_app_info.channels, ui_system_para.aichat_app_info.frame_duration);
+    if(errno)
+    {
+        LV_LOG_ERROR("AI Chat Page启动失败\n");
+        // show msg box
+        lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+        lv_msgbox_add_title(mbox1, "Error");
+        lv_msgbox_add_text(mbox1, "AIChat App init failed, wait for a moment and try again.");
+        lv_msgbox_add_close_button(mbox1);
+        return -1;
+    }
+    return 0;
+}
+
+static void _ChatBotTimer_cb(void)
+{
+    if(ChatbotPage_first_enter)
+    {
+        ChatbotPage_first_enter = false;
+        // start AI Chat
+        if(ui_ai_chat_app_init())
+        {
+            lv_lib_pm_OpenPrePage(&page_manager);
+        }
+
+    }
+    // 0-fault, 1-startup, 2-idle, 3-listening, 4-speaking
+    int state = get_ai_chat_state();
+    if(state == -1)
+    {
+        // show msg box
+        lv_obj_t * mbox1 = lv_msgbox_create(NULL);
+        lv_msgbox_add_title(mbox1, "Error");
+        lv_msgbox_add_text(mbox1, "AIChat App Not exist.");
+        lv_msgbox_add_close_button(mbox1);
+        lv_lib_pm_OpenPrePage(&page_manager);
+    }
+    else if (state==0)
+    {
+        lv_obj_remove_flag(ui_LabelInfo, LV_OBJ_FLAG_HIDDEN);
+        lv_label_set_text(ui_LabelInfo, "Fault");
+    }
+    else if(state==1)
+    {
+        lv_obj_remove_flag(ui_LabelInfo, LV_OBJ_FLAG_HIDDEN);
+        lv_label_set_text(ui_LabelInfo, "Starting ...");
+    }
+    else
+    {
+        lv_obj_add_flag(ui_LabelInfo, LV_OBJ_FLAG_HIDDEN);
+    }
 }
 
 ///////////////////// SCREEN init ////////////////////
 
 void ui_ChatBotPage_init(void)
 {
-    ui_ai_chat_app_init();
+    ChatbotPage_first_enter = true;
     lv_obj_t * ui_ChatBotPage = lv_obj_create(NULL);
     lv_obj_remove_flag(ui_ChatBotPage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
@@ -280,10 +335,24 @@ void ui_ChatBotPage_init(void)
     lv_image_set_rotation(ui_HandImg, -350);
     lv_obj_set_style_opa(ui_HandImg, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_LabelInfo = lv_label_create(ui_ChatBotPage);
+    lv_obj_set_width(ui_LabelInfo, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_LabelInfo, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_LabelInfo, 0);
+    lv_obj_set_y(ui_LabelInfo, 10);
+    lv_obj_set_align(ui_LabelInfo, LV_ALIGN_TOP_MID);
+    lv_label_set_text(ui_LabelInfo, "Wait connect ...");
+    lv_obj_set_style_text_color(ui_LabelInfo, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_LabelInfo, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_LabelInfo, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_flag(ui_LabelInfo, LV_OBJ_FLAG_HIDDEN);     /// Flags
+
     lv_obj_add_event_cb(ui_ChatBotPage, ui_event_ChatBotPage, LV_EVENT_ALL, NULL);
 
+    ui_ChatBot_timer = lv_timer_create(_ChatBotTimer_cb, 1000, NULL);
+
     // load page
-    lv_scr_load_anim(ui_ChatBotPage, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 100, 0, true);
+    lv_scr_load_anim(ui_ChatBotPage, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 250, 0, true);
 
 }
 
@@ -291,5 +360,6 @@ void ui_ChatBotPage_init(void)
 
 void ui_ChatBotPage_deinit(void)
 {
-
+    lv_timer_delete(ui_ChatBot_timer);
+    return;
 }
