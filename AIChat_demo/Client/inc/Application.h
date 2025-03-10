@@ -19,6 +19,7 @@
 enum class AppState {
     fault,
     startup,
+    stopping,
     idle,
     listening,
     speaking,
@@ -29,6 +30,7 @@ enum class AppEvent {
     fault_happen,
     fault_solved,
     startup_done,
+    to_stop,
     wake_detected,
     vad_no_speech,
     vad_end,
@@ -95,6 +97,9 @@ private:
 
     void startup_enter();
     void startup_exit();
+
+    void stopping_enter();
+    void stopping_exit();
 
     void idle_enter();
     void idleState_run();

@@ -25,13 +25,9 @@ Application::~Application() {
 }
 
 void Application::Stop(void) {
-    USER_LOG_INFO("Stopping application...");
-
-    threads_stop_flag_.store(true);
-
-    USER_LOG_INFO("Application stopped.");
+    USER_LOG_INFO("Stoppinga ai chat app...");
+    eventQueue_.Enqueue(static_cast<int>(AppEvent::to_stop));
 }
-
 
 void Application::ws_msg_callback(const std::string& message, bool is_binary) {
 
@@ -140,8 +136,7 @@ void Application::fault_enter() {
     USER_LOG_WARN("Into fault state.");
     if (!ws_client_.IsConnected()) {
         USER_LOG_WARN("fault: not connect to server");
-        // 设置标志，通知线程退出
-        threads_stop_flag_.store(true);
+        eventQueue_.Enqueue(static_cast<int>(AppEvent::to_stop));
     }
     else {
         eventQueue_.Enqueue(static_cast<int>(AppEvent::fault_solved));
@@ -183,12 +178,23 @@ void Application::startup_enter() {
     }
     else {
         USER_LOG_ERROR("Startup failed.");
-        eventQueue_.Enqueue(static_cast<int>(AppEvent::fault_happen));
+        eventQueue_.Enqueue(static_cast<int>(AppEvent::to_stop));
     }
 }
 
 void Application::startup_exit() {
     USER_LOG_INFO("Startup exit.");
+}
+
+void Application::stopping_enter() {
+    USER_LOG_INFO("Into stopping state.");
+    ws_client_.Close();
+    // 设置标志，通知线程退出
+    threads_stop_flag_.store(true);
+}
+
+void Application::stopping_exit() {
+    USER_LOG_INFO("Stopping exit.");
 }
 
 void Application::idle_enter() {
@@ -224,7 +230,6 @@ void Application::idleState_run() {
             }
         }
     }
-    USER_LOG_INFO("ready to destroy snowboy detector.");
     SnowboyDetectDestructor(detector);
 }
 
@@ -372,6 +377,7 @@ void Application::Run() {
         // 添加状态
         client_state_.RegisterState(static_cast<int>(AppState::fault), [this]() {fault_enter();}, [this]() {fault_exit();});
         client_state_.RegisterState(static_cast<int>(AppState::startup), [this]() {startup_enter();}, [this]() {startup_exit();});
+        client_state_.RegisterState(static_cast<int>(AppState::stopping), [this]() {stopping_enter(); }, [this]() {stopping_exit(); });
         client_state_.RegisterState(static_cast<int>(AppState::idle), [this]() {idle_enter();}, [this]() {idle_exit();});
         client_state_.RegisterState(static_cast<int>(AppState::listening), [this]() {listening_enter(); }, [this]() {listening_exit(); });
         client_state_.RegisterState(static_cast<int>(AppState::speaking), [this]() {speaking_enter(); }, [this]() {speaking_exit(); });
@@ -384,6 +390,7 @@ void Application::Run() {
         client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::speaking_end), static_cast<int>(AppState::listening));
         client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::conversation_end), static_cast<int>(AppState::idle));
         client_state_.RegisterTransition(-1, static_cast<int>(AppEvent::fault_happen), static_cast<int>(AppState::fault));
+        client_state_.RegisterTransition(-1, static_cast<int>(AppEvent::to_stop), static_cast<int>(AppState::stopping));
         client_state_.RegisterTransition(static_cast<int>(AppState::fault), static_cast<int>(AppEvent::fault_solved), static_cast<int>(AppState::idle));
         // 初始化
         client_state_.Initialize();
@@ -404,6 +411,9 @@ void Application::Run() {
     ws_msg_thread.join();
     // 等待 state 切换事件线程结束
     state_trans_thread.join();
-    USER_LOG_WARN("Application exit.");
+    if(ws_client_.IsConnected()) {
+        ws_client_.Close();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
     return;
 }
