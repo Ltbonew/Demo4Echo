@@ -49,7 +49,6 @@ class MessageHandler:
     # TTS回调函数
     def __tts_on_data(self,data):
         self.ws_send_msg.put(data)
-        logger.info("sent")
 
     def VAD_proc_audio_stream(self):
         # 计算音频数据的时长
