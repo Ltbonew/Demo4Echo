@@ -8,6 +8,7 @@ extern "C" {
 #include "../lvgl/lvgl.h"
 #include "./common/lv_lib.h"
 #include "../common/sys_manager/sys_manager.h"
+#include "../common/gpio_manager/gpio_manager.h"
 
 #define UI_SCREEN_WIDTH 320
 #define UI_SCREEN_HEIGHT 240

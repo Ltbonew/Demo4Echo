@@ -128,7 +128,7 @@ void ui_msgbox_info(const char * title, const char * text)
     lv_obj_add_event_cb(close_btn, msgbox_close_click_event_cb, LV_EVENT_PRESSED, &mbox_exist);
 }
 
-void _sys_para_init(void)
+static void _sys_para_init(void)
 {
     if(sys_load_system_parameters(sys_config_path, &ui_system_para)!=0)
     {
@@ -204,6 +204,7 @@ void _sys_para_init(void)
 
 ///////////////////// timer //////////////////////
 
+// 5s timer
 void _maintimer_cb(void)
 {
     static uint16_t time_count2 = 299;
