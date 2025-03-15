@@ -158,8 +158,8 @@ class MessageHandler:
                 # 提前打开tts流
                 self.model_manager.tts_stream_set(on_data=self.__tts_on_data)
 
-            # client 端 speaking 信息
-            elif data.get('state') == 'speaking':
+            # client 端 thinking 信息
+            elif data.get('state') == 'thinking':
                 # 确保上次状态是 listening
                 if self.now_state == "listening":
                     # ASR识别
@@ -192,16 +192,32 @@ class MessageHandler:
                                 "message": "TTS failed"
                             }
                             return response
-                    # 使用fasttext进行语义分类（判断是否有指令）
-                    if(self.model_manager.command_recognize(asr_text)=='__label__TalkEnd'):
+                    # 使用fasttext进行语义分类
+                    talk_cmd = self.model_manager.command_recognize(asr_text)
+                    # 判断是否有停止说话指令
+                    if(talk_cmd == '__label__TalkEnd'):
                         logger.info("End of conversation")
                         response =  {
                             "type": "tts",
                             "state": "end",
                             "conversation": "end"
                         }
-                    else:
+                    # 正常对话
+                    elif(talk_cmd == '__label__unknown'):
                         logger.info("Conversation continues")
+                        response =  {
+                            "type": "tts",
+                            "state": "end",
+                            "conversation": "continue"
+                        }
+                    # 判断是否有运动指令
+                    else:
+                        logger.info("Command recognized: %s", talk_cmd)
+                        res =  {
+                            "type": "cmd",
+                            "state": talk_cmd,
+                        }
+                        self.ws_send_msg.put(res)
                         response =  {
                             "type": "tts",
                             "state": "end",

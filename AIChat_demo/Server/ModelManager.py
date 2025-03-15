@@ -96,7 +96,7 @@ class ModelManager:
     def clear_messages(self):
         """清除LLM对话记录"""
         self.messages = [
-            {'role': 'system', 'content': '你是一个桌面助手, 名为Echo, 快速地回复我.'}
+            {'role': 'system', 'content': '你是一个桌面机器人, 名为Echo, 快速地回复我.'}
         ]
 
     def get_LLM_answer(self, question):
