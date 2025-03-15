@@ -40,7 +40,6 @@ void* ai_chat_thread_func(void* arg) {
     return NULL;
 }
 
-
 int start_ai_chat(const char* address, int port, const char* token, const char* deviceId, 
                   const char* aliyun_api_key, int protocolVersion, int sample_rate, 
                   int channels, int frame_duration) {
@@ -75,6 +74,9 @@ int start_ai_chat(const char* address, int port, const char* token, const char* 
         LV_LOG_ERROR("Failed to create application.");
         return -4;
     }
+
+    // 注册运动指令回调函数
+    set_cmd_callback(app_instance, move_cmd_callback);
 
     pthread_mutex_lock(&running_mutex);
     ai_chat_running = 1;
@@ -112,4 +114,25 @@ int get_ai_chat_state(void) {
         return -1;
     }
     return get_aichat_app_state(app_instance);  // 例如返回 0 (idle), 1 (listening), 2 (speaking)
+}
+
+// cmd callback
+void move_cmd_callback(const char * str)
+{
+    if (strcmp(str, "__label__MoveForward") == 0) {
+        // function move forward
+        LV_LOG_ERROR("Move forward.");
+    }
+    else if (strcmp(str, "__label__MoveBackward") == 0) {
+        // function move backward
+        LV_LOG_ERROR("Move backward.");
+    }
+    else if (strcmp(str, "__label__MoveTurnLeft") == 0) {
+        // function move turn left
+        LV_LOG_ERROR("Move turn left.");
+    }
+    else if (strcmp(str, "__label__MoveTurnright") == 0) {
+        // function move turn right
+        LV_LOG_ERROR("Move turn right.");
+    }
 }

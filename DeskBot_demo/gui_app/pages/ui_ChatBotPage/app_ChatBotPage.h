@@ -11,6 +11,8 @@ int start_ai_chat(const char* address, int port, const char* token, const char* 
 // 获取 AI Chat 状态
 int get_ai_chat_state(void);
 
+void move_cmd_callback(const char * str);
+
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif

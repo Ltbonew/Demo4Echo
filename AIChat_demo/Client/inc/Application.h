@@ -22,6 +22,7 @@ enum class AppState {
     stopping,
     idle,
     listening,
+    thinking,
     speaking,
     // Add more states here...
 };
@@ -35,6 +36,7 @@ enum class AppEvent {
     vad_no_speech,
     vad_end,
     asr_received,
+    speaking_msg_received,
     speaking_end,
     conversation_end,
     // Add more events here...
@@ -82,6 +84,9 @@ public:
     void Stop(void);
     void Run();
     int getState();
+    // commond
+    using cmd_callback_t = std::function<void(std::string)>;
+    void SetCmdCallback(cmd_callback_t callback); 
 
 private:
     using AppEvent_t_ = int;
@@ -91,6 +96,7 @@ private:
     AppEvent_t_ handle_vad_message(const Json::Value& root);
     AppEvent_t_ handle_asr_message(const Json::Value& root);
     AppEvent_t_ handle_tts_message(const Json::Value& root);
+    AppEvent_t_ handle_cmd_message(const Json::Value& root);
 
     void fault_enter();
     void fault_exit();
@@ -109,6 +115,9 @@ private:
     void listeningState_run();
     void listening_exit();
 
+    void thinking_enter();
+    void thinking_exit();
+
     void speaking_enter();
     void speakingState_run();
     void speaking_exit();
@@ -120,12 +129,15 @@ private:
     int frame_duration_;
     int protocolVersion_;
     std::string asr_text_;
+    bool first_audio_msg_received_ = true;
     bool tts_completed_ = false;
     bool conversation_completed_ = false;
     std::atomic<bool> state_running_ = false;
     std::thread state_running_thread_;
     // 原子变量用于通知线程退出
     std::atomic<bool> threads_stop_flag_ = false;
+    // cmd callback
+    cmd_callback_t move_cmd_callback_;
 
     // 创建线程安全的消息队列
     ThreadSafeQueue<std::string> messageQueue_;

@@ -9,6 +9,15 @@ void* create_aichat_app(const char* address, int port, const char* token, const 
     return static_cast<void*>(app);
 }
 
+
+// 销毁Application对象
+void destroy_aichat_app(void* app_ptr) {
+    if (app_ptr) {
+        auto* app = static_cast<Application*>(app_ptr);
+        delete app;
+    }
+}
+
 // 运行Application对象
 void run_aichat_app(void* app_ptr) {
     if (app_ptr) {
@@ -34,11 +43,13 @@ ChatState get_aichat_app_state(void* app_ptr) {
     return ChatState::fault; // 默认返回错误状态
 }
 
-// 销毁Application对象
-void destroy_aichat_app(void* app_ptr) {
+// 设置命令回调, 注意不能使用有阻塞或者延时的函数在此处
+void set_cmd_callback(void* app_ptr, cmd_callback_func_t callback) {
     if (app_ptr) {
         auto* app = static_cast<Application*>(app_ptr);
-        delete app;
+        app->SetCmdCallback([callback](const std::string& cmd) {
+            callback(cmd.c_str());
+        });
     }
 }
 

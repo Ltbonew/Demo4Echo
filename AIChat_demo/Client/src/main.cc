@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
         std::string token = argv[3];
         // 默认值
         std::string deviceId = "00:11:22:33:44:55";
-        std::string aliyun_api_key = "sk-xxx";
+        std::string aliyun_api_key = "sk-6be919c5b8f24042a352362ca6dd4d1e";
         int protocolVersion = 1;
         int sample_rate = 16000;
         int channels = 1;

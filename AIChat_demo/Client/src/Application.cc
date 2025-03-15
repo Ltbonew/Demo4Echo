@@ -29,12 +29,18 @@ void Application::Stop(void) {
     eventQueue_.Enqueue(static_cast<int>(AppEvent::to_stop));
 }
 
+// websocket消息回调函数
 void Application::ws_msg_callback(const std::string& message, bool is_binary) {
 
     if(!is_binary) {
         // 接收到消息时的回调
         messageQueue_.Enqueue(message);
     } else {
+        // first time to receive binary message
+        if(first_audio_msg_received_) {
+            first_audio_msg_received_ = false;
+            eventQueue_.Enqueue(static_cast<int>(AppEvent::speaking_msg_received));
+        }
         // 接收到二进制数据时的回调
         BinProtocolInfo protocol_info;
         std::vector<uint8_t> opus_data;
@@ -76,6 +82,8 @@ Application::AppEvent_t_ Application::handle_message(const std::string& message)
             return handle_asr_message(root);
         } else if (typeStr == "tts") {
             return handle_tts_message(root);
+        } else if (typeStr == "cmd") {
+            return handle_cmd_message(root);
         } else if (typeStr == "error") {
             USER_LOG_ERROR("server erro msg: %s", message.c_str());
             return static_cast<int>(AppEvent::fault_happen);
@@ -127,6 +135,23 @@ Application::AppEvent_t_ Application::handle_tts_message(const Json::Value& root
         if (conversationStr == "end") {
             USER_LOG_INFO("Received conversation end.");
             conversation_completed_ = true;
+        }
+    }
+    return -1;
+}
+
+// 设置 CMD 回调函数
+void Application::SetCmdCallback(cmd_callback_t callback) {
+    move_cmd_callback_ = callback;
+}
+
+// 处理 CMD 消息
+Application::AppEvent_t_ Application::handle_cmd_message(const Json::Value& root) {
+    const Json::Value state = root["state"];
+    if (state.isString()) {
+        std::string stateStr = state.asString();
+        if(move_cmd_callback_) {
+            move_cmd_callback_(stateStr);
         }
     }
     return -1;
@@ -303,6 +328,16 @@ void Application::listening_exit() {
     USER_LOG_INFO("Listening exit.");
 }
 
+void Application::thinking_enter() {
+    std::string json_message = R"({"type": "state", "state": "thinking"})";
+    ws_client_.SendText(json_message);
+    USER_LOG_INFO("Into thinking state.");
+}
+
+void Application::thinking_exit() {
+    USER_LOG_INFO("thinking state exit.");
+}
+
 void Application::speaking_enter() {
     std::string json_message = R"({"type": "state", "state": "speaking"})";
     ws_client_.SendText(json_message);
@@ -336,10 +371,11 @@ void Application::speaking_exit() {
     // clear playback audio queue
     audio_processor_.clearPlaybackAudioQueue();
     // stop播放
-    // audio_processor_.stopPlaying();
+    audio_processor_.stopPlaying();
     // stop state running
     state_running_.store(false);
     state_running_thread_.join();
+    first_audio_msg_received_ = true;
     USER_LOG_INFO("Speaking exit.");
 }
 
@@ -380,13 +416,15 @@ void Application::Run() {
         client_state_.RegisterState(static_cast<int>(AppState::stopping), [this]() {stopping_enter(); }, [this]() {stopping_exit(); });
         client_state_.RegisterState(static_cast<int>(AppState::idle), [this]() {idle_enter();}, [this]() {idle_exit();});
         client_state_.RegisterState(static_cast<int>(AppState::listening), [this]() {listening_enter(); }, [this]() {listening_exit(); });
+        client_state_.RegisterState(static_cast<int>(AppState::thinking), [this]() {thinking_enter(); }, [this]() {thinking_exit(); });
         client_state_.RegisterState(static_cast<int>(AppState::speaking), [this]() {speaking_enter(); }, [this]() {speaking_exit(); });
         
         // 添加状态切换
         client_state_.RegisterTransition(static_cast<int>(AppState::startup), static_cast<int>(AppEvent::startup_done), static_cast<int>(AppState::idle));
         client_state_.RegisterTransition(static_cast<int>(AppState::idle), static_cast<int>(AppEvent::wake_detected), static_cast<int>(AppState::speaking));
         client_state_.RegisterTransition(static_cast<int>(AppState::listening), static_cast<int>(AppEvent::vad_no_speech), static_cast<int>(AppState::idle));
-        client_state_.RegisterTransition(static_cast<int>(AppState::listening), static_cast<int>(AppEvent::vad_end), static_cast<int>(AppState::speaking));
+        client_state_.RegisterTransition(static_cast<int>(AppState::listening), static_cast<int>(AppEvent::vad_end), static_cast<int>(AppState::thinking));
+        client_state_.RegisterTransition(static_cast<int>(AppState::thinking), static_cast<int>(AppEvent::speaking_msg_received), static_cast<int>(AppState::speaking));
         client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::speaking_end), static_cast<int>(AppState::listening));
         client_state_.RegisterTransition(static_cast<int>(AppState::speaking), static_cast<int>(AppEvent::conversation_end), static_cast<int>(AppState::idle));
         client_state_.RegisterTransition(-1, static_cast<int>(AppEvent::fault_happen), static_cast<int>(AppState::fault));

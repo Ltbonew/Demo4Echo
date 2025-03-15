@@ -223,7 +223,7 @@ static void _ChatBotTimer_cb(void)
             lv_lib_pm_OpenPrePage(&page_manager);
         }
     }
-    // 0-fault, 1-startup, 2-stop, 3-idle, 4-listening, 5-speaking
+    // 0-fault, 1-startup, 2-stop, 3-idle, 4-listening, 5-thinking, 6-speaking
     int state = get_ai_chat_state();
     if(state != ui_chat_para.last_state)
     {
@@ -267,12 +267,12 @@ static void _ChatBotTimer_cb(void)
                 }  
             }
             // listening
-            else if(state == 4)
+            else if(state == 4 || state == 5)
             {
                 _ListenMove_Animation();
             }
             // speaking
-            else if(state == 5)
+            else if(state == 6)
             {
                 _SpeakMove_Animation();
             }

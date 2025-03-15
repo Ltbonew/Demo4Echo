@@ -9,9 +9,11 @@ extern "C" {
 typedef enum {
     fault,
     startup,
+    stopping,
     idle,
     listening,
-    speaking
+    thinking,
+    speaking,
 } ChatState;
 
 // 创建并初始化Application对象
@@ -25,6 +27,10 @@ void stop_aichat_app(void* app_ptr);
 
 // 获取当前状态
 ChatState get_aichat_app_state(void* app_ptr);
+
+// cmd callback
+typedef void (*cmd_callback_func_t)(const char*); // 回调函数类型定义
+void set_cmd_callback(void* app_ptr, cmd_callback_func_t callback);
 
 // 销毁Application对象
 void destroy_aichat_app(void* app_ptr);
