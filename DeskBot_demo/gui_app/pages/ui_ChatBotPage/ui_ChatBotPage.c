@@ -153,15 +153,40 @@ static void _ListenMove_Animation(void)
     lv_lib_anim_user_animation(ui_EyeRight, 2000, 100, eye_hight_now, eye_hight_now-70, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_hight, NULL);
     lv_lib_anim_user_animation(ui_EyeLeft, 2000, 100, eye_hight_now, eye_hight_now-70, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_hight, NULL);
 
-    lv_lib_anim_user_animation(ui_HandImg, 2000, 500, 0, 255, 0, 0, 0, 0, lv_anim_path_linear, lv_lib_anim_callback_set_opacity, NULL);
-    lv_lib_anim_user_animation(ui_HandImg, 2000, 500, -250, -150, 0, 750, 0, 2, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_image_angle, NULL);
-
     lv_lib_anim_user_animation(ui_QuestionImg, 3500, 500, 255, 0, 0, 0, 0, 0, lv_anim_path_linear, lv_lib_anim_callback_set_opacity, NULL);
-    lv_lib_anim_user_animation(ui_HandImg, 3500, 500, 255, 0, 0, 0, 0, 0, lv_anim_path_linear, lv_lib_anim_callback_set_opacity, NULL);
 
-    lv_lib_anim_user_animation(ui_EyeRight, 4000, 100, eye_width_now, eye_width_now+30, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_width, NULL);
-    lv_lib_anim_user_animation(ui_EyeLeft, 4000, 100, eye_width_now, eye_width_now+30, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_width, _anim_complete_cb);
+    lv_lib_anim_user_animation(ui_EyeRight, 3000, 100, eye_width_now, eye_width_now+30, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_width, NULL);
+    lv_lib_anim_user_animation(ui_EyeLeft, 3000, 100, eye_width_now, eye_width_now+30, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_width, _anim_complete_cb);
     eye_width_now += 30;
+}
+
+static void _ThinkingMove_Animation(void)
+{
+    ui_ChatBotPage_Objs_reinit();
+    ui_chat_para.anim_complete = false;
+
+    lv_lib_anim_user_animation(ui_HandImg, 0, 500, 0, 255, 0, 0, 0, 0, lv_anim_path_linear, lv_lib_anim_callback_set_opacity, NULL);
+    lv_lib_anim_user_animation(ui_HandImg, 0, 500, -250, -150, 0, 750, 0, 2, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_image_angle, NULL);
+    lv_lib_anim_user_animation(ui_QuestionImg, 1500, 500, 255, 0, 0, 0, 0, 0, lv_anim_path_linear, lv_lib_anim_callback_set_opacity, NULL);
+    lv_lib_anim_user_animation(ui_HandImg, 1500, 500, 255, 0, 0, 0, 0, 0, lv_anim_path_linear, lv_lib_anim_callback_set_opacity, NULL);
+
+    int16_t eye_width_now = 80;
+    int16_t eye_hight_now = 80;
+    lv_lib_anim_user_animation(ui_EyeRight, 0, 100, eye_width_now, eye_width_now-30, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_width, NULL);
+    lv_lib_anim_user_animation(ui_EyeLeft, 0, 100, eye_width_now, eye_width_now-30, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_width, NULL);
+    eye_width_now -= 30;
+    lv_lib_anim_user_animation(ui_QuestionImg, 0, 500, 0, 255, 0, 0, 0, 0, lv_anim_path_linear, lv_lib_anim_callback_set_opacity, NULL);
+    lv_lib_anim_user_animation(ui_QuestionImg, 0, 500, -100, 100, 0, 750, 0, 4, lv_anim_path_ease_in_out, lv_lib_anim_callback_set_image_angle, NULL);
+
+    lv_lib_anim_user_animation(ui_EyeRight, 1000, 100, eye_width_now, eye_width_now+30, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_width, NULL);
+    lv_lib_anim_user_animation(ui_EyeLeft, 1000, 100, eye_width_now, eye_width_now+30, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_width, NULL);
+    lv_lib_anim_user_animation(ui_EyeRight, 1000, 100, eye_hight_now, eye_hight_now-70, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_hight, NULL);
+    lv_lib_anim_user_animation(ui_EyeLeft, 1000, 100, eye_hight_now, eye_hight_now-70, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_hight, NULL);
+
+    lv_lib_anim_user_animation(ui_EyeRight, 2000, 100, eye_width_now, eye_width_now+30, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_width, NULL);
+    lv_lib_anim_user_animation(ui_EyeLeft, 2000, 100, eye_width_now, eye_width_now+30, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_width, NULL);
+    lv_lib_anim_user_animation(ui_EyeRight, 2000, 100, eye_hight_now, eye_hight_now-70, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_hight, NULL);
+    lv_lib_anim_user_animation(ui_EyeLeft, 2000, 100, eye_hight_now, eye_hight_now-70, 0, 100, 0, 1, lv_anim_path_ease_out, lv_lib_anim_callback_set_hight, _anim_complete_cb);
 }
 
 static void _SpeakMove_Animation(void)
@@ -267,9 +292,14 @@ static void _ChatBotTimer_cb(void)
                 }  
             }
             // listening
-            else if(state == 4 || state == 5)
+            else if(state == 4)
             {
                 _ListenMove_Animation();
+            }
+            //thinking
+            else if(state == 5)
+            {
+                _ThinkingMove_Animation();
             }
             // speaking
             else if(state == 6)
