@@ -25,12 +25,7 @@
 #include "file_utils.h"
 #include "image_drawing.h"
 
-//opencv
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-
-#include <unistd.h>   // sleep()
+#include <unistd.h>   
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -38,12 +33,24 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <linux/fb.h>
-
 #include <time.h>
 
+//opencv
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
-#define FB_HIGHT   280
-#define FB_WIDTH  240
+#include "dma_alloc.cpp"
+
+#define USE_DMA 0
+
+void mapCoordinates(cv::Mat input, cv::Mat output, int *x, int *y) {	
+	float scaleX = (float)output.cols / (float)input.cols; 
+	float scaleY = (float)output.rows / (float)input.rows;
+    
+    *x = (int)((float)*x / scaleX);
+    *y = (int)((float)*y / scaleY);
+}
 
 /*-------------------------------------------
                   Main Function
@@ -52,114 +59,152 @@ int main(int argc, char **argv)
 {
     if (argc != 2)
     {
-        printf("%s <model_path>\n", argv[0]);
+        printf("%s <yolov5 model_path>\n", argv[0]);
         return -1;
     }
-
+    system("RkLunch-stop.sh");
     const char *model_path = argv[1];
-    const char *image_path = argv[2];
-
 
     clock_t start_time;
     clock_t end_time;
     char text[8];
-    int width    = 640;
-    int height   = 640;
+    float fps = 0;
+
+    //Model Input (Yolov5)
+    int model_width    = 640;
+    int model_height   = 640;
     int channels = 3;
+
     int ret;
     rknn_app_context_t rknn_app_ctx;
     object_detect_result_list od_results;
     memset(&rknn_app_ctx, 0, sizeof(rknn_app_context_t));
-    unsigned char *src_image = (unsigned char *)malloc(sizeof(unsigned char)*640*640*3);
     
     init_yolov5_model(model_path, &rknn_app_ctx);
     init_post_process();
     
-    // Init opencv and fb
-    int fb = open("/dev/fb0", O_RDWR);
+    //Init fb
+    int disp_flag = 0;
+    int pixel_size = 0;
+    size_t screensize = 0;
+    int disp_width = 0;
+    int disp_height = 0;
+    void* framebuffer = NULL; 
+    struct fb_fix_screeninfo fb_fix;
+    struct fb_var_screeninfo fb_var;
+
+    int framebuffer_fd = 0; //for DMA
+    cv::Mat disp;
+
+    int fb = open("/dev/fb0", O_RDWR); 
     if(fb == -1)
-    {
-        close(fb);
-        return -1;
-    }
-    size_t    screensize = FB_HIGHT * FB_WIDTH * 2;
-    uint16_t* framebuffer = (uint16_t*)mmap(NULL, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fb, 0);
-    cv::Mat   rgb565Image(240, 240, CV_16UC1);
+        printf("Screen OFF!\n");
+    else 
+        disp_flag = 1;
     
+    if(disp_flag){
+        ioctl(fb, FBIOGET_VSCREENINFO, &fb_var);
+        ioctl(fb, FBIOGET_FSCREENINFO, &fb_fix);
+
+        disp_width = fb_var.xres;
+        disp_height = fb_var.yres;  
+        pixel_size = fb_var.bits_per_pixel / 8;
+        printf("Screen width = %d, Screen height = %d, Pixel_size = %d\n",disp_width, disp_height, pixel_size);
+        
+        screensize = disp_width * disp_height * pixel_size;
+        framebuffer = (uint8_t*)mmap(NULL, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fb, 0);
+        
+        if( pixel_size == 4 )//ARGB8888
+            disp = cv::Mat(disp_height, disp_width, CV_8UC3);
+        else if ( pixel_size == 2 ) //RGB565
+            disp = cv::Mat(disp_height, disp_width, CV_16UC1); 
+
+#if USE_DMA
+        dma_buf_alloc(RV1106_CMA_HEAP_PATH,
+                      disp_width * disp_height * pixel_size,  
+                      &framebuffer_fd, 
+                      (void **) & (disp.data)); 
+#endif
+    }
+    else{
+        disp_height = 240;
+        disp_width = 240;
+    }
+
+
+    //Init Opencv-mobile 
     cv::VideoCapture cap;
-    cv::Mat bgr;
-    cap.set(cv::CAP_PROP_FRAME_WIDTH,  240);
-    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 240);
+    cv::Mat bgr(disp_height, disp_width, CV_8UC3); 
+    cv::Mat bgr_model_input(model_height, model_width, CV_8UC3, rknn_app_ctx.input_mems[0]->virt_addr);
+    cap.set(cv::CAP_PROP_FRAME_WIDTH,  disp_width*2);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, disp_height*2);
     cap.open(0); 
 
     while(1)
     {
-
         start_time = clock();
         cap >> bgr;
-        //bgr = cv::imread("./bus.jpg");
-        cv::resize(bgr, bgr, cv::Size(640,640), 0, 0, cv::INTER_LINEAR);
-        for (int y = 0; y < height; ++y) {
-          for (int x = 0; x < width; ++x) {
-              cv::Vec3b pixel = bgr.at<cv::Vec3b>(y, x);
-              src_image[(y * width + x) * channels + 0] = pixel[2]; // Red
-              src_image[(y * width + x) * channels + 1] = pixel[1]; // Green
-              src_image[(y * width + x) * channels + 2] = pixel[0]; // Blue
-            }
-        }
 
-        memcpy(rknn_app_ctx.input_mems[0]->virt_addr, src_image,640*640*3);
-
-
-
-
+        //letterbox       
+        cv::resize(bgr, bgr_model_input, cv::Size(model_width,model_height), 0, 0, cv::INTER_LINEAR);
         inference_yolov5_model(&rknn_app_ctx, &od_results);
 
         // Add rectangle and probability
-
         for (int i = 0; i < od_results.count; i++)
         {
-            object_detect_result *det_result = &(od_results.results[i]);
-            //  printf("%s @ (%d %d %d %d) %.3f\n", coco_cls_to_name(det_result->cls_id),
-            //         det_result->box.left, det_result->box.top,
-            //         det_result->box.right, det_result->box.bottom,
-            //         det_result->prop);
-
+            object_detect_result *det_result = &(od_results.results[i]); 
+            mapCoordinates(bgr, bgr_model_input, &det_result->box.left,  &det_result->box.top);
+            mapCoordinates(bgr, bgr_model_input, &det_result->box.right, &det_result->box.bottom);	
+            
+            printf("%s @ (%d %d %d %d) %.3f\n", coco_cls_to_name(det_result->cls_id),
+                   det_result->box.left, det_result->box.top,
+                   det_result->box.right, det_result->box.bottom,
+                   det_result->prop);
+            
             cv::rectangle(bgr,cv::Point(det_result->box.left ,det_result->box.top),
                               cv::Point(det_result->box.right,det_result->box.bottom),cv::Scalar(0,255,0),3);
 
             sprintf(text, "%s %.1f%%", coco_cls_to_name(det_result->cls_id), det_result->prop * 100);
             cv::putText(bgr,text,cv::Point(det_result->box.left, det_result->box.top - 8),
-                                         cv::FONT_HERSHEY_SIMPLEX,1,
-                                         cv::Scalar(0,255,0),2);
-        
+                                         cv::FONT_HERSHEY_SIMPLEX,0.5,
+                                         cv::Scalar(0,255,0),2); 
         }
 
+        if(disp_flag){
+            cv::resize(bgr, bgr, cv::Size(disp_width, disp_height), 0, 0, cv::INTER_LINEAR);
+            //Fps Show
+            sprintf(text,"fps=%.1f",fps); 
+            cv::putText(bgr,text,cv::Point(0, 20),
+                        cv::FONT_HERSHEY_SIMPLEX,0.5,
+                        cv::Scalar(0,255,0),1);
+
+            //LCD Show 
+            if( pixel_size == 4 ) 
+                cv::cvtColor(bgr, disp, cv::COLOR_BGR2BGRA);
+            else if( pixel_size == 2 )
+                cv::cvtColor(bgr, disp, cv::COLOR_BGR2BGR565);
+            memcpy(framebuffer, disp.data, disp_width * disp_height * pixel_size);
+#if USE_DMA
+            dma_sync_cpu_to_device(framebuffer_fd);
+#endif  
+        }
+        //Update Fps
         end_time = clock();
-        float fps= (float) (CLOCKS_PER_SEC / (end_time - start_time)) ;
-
-        sprintf(text,"fps=%.1f",fps); 
-        cv::putText(bgr,text,cv::Point(0, 40),
-                    cv::FONT_HERSHEY_SIMPLEX,1,
-                    cv::Scalar(0,255,0),1);
+        fps= (float) (CLOCKS_PER_SEC / (end_time - start_time)) ;
+        //printf("%s\n",text);
         memset(text,0,8); 
-        
-        cv::resize(bgr, bgr, cv::Size(240,240), 0, 0, cv::INTER_LINEAR);
-        int y_offset = 20;
-        for (int i = 0; i < bgr.rows; ++i) {
-            for (int j = 0; j < bgr.cols; ++j) {
-                uint16_t b = (bgr.at<cv::Vec3b>(i, j)[0] >> 3) << 11;
-                uint16_t g = (bgr.at<cv::Vec3b>(i, j)[1] >> 2) << 5;
-                uint16_t r = (bgr.at<cv::Vec3b>(i, j)[2] >> 3);
-
-                rgb565Image.at<uint16_t>(i, j) = ~ (r | g | b);
-                framebuffer[ (i + y_offset) * FB_WIDTH + j] = rgb565Image.at<uint16_t>(i, j);
-            }
-        }
     }
-
-
     deinit_post_process();
+
+    if(disp_flag){
+        close(fb);
+        munmap(framebuffer, screensize);
+#if USE_DMA
+        dma_buf_free(disp_width*disp_height*pixel_size,
+                     &framebuffer_fd, 
+                     bgr.data);
+#endif
+    }
 
     ret = release_yolov5_model(&rknn_app_ctx);
     if (ret != 0)
@@ -167,6 +212,5 @@ int main(int argc, char **argv)
         printf("release_yolov5_model fail! ret=%d\n", ret);
     }
 
-    free(src_image);
     return 0;
 }
