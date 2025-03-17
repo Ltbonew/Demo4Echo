@@ -52,7 +52,7 @@ static void _ui_weather_timer_cb(void)
     static uint16_t time_count = 0;
     time_count++;
     // 5分钟更新一次weather info
-    if(time_count >= 5*60/3)
+    if(time_count >= 5*60)
     {
         time_count = 0;
         ui_weather_para.first_enter = 1;
@@ -98,7 +98,14 @@ static void _ui_weather_timer_cb(void)
             lv_label_set_text(ui_LabelHumi, str);
         }
     }
-    _cloud_move_anim();
+    static uint16_t time_count2 = 0;
+    time_count2++;
+    if(time_count2 >= 4)
+    {
+        time_count2 = 0;
+        _cloud_move_anim();
+    }
+    
 }
 
 static void _ui_enent_Gesture(lv_event_t * e)
@@ -275,7 +282,7 @@ void ui_WeatherPage_init(void)
     lv_obj_add_event_cb(ui_WeatherPage, _ui_enent_Gesture, LV_EVENT_ALL, NULL);
 
     // timer
-    ui_weather_timer = lv_timer_create(_ui_weather_timer_cb, 3000, NULL);
+    ui_weather_timer = lv_timer_create(_ui_weather_timer_cb, 1000, NULL);
 
     // load page
     lv_scr_load_anim(ui_WeatherPage, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 100, 0, true);
