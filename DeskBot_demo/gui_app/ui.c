@@ -202,13 +202,38 @@ static void _sys_para_init(void)
     LV_LOG_USER("System para init done.");
 }
 
+static void _gpios_init(void)
+{
+    // GPIO
+    gpio_init(LED_BLUE, OUT_DIRECTION);
+    gpio_init(MOTOR1_INA, OUT_DIRECTION);
+    gpio_init(MOTOR1_INB, OUT_DIRECTION);
+    gpio_init(MOTOR2_INA, OUT_DIRECTION);
+    gpio_init(MOTOR2_INB, OUT_DIRECTION);
+    // set default value
+    gpio_set_value(LED_BLUE, 0);
+    gpio_set_value(MOTOR1_INA, 0);
+    gpio_set_value(MOTOR1_INB, 0);
+    gpio_set_value(MOTOR2_INA, 0);
+    gpio_set_value(MOTOR2_INB, 0);
+}
+
 ///////////////////// timer //////////////////////
 
-// 5s timer
+// 1s timer
 void _maintimer_cb(void)
 {
     static uint16_t time_count2 = 299;
     time_count2++;
+    // 每秒闪烁一次LED
+    if(time_count2 % 2 == 0)
+    {
+        gpio_set_value(LED_BLUE, 1);
+    }
+    else
+    {
+        gpio_set_value(LED_BLUE, 0);
+    }
     // 每5分钟保存一次系统参数
     if(time_count2 >= 300)
     {
@@ -238,6 +263,7 @@ void _maintimer_cb(void)
 void ui_init(void)
 {
     _sys_para_init();
+    _gpios_init();
     lv_disp_t * dispp = lv_display_get_default();
     lv_theme_t * theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
                                                true, LV_FONT_DEFAULT);
@@ -250,5 +276,5 @@ void ui_init(void)
         pm_page[i] = lv_lib_pm_CreatePage(&page_manager, ui_apps[i].name, ui_apps[i].init, ui_apps[i].deinit, NULL);
     }
     lv_lib_pm_OpenPage(&page_manager, NULL, "HomePage");
-    lv_timer_create(_maintimer_cb, 5000, NULL);
+    lv_timer_create(_maintimer_cb, 1000, NULL);
 }
