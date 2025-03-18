@@ -6,8 +6,10 @@
 #include "./pages/ui_GameMuyuPage/ui_GameMuyuPage.h"
 #include "./pages/ui_Game2048Page/ui_Game2048Page.h"
 #include "./pages/ui_ChatBotPage/ui_ChatBotPage.h"
+#include "./pages/ui_YOLOPage/ui_YOLOPage.h"
 #include "./pages/ui_GameMemoryPage/ui_GameMemoryPage.h"
 #include "./pages/ui_DrawPage/ui_DrawPage.h"
+#include "./pages/ui_CalculatorPage/ui_CalculatorPage.h"
 ///////////////////// VARIABLES ////////////////////
 
 lv_lib_pm_t page_manager;
@@ -22,7 +24,7 @@ ui_system_para_t ui_system_para;
 
 ///////////////////// all apps ////////////////////
 
-#define _APP_NUMS 9 // number of apps (including HomePage)
+#define _APP_NUMS 11 // number of apps (including HomePage)
 
 ui_app_data_t ui_apps[_APP_NUMS] = 
 {
@@ -80,12 +82,12 @@ ui_app_data_t ui_apps[_APP_NUMS] =
     //     .deinit = NULL,
     //     .page_obj = NULL
     // },
-    // {
-    //     .name = "YOLOPage",
-    //     .init = NULL,
-    //     .deinit = NULL,
-    //     .page_obj = NULL
-    // },
+    {
+        .name = "YOLOPage",
+        .init = ui_YOLOPage_init,
+        .deinit = ui_YOLOPage_deinit,
+        .page_obj = NULL
+    },
     {
         .name = "GameMemoryPage",
         .init = ui_GameMemoryPage_init,
@@ -96,6 +98,12 @@ ui_app_data_t ui_apps[_APP_NUMS] =
         .name = "DrawPage",
         .init = ui_DrawPage_init,
         .deinit = ui_DrawPage_deinit,
+        .page_obj = NULL
+    },
+    {
+        .name = "CalculatorPage",
+        .init = ui_CalculatorPage_init,
+        .deinit = ui_CalculatorPage_deinit,
         .page_obj = NULL
     }
 
