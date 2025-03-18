@@ -166,8 +166,8 @@ int main(int argc, char **argv)
 
             sprintf(text, "%s %.1f%%", coco_cls_to_name(det_result->cls_id), det_result->prop * 100);
             cv::putText(bgr,text,cv::Point(det_result->box.left, det_result->box.top - 8),
-                                         cv::FONT_HERSHEY_SIMPLEX,0.5,
-                                         cv::Scalar(0,255,0),2); 
+                                         cv::FONT_HERSHEY_SIMPLEX,1.5,
+                                         cv::Scalar(0,255,0),1.5); 
         }
 
         if(disp_flag){
