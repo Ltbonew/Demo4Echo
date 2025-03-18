@@ -696,6 +696,7 @@ void ui_HomePage_init(void)
     // event
     lv_obj_add_event_cb(ui_GameMemBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "GameMemoryPage");
 
+    // Draw app
     lv_obj_t * ui_DrawBtn = lv_button_create(ui_AppIconContainer);
     lv_obj_set_width(ui_DrawBtn, 70);
     lv_obj_set_height(ui_DrawBtn, 70);
@@ -710,6 +711,30 @@ void ui_HomePage_init(void)
     lv_obj_set_style_bg_image_src(ui_DrawBtn, &ui_img_paint60_png, LV_PART_MAIN | LV_STATE_DEFAULT);
     // event
     lv_obj_add_event_cb(ui_DrawBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "DrawPage");
+
+    // Calculator app
+    lv_obj_t * ui_CalculatorBtn = lv_button_create(ui_AppIconContainer);
+    lv_obj_set_width(ui_CalculatorBtn, 70);
+    lv_obj_set_height(ui_CalculatorBtn, 70);
+    lv_obj_set_x(ui_CalculatorBtn, 525);
+    lv_obj_set_y(ui_CalculatorBtn, 55);
+    lv_obj_set_align(ui_CalculatorBtn, LV_ALIGN_LEFT_MID);
+    lv_obj_add_flag(ui_CalculatorBtn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_CalculatorBtn, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_CalculatorBtn, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_CalculatorBtn, lv_color_hex(0x707070), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_CalculatorBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_CalculatorIcon = lv_label_create(ui_CalculatorBtn);
+    lv_obj_set_width(ui_CalculatorIcon, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_CalculatorIcon, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_CalculatorIcon, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_CalculatorIcon, "");
+    lv_obj_set_style_text_color(ui_CalculatorIcon, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_CalculatorIcon, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_CalculatorIcon, &ui_font_iconfont48, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // event
+    lv_obj_add_event_cb(ui_CalculatorBtn, ui_event_AppsBtn, LV_EVENT_CLICKED, "CalculatorPage");
 
     // timer
     ui_home_timer = lv_timer_create(ui_home_timer_cb, 5000, ui_TimeLabel);
