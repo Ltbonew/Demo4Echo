@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     // 持续从buf中读取数据并刷新到framebuffer
     while (true) {
         usleep(33000);
-        memcpy(framebuffer, yolo_pic_buf, screensize);
+        get_buf_data(framebuffer);
     }
 
     // 正常情况下不会到达这里，但在程序结束时应该清理资源

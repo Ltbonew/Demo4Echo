@@ -8,7 +8,7 @@ extern "C" {
 int start_ai_camera(const char* model_path);
 int stop_ai_camera();
 
-extern uint8_t* yolo_pic_buf;
+void get_buf_data(uint8_t* buffer);
 
 #ifdef __cplusplus
 }

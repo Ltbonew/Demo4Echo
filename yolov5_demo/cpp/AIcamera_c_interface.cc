@@ -48,7 +48,7 @@ static int disp_height = 240;
 
 rknn_app_context_t rknn_app_ctx;
 uint8_t* yolo_pic_buf; // 添加的缓冲区指针
-size_t buf_size; // 缓冲区大小
+size_t yolo_pic_buf_size; // 缓冲区大小
 
 static pthread_t ai_camera_thread;
 static int ai_camera_running = 0;
@@ -176,8 +176,8 @@ int start_ai_camera(const char* model_path) {
     ai_camera_running = 1;
     pthread_mutex_unlock(&running_mutex);
     
-    buf_size = disp_width * disp_height * 2; // BGR565格式，每个像素占2字节
-    yolo_pic_buf = (uint8_t*)malloc(buf_size);
+    yolo_pic_buf_size = disp_width * disp_height * 2; // BGR565格式，每个像素占2字节
+    yolo_pic_buf = (uint8_t*)malloc(yolo_pic_buf_size);
 
     if(pthread_create(&ai_camera_thread, NULL, _inference_loop, (void*)model_path) != 0){
         printf("Failed to create thread.\n");
@@ -207,5 +207,10 @@ int stop_ai_camera() {
     free(&rknn_app_ctx);
     
     return 0;
+}
+
+void get_buf_data(uint8_t* buffer)
+{
+    memcpy(buffer, yolo_pic_buf, yolo_pic_buf_size);
 }
 
