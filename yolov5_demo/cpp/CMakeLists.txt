@@ -1,12 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
-
-
-set(CMAKE_C_COMPILER "$ENV{SDK_PATH}/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/bin/arm-rockchip830-linux-uclibcgnueabihf-gcc"
-)
-
-set(CMAKE_CXX_COMPILER "$ENV{SDK_PATH}/tools/linux/toolchain/arm-rockchip830-linux-uclibcgnueabihf/bin/arm-rockchip830-linux-uclibcgnueabihf-g++"
-)
+if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+    set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake" CACHE FILEPATH "Default toolchain file for ARM builds")
+    message(STATUS "No toolchain file specified; using default: ${CMAKE_TOOLCHAIN_FILE}")
+endif()
+message(STATUS "Building for ARM using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
 
 project(rknn_yolov5_demo)
 
@@ -38,20 +36,44 @@ set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/cmake/opencv4")
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS} )
 
-
-add_executable(${PROJECT_NAME}
-    main.cc
+# Add the source files
+add_library(yoloCameraCore STATIC
     postprocess.cc
+    AIcamera_c_interface.cc
     ${rknpu2_yolov5_file}
 )
 
-target_link_libraries(${PROJECT_NAME}
+# Link libraries for opus and websocketpp
+target_link_libraries(yoloCameraCore
     imageutils
     fileutils
     imagedrawing    
     ${LIBRKNNRT}
     ${OpenCV_LIBS}
 )
+
+target_include_directories(yoloCameraCore PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/rknpu2/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/allocator/dma
+    ${OpenCV_LIBS}
+)
+
+add_executable(c_face_test main2.cc)
+target_link_libraries(c_face_test yoloCameraCore)
+target_include_directories(c_face_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/rknpu2/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/allocator/dma
+    ${OpenCV_LIBS}
+)
+
+
+add_executable(${PROJECT_NAME}
+    main.cc
+)
+
+target_link_libraries(${PROJECT_NAME} yoloCameraCore)
 
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -68,7 +90,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/rv1106_yolov5_demo")
 
 
-
+install(TARGETS c_face_test 
+        DESTINATION ${CMAKE_INSTALL_PREFIX}
+)
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../model/bus.jpg DESTINATION ${CMAKE_INSTALL_PREFIX}/model)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../model/coco_80_labels_list.txt DESTINATION ${CMAKE_INSTALL_PREFIX}/model)
