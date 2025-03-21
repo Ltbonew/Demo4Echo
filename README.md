@@ -27,7 +27,7 @@
 项目的文件目录如下:
 
 ```
-Server/
+DeskBot_demo/
 ├── bin/                   # 可执行文件
 ├── build/                 # build缓存
 ├── common/                # 通用层
