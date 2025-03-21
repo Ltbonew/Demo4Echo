@@ -52,7 +52,7 @@ size_t yolo_pic_buf_size; // 缓冲区大小
 
 static pthread_t ai_camera_thread;
 static int ai_camera_running = 0;
-pthread_mutex_t running_mutex = PTHREAD_MUTEX_INITIALIZER;  // 保护状态访问的互斥锁
+static pthread_mutex_t running_mutex = PTHREAD_MUTEX_INITIALIZER;  // 保护状态访问的互斥锁
 static int ai_camera_stop = 0;
 
 void mapCoordinates(cv::Mat input, cv::Mat output, int *x, int *y) {	
@@ -86,6 +86,7 @@ static void* _inference_loop(void* model_path) {
 
     // init yolov5
     init_yolov5_model((char*)model_path, &rknn_app_ctx);
+    printf("model_path: %s\n", (char*)model_path);
     init_post_process();
     
     //fb paras
@@ -204,7 +205,6 @@ int stop_ai_camera() {
     ai_camera_stop = 0;
 
     free(yolo_pic_buf); // 释放分配的缓冲区
-    free(&rknn_app_ctx);
     
     return 0;
 }

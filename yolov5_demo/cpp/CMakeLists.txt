@@ -59,14 +59,14 @@ target_include_directories(yoloCameraCore PRIVATE
     ${OpenCV_LIBS}
 )
 
-add_executable(c_face_test main2.cc)
-target_link_libraries(c_face_test yoloCameraCore)
-target_include_directories(c_face_test PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/rknpu2/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/allocator/dma
-    ${OpenCV_LIBS}
-)
+# add_executable(c_face_test main2.cc)
+# target_link_libraries(c_face_test yoloCameraCore)
+# target_include_directories(c_face_test PRIVATE
+#     ${CMAKE_CURRENT_SOURCE_DIR}
+#     ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/rknpu2/include
+#     ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/allocator/dma
+#     ${OpenCV_LIBS}
+# )
 
 
 add_executable(${PROJECT_NAME}
@@ -89,10 +89,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/rv1106_yolov5_demo")
 
+# 指定运行时动态库的加载路径
+# 设置运行时 rpath，以便可执行文件能够在运行时找到指定目录下的共享库
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,\$ORIGIN/lib")
 
-install(TARGETS c_face_test 
-        DESTINATION ${CMAKE_INSTALL_PREFIX}
-)
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../model/bus.jpg DESTINATION ${CMAKE_INSTALL_PREFIX}/model)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../model/coco_80_labels_list.txt DESTINATION ${CMAKE_INSTALL_PREFIX}/model)

@@ -86,31 +86,86 @@ add_custom_command(
 )
 
 # 引用AIChat_demo中的库
-add_subdirectory(${PROJECT_SOURCE_DIR}/../AIChat_demo/Client ${CMAKE_BINARY_DIR}/AIChat_build)
+set(AI_CHAT_CLIENT_PATH "${PROJECT_SOURCE_DIR}/../AIChat_demo/Client" CACHE PATH "Path to AIChat_demo Client")
+add_subdirectory(${AI_CHAT_CLIENT_PATH} ${CMAKE_BINARY_DIR}/AIChat_build)
 target_link_libraries(main AIchat-c-interface AIChatCore)
 
 # 复制AIchat所需文件
 add_custom_command(
     TARGET main POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/third_party/snowboy/resources
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/third_party/snowboy/resources/models
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/third_party/audio
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${PROJECT_SOURCE_DIR}/../AIChat_demo/Client/third_party/snowboy/resources/common.res
+            ${AI_CHAT_CLIENT_PATH}/third_party/snowboy/resources/common.res
             ${EXECUTABLE_OUTPUT_PATH}/third_party/snowboy/resources/common.res
-    COMMENT "Copying third_party/snowboy/resources/common.res to bin directory"
-)
-add_custom_command(
-    TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${PROJECT_SOURCE_DIR}/../AIChat_demo/Client/third_party/snowboy/resources/models/echo.pmdl
+            ${AI_CHAT_CLIENT_PATH}/third_party/snowboy/resources/models/echo.pmdl
             ${EXECUTABLE_OUTPUT_PATH}/third_party/snowboy/resources/models/echo.pmdl
-    COMMENT "Copying third_party/snowboy/resources/models/echo.pmdl to bin directory"
-)
-add_custom_command(
-    TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${PROJECT_SOURCE_DIR}/../AIChat_demo/Client/third_party/audio/waked.pcm
+            ${AI_CHAT_CLIENT_PATH}/third_party/audio/waked.pcm
             ${EXECUTABLE_OUTPUT_PATH}/third_party/audio/waked.pcm
-    COMMENT "Copying third_party/audio/waked.pcm to bin directory"
+    COMMENT "Copying AI Chat necessary resource files to executable output directory"
 )
+
+if(TARGET_ARM)
+    # AI (yolo) camera
+    set(AI_CAMERA_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../yolov5_demo" CACHE PATH "Path to AIChat_demo Client")
+    add_subdirectory(${AI_CAMERA_PATH}/cpp ${CMAKE_BINARY_DIR}/AICamera_build)
+    target_link_libraries(main yoloCameraCore)
+    # 复制yolo模型文件所需
+    add_custom_command(
+        TARGET main POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/model # 确保目标目录存在
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${AI_CAMERA_PATH}/model/bus.jpg
+                ${EXECUTABLE_OUTPUT_PATH}/model/bus.jpg
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${AI_CAMERA_PATH}/model/coco_80_labels_list.txt
+                ${EXECUTABLE_OUTPUT_PATH}/model/coco_80_labels_list.txt
+        COMMENT "Copying yolov5 model files to executable output directory"
+    )
+    # 获取所有.rknn文件
+    file(GLOB RKNN_FILES "${AI_CAMERA_PATH}/model/*.rknn")
+    foreach(RKNN_FILE ${RKNN_FILES})
+        get_filename_component(FILE_NAME ${RKNN_FILE} NAME) # 获取文件名
+        add_custom_command(
+            TARGET main POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    ${RKNN_FILE}
+                    ${EXECUTABLE_OUTPUT_PATH}/model/${FILE_NAME}
+            COMMENT "Copying ${FILE_NAME} to executable output directory"
+        )
+    endforeach()
+
+    # 获取所有需要复制的共享库文件
+    set(SHARED_LIBS
+        "${AI_CAMERA_PATH}/cpp/3rdparty/librga/Linux/armhf_uclibc/librga.so"
+        "${AI_CAMERA_PATH}/cpp/3rdparty/rknpu2/Linux/armhf-uclibc/librknnmrt.so"
+    )
+
+    # 创建目标目录
+    add_custom_command(
+        TARGET main POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/lib
+        COMMENT "Creating lib directory for shared libraries"
+    )
+
+    # 复制每个共享库文件
+    foreach(LIB_FILE ${SHARED_LIBS})
+        get_filename_component(FILE_NAME ${LIB_FILE} NAME) # 获取文件名
+        add_custom_command(
+            TARGET main POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    ${LIB_FILE}
+                    ${EXECUTABLE_OUTPUT_PATH}/lib/${FILE_NAME}
+            COMMENT "Copying ${FILE_NAME} to executable output directory"
+        )
+    endforeach()
+    # 设置运行时 rpath，以便可执行文件能够在运行时找到指定目录下的共享库
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,\$ORIGIN/lib")
+
+endif()
 
 # Custom command to clean up generated files
 if(NOT TARGET clean-all)
