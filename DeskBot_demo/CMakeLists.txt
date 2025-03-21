@@ -25,7 +25,7 @@ set(CMAKE_C_STANDARD 99)#C99 # lvgl officially support C99 and above
 set(CMAKE_CXX_STANDARD 17)#C17
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+set(OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 add_subdirectory(lvgl)          # LVGL 核心模块
 add_subdirectory(gui_app)       # GUI_APP 应用模块
@@ -58,14 +58,14 @@ find_package(SDL2_image)
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
 
 target_link_libraries(main lvgl lvgl::examples lvgl::demos lvgl::thorvg ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${Libdrm_LIBRARIES} m pthread)
-add_custom_target (run COMMAND ${EXECUTABLE_OUTPUT_PATH}/main DEPENDS main)
+add_custom_target (run COMMAND ${OUTPUT_PATH}/main DEPENDS main)
 
 # 以下内容用于复制配置文件
 add_custom_command(
     TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${PROJECT_SOURCE_DIR}/utils/system_para.conf
-            ${EXECUTABLE_OUTPUT_PATH}/system_para.conf
+            ${OUTPUT_PATH}/system_para.conf
     COMMENT "Copying system_para.conf to bin directory"
 )
 
@@ -73,7 +73,7 @@ add_custom_command(
     TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${PROJECT_SOURCE_DIR}/utils/gaode_adcode.json
-            ${EXECUTABLE_OUTPUT_PATH}/gaode_adcode.json
+            ${OUTPUT_PATH}/gaode_adcode.json
     COMMENT "Copying gaode_adcode.json to bin directory"
 )
 
@@ -81,7 +81,7 @@ add_custom_command(
     TARGET main POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${PROJECT_SOURCE_DIR}/utils/cacert.pem
-            ${EXECUTABLE_OUTPUT_PATH}/cacert.pem
+            ${OUTPUT_PATH}/cacert.pem
     COMMENT "Copying cacert.pem to bin directory"
 )
 
@@ -93,18 +93,18 @@ target_link_libraries(main AIchat-c-interface AIChatCore)
 # 复制AIchat所需文件
 add_custom_command(
     TARGET main POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/third_party/snowboy/resources
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/third_party/snowboy/resources/models
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/third_party/audio
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTPUT_PATH}/third_party/snowboy/resources
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTPUT_PATH}/third_party/snowboy/resources/models
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTPUT_PATH}/third_party/audio
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${AI_CHAT_CLIENT_PATH}/third_party/snowboy/resources/common.res
-            ${EXECUTABLE_OUTPUT_PATH}/third_party/snowboy/resources/common.res
+            ${OUTPUT_PATH}/third_party/snowboy/resources/common.res
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${AI_CHAT_CLIENT_PATH}/third_party/snowboy/resources/models/echo.pmdl
-            ${EXECUTABLE_OUTPUT_PATH}/third_party/snowboy/resources/models/echo.pmdl
+            ${OUTPUT_PATH}/third_party/snowboy/resources/models/echo.pmdl
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${AI_CHAT_CLIENT_PATH}/third_party/audio/waked.pcm
-            ${EXECUTABLE_OUTPUT_PATH}/third_party/audio/waked.pcm
+            ${OUTPUT_PATH}/third_party/audio/waked.pcm
     COMMENT "Copying AI Chat necessary resource files to executable output directory"
 )
 
@@ -116,13 +116,13 @@ if(TARGET_ARM)
     # 复制yolo模型文件所需
     add_custom_command(
         TARGET main POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/model # 确保目标目录存在
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTPUT_PATH}/model # 确保目标目录存在
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${AI_CAMERA_PATH}/model/bus.jpg
-                ${EXECUTABLE_OUTPUT_PATH}/model/bus.jpg
+                ${OUTPUT_PATH}/model/bus.jpg
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${AI_CAMERA_PATH}/model/coco_80_labels_list.txt
-                ${EXECUTABLE_OUTPUT_PATH}/model/coco_80_labels_list.txt
+                ${OUTPUT_PATH}/model/coco_80_labels_list.txt
         COMMENT "Copying yolov5 model files to executable output directory"
     )
     # 获取所有.rknn文件
@@ -133,7 +133,7 @@ if(TARGET_ARM)
             TARGET main POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     ${RKNN_FILE}
-                    ${EXECUTABLE_OUTPUT_PATH}/model/${FILE_NAME}
+                    ${OUTPUT_PATH}/model/${FILE_NAME}
             COMMENT "Copying ${FILE_NAME} to executable output directory"
         )
     endforeach()
@@ -147,7 +147,7 @@ if(TARGET_ARM)
     # 创建目标目录
     add_custom_command(
         TARGET main POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/lib
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTPUT_PATH}/lib
         COMMENT "Creating lib directory for shared libraries"
     )
 
@@ -158,7 +158,7 @@ if(TARGET_ARM)
             TARGET main POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     ${LIB_FILE}
-                    ${EXECUTABLE_OUTPUT_PATH}/lib/${FILE_NAME}
+                    ${OUTPUT_PATH}/lib/${FILE_NAME}
             COMMENT "Copying ${FILE_NAME} to executable output directory"
         )
     endforeach()
@@ -166,6 +166,11 @@ if(TARGET_ARM)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,\$ORIGIN/lib")
 
 endif()
+
+# 使用 set_target_properties 设置 main 的输出目录
+set_target_properties(main PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_PATH}"
+)
 
 # Custom command to clean up generated files
 if(NOT TARGET clean-all)

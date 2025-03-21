@@ -211,6 +211,10 @@ int stop_ai_camera() {
 
 void get_buf_data(uint8_t* buffer)
 {
+    if (yolo_pic_buf == NULL) {
+        printf("Error: yolo_pic_buf is not initialized.\n");
+        return;
+    }
     memcpy(buffer, yolo_pic_buf, yolo_pic_buf_size);
 }
 
