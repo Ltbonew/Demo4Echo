@@ -6,11 +6,11 @@
 
 <h2 align="center">0. Echo-Mate 桌面AI助手</h2>
 
-### :ledger: Overview
+### 📒 Overview
 
-详见DeskBot_demo文件夹，这个文件夹包含了LVGL和其他demo的内容, 相当于是多个分离demo的融合，组成了Echo-Mate桌面AI助手, 详细如何编译使用见[DsekBot_demo](./DeskBot_demo/README.md).
+详见DeskBot_demo文件夹，这个文件夹包含了LVGL和其他demo的内容, 相当于是多个分离demo的融合，组成了Echo-Mate桌面AI助手, 详细如何编译和使用见[DsekBot_demo](./DeskBot_demo/README.md).
 
-### :bookmark_tabs:Websockets整体框架：
+### 📑 AI桌面机器人整体框架：
 
 实现的功能如下：
 
@@ -50,7 +50,7 @@ Server/
 
 <h2 align="center">1. AI语音助手</h2>
 
-### :ledger: Overview
+### 📒 Overview
 
 这个AI语音助手, 可以完美部署到轻量级的Linux开发板上~本项目的AI语音助手的大致结构框图如下, 分为Client端和Server端，Client端运行在开发板上，Server可以在电脑上跑，然后开发板通过wifi等连接上即可。
 
@@ -79,7 +79,7 @@ Server/
 
 [FastText](https://fasttext.cc/): Facebook于2016年开源的一个词向量计算和文本分类工具，这里用于获取说话人的指令进行一个多分类任务
 
-### :file_folder:运行流程：
+### 📁 运行流程：
 
 本项目的服务器Sever端，可以在没有GPU的笔记本电脑运行，除了通义千问和CosyVoice这两个生成式模型是调用阿里的API，其他的都是运行在本地的，当然如果有较强算力的同学，可以直接将这些模型都部署到本地服务器~
 
@@ -91,7 +91,7 @@ AI语音助手的运行流程大致如下图所示：
 	<img border="1px" width="30%" src="./assets/flow-chart.png">
 </p>
 
-### :bookmark_tabs:Websockets协议定义：
+### 📑 Websockets协议定义：
 
 Client端和Server端通过Webscokets进行通信，通过JSON进行交互，语音传输格式为opus. 
 
