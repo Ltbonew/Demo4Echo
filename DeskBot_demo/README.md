@@ -41,6 +41,8 @@
 
 ### 2.注意
 
+**!! 使用前请先修改`./bin/system_para.conf`中的内容 !!**
+
 1. `./bin/system_para.conf`中有高德API key，需要换成你的API key，用于天气等数据的获取
 
 2. 每个page可视为一个APP, 想要自行添加可以参考模版添加

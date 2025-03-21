@@ -4,7 +4,7 @@
 
 [`AI桌面助手机器人Echo`](./DeskBot_demo/README.md)就是把他们融合起来做成的, LVGL作为UI界面, 这些高级demo作为子APP～
 
-<h2 align="center">0. Echo-Mate 桌面AI助手</h2>
+<h2 align="center">0. AI桌面机器人 Echo-Mate</h2>
 
 ### 📒 Overview
 
