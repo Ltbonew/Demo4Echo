@@ -25,7 +25,7 @@ Application::~Application() {
 }
 
 void Application::Stop(void) {
-    USER_LOG_INFO("Stoppinga ai chat app...");
+    USER_LOG_INFO("Stopping ai chat app...");
     eventQueue_.Enqueue(static_cast<int>(AppEvent::to_stop));
 }
 
@@ -177,7 +177,7 @@ void Application::startup_enter() {
     ws_client_.Run(); // 会开一个thread
     ws_client_.Connect();
     // 等待连接建立, 尝试3次
-    int try_count = 3;
+    int try_count = 1;
     while(!ws_client_.IsConnected() && try_count && !threads_stop_flag_.load()) {
         try_count--;
         std::this_thread::sleep_for(std::chrono::seconds(10));
@@ -453,5 +453,6 @@ void Application::Run() {
         ws_client_.Close();
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+    USER_LOG_WARN("ai chat app run end");
     return;
 }

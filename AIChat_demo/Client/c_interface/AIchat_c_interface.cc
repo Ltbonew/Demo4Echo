@@ -26,7 +26,7 @@ void run_aichat_app(void* app_ptr) {
     }
 }
 
-// 强制停止Application对象
+// 发送停止信号
 void stop_aichat_app(void* app_ptr) {
     if (app_ptr) {
         auto* app = static_cast<Application*>(app_ptr);

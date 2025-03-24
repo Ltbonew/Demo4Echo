@@ -4,39 +4,19 @@
 #include "app_ChatBotPage.h"
 #include "../../../../AIChat_demo/Client/c_interface/AIchat_c_interface.h"
 
-static void* app_instance = NULL;
-static pthread_t ai_chat_thread;
-static int ai_chat_running = 0;
-pthread_mutex_t running_mutex = PTHREAD_MUTEX_INITIALIZER;  // 保护状态访问的互斥锁
+static void* app_instance = NULL; // AI Chat 应用实例
+static pthread_t ai_chat_thread;  // 线程 ID
+static volatile int is_running = 0; // 标志位，表示应用是否正在运行
 
 
 void* ai_chat_thread_func(void* arg) {
-    if (app_instance == NULL) {
-        LV_LOG_ERROR("AI Chat App 未初始化！\n");
-        pthread_mutex_lock(&running_mutex);
-        ai_chat_running = 0;
-        pthread_mutex_unlock(&running_mutex);
-        return NULL;
-    }
-
-    LV_LOG_USER("AI Chat App start running...");
-    run_aichat_app(app_instance);  // 运行 AI Chat
-    LV_LOG_USER("AI Chat App run end");
-
-    pthread_mutex_lock(&running_mutex);
-    ai_chat_running = 0;
-    pthread_mutex_unlock(&running_mutex);
-
     if (app_instance) {
-        destroy_aichat_app(app_instance);
-        app_instance = NULL;
-        LV_LOG_USER("AI Chat App already destroyed.");
+        run_aichat_app(app_instance); // 运行 AI Chat 应用
     }
-
-    pthread_mutex_lock(&running_mutex);
-    ai_chat_thread = 0;  // **标记线程无效**
-    pthread_mutex_unlock(&running_mutex);
-
+    is_running = 0; // 线程结束时将标志位重置为 0
+    destroy_aichat_app(app_instance);
+    app_instance = NULL;
+    is_running = 0;
     return NULL;
 }
 
@@ -44,95 +24,80 @@ int start_ai_chat(const char* address, int port, const char* token, const char* 
                   const char* aliyun_api_key, int protocolVersion, int sample_rate, 
                   int channels, int frame_duration) {
 
-    pthread_mutex_lock(&running_mutex);
-    // **如果上次线程还在运行，先等待它退出**
-    if (ai_chat_thread) {
-        LV_LOG_ERROR("last AI Chat thread not exit...");
-        pthread_mutex_unlock(&running_mutex);
+    // 如果应用已经在运行，返回错误
+    if (is_running) {
+        LV_LOG_ERROR("Error: AI Chat application is already running.\n");
         return -1;
     }
 
-    if (ai_chat_running) {
-        LV_LOG_WARN("AI Chat already running.");
-        pthread_mutex_unlock(&running_mutex);
-        return -2;
-    }
-    pthread_mutex_unlock(&running_mutex);
-
-    // 确保 app 已完全释放
-    if (app_instance != NULL) {
-        LV_LOG_ERROR("last AI Chat app not destroyed.");
-        destroy_aichat_app(app_instance);
-        app_instance = NULL;
-        return -3;
-    }
-
-    // 创建应用
-    app_instance = create_aichat_app(address, port, token, deviceId, aliyun_api_key, 
+    // 创建 Application 实例
+    app_instance = create_aichat_app(address, port, token, deviceId, aliyun_api_key,
                                      protocolVersion, sample_rate, channels, frame_duration);
-    if (app_instance == NULL) {
-        LV_LOG_ERROR("Failed to create application.");
-        return -4;
+    if (!app_instance) {
+        LV_LOG_ERROR("Error: Failed to create AI Chat application instance.\n");
+        return -1;
     }
 
     // 注册运动指令回调函数
     set_cmd_callback(app_instance, move_cmd_callback);
 
-    pthread_mutex_lock(&running_mutex);
-    ai_chat_running = 1;
-    pthread_mutex_unlock(&running_mutex);
-
+    // 启动线程运行 AI Chat 应用
+    is_running = 1; // 设置运行标志位
     if (pthread_create(&ai_chat_thread, NULL, ai_chat_thread_func, NULL) != 0) {
-        LV_LOG_ERROR("creat AI Chat thread fail");
-        pthread_mutex_lock(&running_mutex);
-        ai_chat_running = 0;
-        pthread_mutex_unlock(&running_mutex);
-        destroy_aichat_app(app_instance);
+        LV_LOG_ERROR("Error: Failed to create AI Chat thread.\n");
+        destroy_aichat_app(app_instance); // 清理实例
         app_instance = NULL;
-        return -5;
+        is_running = 0;
+        return -1;
     }
 
-    return 0;
+    return 0; // 成功启动
 }
 
-void stop_ai_chat(void) {
-    if (app_instance == NULL) {
-        LV_LOG_WARN("AI Chat not init\n");
-        return;
+int stop_ai_chat(void) {
+    // 如果应用没有运行，返回错误
+    if (!is_running) {
+        LV_LOG_ERROR("Error: AI Chat application is not running.\n");
+        return -1;
     }
-
-    pthread_mutex_lock(&running_mutex);
-    if (ai_chat_running) {
-        stop_aichat_app(app_instance);
-    }
-    pthread_mutex_unlock(&running_mutex);
+    // 发送停止信号给应用
+    stop_aichat_app(app_instance);
 }
 
 // 获取 AI Chat 状态
 int get_ai_chat_state(void) {
-    if (app_instance == NULL) {
-        return -1;
+    // 如果应用没有运行，返回错误状态
+    if (!is_running || !app_instance) {
+        return -1; // 返回 -1 表示无效状态
     }
-    return get_aichat_app_state(app_instance);  // 例如返回 0 (idle), 1 (listening), 2 (speaking)
+    // 获取当前状态
+    return get_aichat_app_state(app_instance);
 }
+
+// 0 none, 1 forward, 2 back, 3 left, 4 right.
+uint8_t chat_bot_move_dir = 0; 
 
 // cmd callback
 void move_cmd_callback(const char * str)
 {
     if (strcmp(str, "__label__MoveForward") == 0) {
         // function move forward
-        LV_LOG_ERROR("Move forward.");
+        LV_LOG_INFO("Move forward.");
+        chat_bot_move_dir = 1;
     }
     else if (strcmp(str, "__label__MoveBackward") == 0) {
         // function move backward
-        LV_LOG_ERROR("Move backward.");
+        LV_LOG_INFO("Move backward.");
+        chat_bot_move_dir = 2;
     }
     else if (strcmp(str, "__label__MoveTurnLeft") == 0) {
         // function move turn left
-        LV_LOG_ERROR("Move turn left.");
+        LV_LOG_INFO("Move turn left.");
+        chat_bot_move_dir = 3;
     }
     else if (strcmp(str, "__label__MoveTurnright") == 0) {
         // function move turn right
-        LV_LOG_ERROR("Move turn right.");
+        LV_LOG_INFO("Move turn right.");
+        chat_bot_move_dir = 4;
     }
 }
