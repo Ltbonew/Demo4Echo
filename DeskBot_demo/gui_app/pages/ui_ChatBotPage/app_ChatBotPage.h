@@ -18,6 +18,8 @@ int get_ai_chat_state(void);
 
 void move_cmd_callback(const char * str);
 
+void chat_bot_move(int dir);
+
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif

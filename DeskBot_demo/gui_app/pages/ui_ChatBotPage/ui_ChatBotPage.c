@@ -315,22 +315,12 @@ static void _ChatBotMoveTimer_cb(void)
 {
     if(chat_bot_move_dir)
     {
-        if(chat_bot_move_dir == 1 )
-        {}
-        else if(chat_bot_move_dir == 2)
-        {}
-        else if(chat_bot_move_dir == 3)
-        {}
-        else if(chat_bot_move_dir == 4)
-        {}
+        chat_bot_move(chat_bot_move_dir);
         chat_bot_move_dir = 0;
     }
     else
     {
-        gpio_set_value(MOTOR1_INA, 0);
-        gpio_set_value(MOTOR1_INB, 0);
-        gpio_set_value(MOTOR2_INA, 0);
-        gpio_set_value(MOTOR2_INB, 0);
+        chat_bot_move(0);
     }
 }
 
@@ -458,7 +448,7 @@ void ui_ChatBotPage_init(void)
     lv_obj_add_event_cb(ui_ChatBotPage, ui_event_ChatBotPage, LV_EVENT_ALL, NULL);
 
     ui_ChatBot_timer = lv_timer_create(_ChatBotTimer_cb, 250, NULL);
-    ui_ChatBot_move_timer = lv_timer_create(_ChatBotMoveTimer_cb, 1000, NULL);
+    ui_ChatBot_move_timer = lv_timer_create(_ChatBotMoveTimer_cb, 500, NULL);
 
     // load page
     lv_scr_load_anim(ui_ChatBotPage, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 100, 0, true);

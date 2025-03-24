@@ -82,22 +82,67 @@ void move_cmd_callback(const char * str)
 {
     if (strcmp(str, "__label__MoveForward") == 0) {
         // function move forward
-        LV_LOG_INFO("Move forward.");
         chat_bot_move_dir = 1;
     }
     else if (strcmp(str, "__label__MoveBackward") == 0) {
         // function move backward
-        LV_LOG_INFO("Move backward.");
         chat_bot_move_dir = 2;
     }
     else if (strcmp(str, "__label__MoveTurnLeft") == 0) {
         // function move turn left
-        LV_LOG_INFO("Move turn left.");
         chat_bot_move_dir = 3;
     }
     else if (strcmp(str, "__label__MoveTurnright") == 0) {
         // function move turn right
-        LV_LOG_INFO("Move turn right.");
         chat_bot_move_dir = 4;
     }
+}
+
+void chat_bot_move(int dir)
+{
+    // forward
+    if(dir == 1)
+    {
+        LV_LOG_INFO("Move forward.");
+        gpio_set_value(MOTOR1_INA, 0);
+        gpio_set_value(MOTOR1_INB, 1); // left side move forward
+        gpio_set_value(MOTOR2_INA, 0);
+        gpio_set_value(MOTOR2_INB, 1); // right side move forward
+    }
+    // backward
+    else if(dir == 2)
+    {
+        LV_LOG_INFO("Move backward.");
+        gpio_set_value(MOTOR1_INA, 1); // left side move back
+        gpio_set_value(MOTOR1_INB, 0); 
+        gpio_set_value(MOTOR2_INA, 1); // right side move back
+        gpio_set_value(MOTOR2_INB, 0); 
+    }
+    // left
+    else if(dir == 3)
+    {
+        LV_LOG_INFO("Move turn left.");
+        gpio_set_value(MOTOR1_INA, 1); // left side move back
+        gpio_set_value(MOTOR1_INB, 0); 
+        gpio_set_value(MOTOR2_INA, 0); 
+        gpio_set_value(MOTOR2_INB, 1); // right side move forward
+    }
+    // right
+    else if(dir == 4)
+    {
+        LV_LOG_INFO("Move turn right.");
+        gpio_set_value(MOTOR1_INA, 0); 
+        gpio_set_value(MOTOR1_INB, 1); // left side move forward
+        gpio_set_value(MOTOR2_INA, 1); // right side move back
+        gpio_set_value(MOTOR2_INB, 0); 
+    }
+    // reset(stop)
+    else 
+    {
+        gpio_set_value(MOTOR1_INA, 0);
+        gpio_set_value(MOTOR1_INB, 0);
+        gpio_set_value(MOTOR2_INA, 0);
+        gpio_set_value(MOTOR2_INB, 0);
+    }
+    
 }
