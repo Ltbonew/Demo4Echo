@@ -39,7 +39,15 @@
     ./main
     ```
 
-### 2.注意
+### 2.Server运行
+
+python环境搭建详见[AI语言助手demo(Server端)](../AIChat_demo/Server/README.md), 然后进入你搭好的虚拟环境中，运行即可
+
+``` sh
+python ./main.py --access_token="123456"
+```
+
+### 3.注意
 
 **!! 使用前请先修改`./bin/system_para.conf`中的内容 !!**
 
