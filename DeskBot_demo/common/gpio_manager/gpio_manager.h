@@ -14,8 +14,8 @@ extern "C" {
 #define LED_BLUE     calculate_gpio_pin(0, 0, 4)  // GPIO0_A4
 #define MOTOR1_INA   calculate_gpio_pin(1, 0, 0)  // GPIO1_A0
 #define MOTOR1_INB   calculate_gpio_pin(1, 0, 1)  // GPIO1_A1
-#define MOTOR2_INA   calculate_gpio_pin(1, 0, 2)  // GPIO1_A2
-#define MOTOR2_INB   calculate_gpio_pin(1, 0, 3)  // GPIO1_A3
+#define MOTOR2_INA   calculate_gpio_pin(1, 0, 3)  // GPIO1_A3
+#define MOTOR2_INB   calculate_gpio_pin(1, 0, 4)  // GPIO1_A4
 
 #define OUT_DIRECTION "out"
 #define IN_DIRECTION  "in"
