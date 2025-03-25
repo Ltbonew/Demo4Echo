@@ -45,7 +45,7 @@ static void light_slider_event_cb(lv_event_t * e)
 static void sound_slider_event_cb(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    if(code == LV_EVENT_VALUE_CHANGED) {
+    if(code == LV_EVENT_RELEASED) {
         // set system sound
         ui_system_para.sound = lv_slider_get_value(lv_event_get_target(e));
         sys_set_volume(ui_system_para.sound);
@@ -272,7 +272,7 @@ static void ui_CommonMenu_init(void)
     lv_obj_set_y(ui_SoundSlider, 45);
     lv_obj_set_align(ui_SoundSlider, LV_ALIGN_CENTER);
 
-    lv_obj_add_event_cb(ui_SoundSlider, sound_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_add_event_cb(ui_SoundSlider, sound_slider_event_cb, LV_EVENT_RELEASED, NULL);
 
     //Compensating for LVGL9.1 draw crash with bar/slider max value when top-padding is nonzero and right-padding is 0
     if(lv_obj_get_style_pad_top(ui_SoundSlider, LV_PART_MAIN) > 0) lv_obj_set_style_pad_right(ui_SoundSlider,

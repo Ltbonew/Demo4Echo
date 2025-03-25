@@ -158,7 +158,7 @@ static void ui_event_SoundSlider(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * slider = lv_event_get_target(e);
-    if(event_code == LV_EVENT_VALUE_CHANGED)
+    if(event_code == LV_EVENT_RELEASED)
     {
         ui_system_para.sound = lv_slider_get_value(slider);
         sys_set_volume(ui_system_para.sound);
@@ -364,7 +364,7 @@ void ui_HomePage_init(void)
     lv_obj_set_style_bg_color(ui_SoundSlider, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_SoundSlider, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
 
-    lv_obj_add_event_cb(ui_SoundSlider, ui_event_SoundSlider, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_add_event_cb(ui_SoundSlider, ui_event_SoundSlider, LV_EVENT_RELEASED, NULL);
 
     //Compensating for LVGL9.1 draw crash with bar/slider max value when top-padding is nonzero and right-padding is 0
     if(lv_obj_get_style_pad_top(ui_SoundSlider, LV_PART_MAIN) > 0) lv_obj_set_style_pad_right(ui_SoundSlider,

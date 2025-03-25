@@ -14,8 +14,8 @@
 #include <unistd.h>
 #include <fcntl.h> // for fcntl
 #include <errno.h>
-
 #if LV_USE_SIMULATOR == 0 
+    #include <alsa/asoundlib.h>
     #define BRIGHTNESS_PATH "/sys/class/backlight/backlight/brightness"
     // 给定的亮度级别数组
     const int brightness_levels[] = {
@@ -37,34 +37,102 @@ const char * city_adcode_path = "./gaode_adcode.json"; // 城市adcode对应表�
 
 // 设置背光亮度
 int sys_set_lcd_brightness(int brightness) {
-    #if LV_USE_SIMULATOR == 0
-        if (brightness < 0 || brightness > 100) return -1;
-        if (brightness < 10) brightness = 10; // 亮度太低可能导致屏幕无法显示
-        if (brightness > 95) brightness = 95;
-        int fd = open(BRIGHTNESS_PATH, O_WRONLY);
-        if (fd == -1) {
-            perror("Failed to open brightness file for writing");
-            return -1;
-        }
+#if LV_USE_SIMULATOR == 0
+    if (brightness < 0 || brightness > 100) return -1;
+    if (brightness < 10) brightness = 10; // 亮度太低可能导致屏幕无法显示
+    if (brightness > 95) brightness = 95;
+    int fd = open(BRIGHTNESS_PATH, O_WRONLY);
+    if (fd == -1) {
+        perror("Failed to open brightness file for writing");
+        return -1;
+    }
 
-        char buffer[8]; // 应该足够存储任何可能的亮度值
-        int n = snprintf(buffer, sizeof(buffer), "%d", brightness);
+    char buffer[8]; // 应该足够存储任何可能的亮度值
+    int n = snprintf(buffer, sizeof(buffer), "%d", brightness);
 
-        if (write(fd, buffer, n) == -1) {
-            perror("Failed to write brightness value");
-            close(fd);
-            return -1;
-        }
-
+    if (write(fd, buffer, n) == -1) {
+        perror("Failed to write brightness value");
         close(fd);
-    #endif
+        return -1;
+    }
+
+    close(fd);
+#endif
     return 0;
 }
 
+
+// 设置音量
 int sys_set_volume(int level) {
     if (level < 0 || level > 100) return -1; // 音量级别应在0到100之间
     // 这里可以添加实际设置硬件音量的代码
+#if LV_USE_SIMULATOR == 0
+    const char *card = "hw:0";       // 声卡名称
+    const char *selem_name = "DAC LINEOUT"; // 控件名称
+    snd_mixer_t *handle;
+    snd_mixer_selem_id_t *sid;
+    snd_mixer_elem_t *elem;
+    long min, max, mapped_volume;
 
+    // 打开混音器
+    if (snd_mixer_open(&handle, 0) < 0) {
+        fprintf(stderr, "Error: Unable to open mixer.\n");
+        return -1;
+    }
+
+    // 加载指定声卡
+    if (snd_mixer_attach(handle, card) < 0) {
+        fprintf(stderr, "Error: Unable to attach to card '%s'.\n", card);
+        snd_mixer_close(handle);
+        return -1;
+    }
+
+    // 注册混音器
+    if (snd_mixer_selem_register(handle, NULL, NULL) < 0) {
+        fprintf(stderr, "Error: Unable to register mixer.\n");
+        snd_mixer_close(handle);
+        return -1;
+    }
+
+    // 加载混音器元素
+    if (snd_mixer_load(handle) < 0) {
+        fprintf(stderr, "Error: Unable to load mixer.\n");
+        snd_mixer_close(handle);
+        return -1;
+    }
+
+    // 创建混音器元素 ID
+    snd_mixer_selem_id_alloca(&sid);
+    snd_mixer_selem_id_set_index(sid, 0); // 默认索引为 0
+    snd_mixer_selem_id_set_name(sid, selem_name);
+
+    // 查找对应元素
+    elem = snd_mixer_find_selem(handle, sid);
+    if (!elem) {
+        fprintf(stderr, "Error: Unable to find element '%s'.\n", selem_name);
+        snd_mixer_close(handle);
+        return -1;
+    }
+
+    // 获取音量范围
+    snd_mixer_selem_get_playback_volume_range(elem, &min, &max);
+    printf("Volume range: %ld to %ld\n", min, max);
+
+    // 映射音量值到实际范围
+    mapped_volume = min + (long)((double)(max - min) * level / 100.0);
+
+    // 设置音量
+    if (snd_mixer_selem_set_playback_volume_all(elem, mapped_volume) < 0) {
+        fprintf(stderr, "Error: Unable to set volume.\n");
+        snd_mixer_close(handle);
+        return -1;
+    }
+
+    printf("Set '%s' volume to %ld (mapped from %d%%)\n", selem_name, mapped_volume, level);
+
+    // 关闭混音器
+    snd_mixer_close(handle);
+#endif
     return 0;
 }
 
