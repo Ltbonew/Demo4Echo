@@ -113,10 +113,18 @@ class WebSocketServer:
 
         except websockets.exceptions.ConnectionClosed as e:
             logger.warning(f"Connection closed unexpectedly: {e}")
+            close_msg = {
+                "type": "ws_close"
+            }
+            self.ws_rec_msg.put(json.dumps(close_msg))
         finally:
             # 连接关闭后从已验证集合中移除
             self.verified_clients.discard(websocket)
             logger.info("Client disconnected")
+            close_msg = {
+                "type": "ws_close"
+            }
+            self.ws_rec_msg.put(json.dumps(close_msg))
 
     # 启动 WebSocket 服务器
     async def ws_server_task_run(self):

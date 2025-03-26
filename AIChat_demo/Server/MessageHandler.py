@@ -90,16 +90,7 @@ class MessageHandler:
                 }
                 return res
 
-        # 判断是否达到10s的缓冲区最大长度，若达到，则触发ASR识别
-        if audio_length > self.BUFFER_MAX_LENGTH_MS:
-            logger.info("Buffer exceeded %d seconds", self.BUFFER_MAX_LENGTH_MS // 1000)
-            res = {
-                "type": "vad",
-                "state": "too_long"
-            }
-            return res
-
-        # 判断是否超过1s未检测到语音活动，若超过则触发ASR识别
+        # 判断是否超过1s未检测到语音活动，若超过则VAD END
         if self.last_speech_pos > 0 and (audio_length - self.last_speech_pos) > self.POST_SPEECH_BUFFER_MS:
             # 说话时长小于800ms, 则不进行ASR识别（可能是噪声）
             if self.last_speech_pos > 800:
@@ -119,14 +110,28 @@ class MessageHandler:
         # 解码音频数据
         pcm_data = self.audio_processor.decode_audio(payload)
         audio_data_array = np.frombuffer(pcm_data, dtype=np.int16)
-        # 将解码后的音频数据添加到缓冲区
-        self.rec_audio_buffer = np.append(self.rec_audio_buffer, audio_data_array)
-        # 处理音频流
-        res = self.VAD_proc_audio_stream()
+        # 检查缓冲区是否已达到最大长度
+        buffer_length_ms = len(self.rec_audio_buffer) * 1000 // self.audio_processor.sample_rate
+        # 如果缓冲区超过最大长度, 则返回too_long
+        if buffer_length_ms > self.BUFFER_MAX_LENGTH_MS:
+            logger.info("Buffer exceeded %d seconds", self.BUFFER_MAX_LENGTH_MS // 1000)
+            res = {
+                "type": "vad",
+                "state": "too_long"
+            }
+        else:
+            # 将解码后的音频数据添加到缓冲区
+            self.rec_audio_buffer = np.append(self.rec_audio_buffer, audio_data_array)
+            # 处理音频流
+            res = self.VAD_proc_audio_stream()
         return res
 
     # 处理文本数据
     def handle_text_message(self, data):
+
+        if data.get('type') == 'ws_close':
+            self.audio_proc_reset()
+            return
 
         if data.get('type') == 'hello':
             self.audio_proc_reset()
