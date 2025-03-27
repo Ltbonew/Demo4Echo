@@ -65,13 +65,13 @@ static void _ui_anim_completed_cb()
 static void AppContLeft_Animation(lv_obj_t * TargetObject, int delay)
 {
     int32_t x_pos_now = lv_obj_get_x(TargetObject);
-    lv_lib_anim_user_animation(TargetObject, 0, 250, x_pos_now, x_pos_now - ui_desktop_data.witdh, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_x, _ui_anim_completed_cb);
+    lv_lib_anim_user_animation(TargetObject, 0, 100, x_pos_now, x_pos_now - ui_desktop_data.witdh, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_x, _ui_anim_completed_cb);
 }
 
 static void AppContRight_Animation(lv_obj_t * TargetObject, int delay)
 {
     int32_t x_pos_now = lv_obj_get_x(TargetObject);
-    lv_lib_anim_user_animation(TargetObject, 0, 250, x_pos_now, x_pos_now + ui_desktop_data.witdh, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_x, _ui_anim_completed_cb);
+    lv_lib_anim_user_animation(TargetObject, 0, 100, x_pos_now, x_pos_now + ui_desktop_data.witdh, 0, 0, 0, 0, lv_anim_path_ease_out, lv_lib_anim_callback_set_x, _ui_anim_completed_cb);
 }
 
 ///////////////////// FUNCTIONS ////////////////////
@@ -740,7 +740,7 @@ void ui_HomePage_init(void)
     ui_home_timer = lv_timer_create(ui_home_timer_cb, 5000, ui_TimeLabel);
 
     // load page
-    lv_scr_load_anim(ui_HomeScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 100, 0, true);
+    lv_scr_load_anim(ui_HomeScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 250, 0, true);
 
 }
 
