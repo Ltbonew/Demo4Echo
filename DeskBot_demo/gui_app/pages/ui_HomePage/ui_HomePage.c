@@ -740,7 +740,7 @@ void ui_HomePage_init(void)
     ui_home_timer = lv_timer_create(ui_home_timer_cb, 5000, ui_TimeLabel);
 
     // load page
-    lv_scr_load_anim(ui_HomeScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 250, 0, true);
+    lv_scr_load_anim(ui_HomeScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 100, 0, true);
 
 }
 
