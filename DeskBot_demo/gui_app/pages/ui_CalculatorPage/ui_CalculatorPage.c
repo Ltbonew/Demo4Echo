@@ -196,7 +196,9 @@ void ui_CompageBackBtn_event_cb(lv_event_t * e)
 
 void ui_CalculatorPage_init(void)
 {
-
+    strclear(&CalStr);
+    NumStackClear(&NumStack);
+    SymStackClear(&SymStack);
     lv_obj_t * ui_CalculatorPage = lv_obj_create(NULL);
 
     lv_obj_clear_flag(ui_CalculatorPage,LV_OBJ_FLAG_SCROLLABLE);
