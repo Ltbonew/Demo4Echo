@@ -213,8 +213,8 @@ void ui_CalculatorPage_init(void)
     lv_obj_clear_flag(ui_CompageBtnM, LV_OBJ_FLAG_CLICK_FOCUSABLE);
     lv_obj_set_style_border_width(ui_CompageBtnM,0,0);
     lv_obj_set_style_bg_opa(ui_CompageBtnM,0,0);
-    lv_obj_set_size(ui_CompageBtnM,240,220);
-    lv_obj_set_align(ui_CompageBtnM,LV_ALIGN_BOTTOM_MID);
+    lv_obj_set_size(ui_CompageBtnM,240,240);
+    lv_obj_set_align(ui_CompageBtnM,LV_ALIGN_LEFT_MID);
 
 
     lv_obj_t * ui_CompageTextarea = lv_textarea_create(ui_CalculatorPage);
@@ -226,17 +226,20 @@ void ui_CalculatorPage_init(void)
     lv_obj_set_style_border_width(ui_CompageTextarea, 0, 0); //设置边框宽度
     lv_obj_set_style_bg_color(ui_CompageTextarea, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_CompageTextarea, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_size(ui_CompageTextarea, 200, 60); // 设置对象大小
-    lv_obj_align(ui_CompageTextarea, LV_ALIGN_TOP_LEFT, 0, 0);
+    lv_obj_set_size(ui_CompageTextarea, 100, 240); // 设置对象大小
+    lv_obj_align(ui_CompageTextarea, LV_ALIGN_TOP_RIGHT, 0, 0);
     lv_obj_clear_flag(ui_CompageTextarea,LV_OBJ_FLAG_CLICKABLE);
     lv_obj_set_style_text_font(ui_CompageTextarea, &ui_font_heiti24, 0);
     lv_textarea_set_align(ui_CompageTextarea, LV_TEXT_ALIGN_RIGHT);
 
     lv_obj_t * ui_CompageBackBtn = lv_btn_create(ui_CalculatorPage);
     lv_obj_align(ui_CompageBackBtn,LV_ALIGN_RIGHT_MID,-10,-110);
-    lv_obj_set_width(ui_CompageBackBtn,40);
-    lv_obj_set_height(ui_CompageBackBtn,30);
-    lv_obj_set_style_bg_opa(ui_CompageBackBtn, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_width(ui_CompageBackBtn,50);
+    lv_obj_set_height(ui_CompageBackBtn,50);
+    lv_obj_set_style_radius(ui_CompageBackBtn, 25, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_CompageBackBtn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_align(ui_CompageBackBtn, LV_ALIGN_BOTTOM_RIGHT, -16, -12);
+    lv_obj_set_style_bg_color(ui_CompageBackBtn, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_t * btnlabel = lv_label_create(ui_CompageBackBtn);
     lv_label_set_text(btnlabel, LV_SYMBOL_BACKSPACE);
