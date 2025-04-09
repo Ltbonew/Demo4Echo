@@ -245,6 +245,7 @@ void _maintimer_cb(void)
     // 每5分钟保存一次系统参数
     if(time_count2 >= 300)
     {
+        ui_system_para.wifi_connected = sys_get_wifi_status();
         if(ui_system_para.auto_time == true)
         {
             if(sys_get_time_from_ntp("ntp.aliyun.com", &ui_system_para.year, &ui_system_para.month, &ui_system_para.day, &ui_system_para.hour, &ui_system_para.minute, NULL))
