@@ -581,6 +581,10 @@ int sys_get_time_from_ntp(const char* ntp_server, int *year, int *month, int *da
     // Convert to Unix time (seconds since Jan 1, 1970)
     time_t unixTime = (time_t)(secsSince1900 - NTP_TIMESTAMP_DELTA);
 
+    // set time zone
+    setenv("TZ", "CST-8", 1); // UTC+8
+    tzset();                // 应用新的时区设置
+
     // Convert Unix time to broken-down time
     struct tm *timeinfo = localtime(&unixTime);
     if (!timeinfo) {
