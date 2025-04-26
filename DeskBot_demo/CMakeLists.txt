@@ -19,7 +19,7 @@ if(TARGET_ARM)
     set(ENV{PKG_CONFIG_PATH} "${CMAKE_SYSROOT}/usr/lib/pkgconfig")
 endif()
 
-project(lvgl)
+project(DeskBot)
 
 set(CMAKE_C_STANDARD 99)#C99 # lvgl officially support C99 and above
 set(CMAKE_CXX_STANDARD 17)#C17
