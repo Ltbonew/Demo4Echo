@@ -31,6 +31,7 @@ void StartupState::Enter(Application* app) {
 
         app->ws_client_.SendText(json_message);
         app->eventQueue_.Enqueue(static_cast<int>(AppEvent::startup_done));
+        USER_LOG_INFO("Startup done.");
     }
     else {
         USER_LOG_ERROR("Startup failed.");

@@ -1,5 +1,9 @@
 #include "Application.h"
 #include "../Utils/user_log.h"
+#include "../StateMachine/StateConfig.h"
+#include "Handler.h"
+
+Handler app_handler;
 
 Application::Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& aliyun_api_key, 
                          int protocolVersion, int sample_rate, int channels, int frame_duration)
@@ -7,11 +11,10 @@ Application::Application(const std::string& address, int port, const std::string
       aliyun_api_key_(aliyun_api_key),
       ws_protocolVersion_(protocolVersion),
       client_state_(static_cast<int>(AppState::startup)),
-      audio_processor_(sample_rate, channels, frame_duration), 
-      msg_handler_()   {
+      audio_processor_(sample_rate, channels, frame_duration) {
         // 设置接收到消息的回调函数
         ws_client_.SetMessageCallback([this](const std::string& message, bool is_binary) {
-            msg_handler_.ws_msg_handle(message, is_binary, this);
+            app_handler.ws_msg_handle(message, is_binary, this);
         });
         ws_client_.SetCloseCallback([this]() {
             // 断开连接时的回调
@@ -33,8 +36,6 @@ void Application::Run() {
 
         // 添加状态
         StateConfig::Configure(client_state_, this);
-        // initialize
-        client_state_.Initialize();
         // 主要执行state事件处理, 状态切换
         while(threads_stop_flag_.load() == false) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));

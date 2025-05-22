@@ -13,9 +13,6 @@ enum class AppState {
     speaking,
 };
 
-// 前向声明
-class Application;
-
 class StateConfig {
 public:
     /*

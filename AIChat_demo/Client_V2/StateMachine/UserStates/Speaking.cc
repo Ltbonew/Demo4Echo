@@ -29,8 +29,8 @@ void SpeakingState::Run(Application* app) {
             } else {
                 app->eventQueue_.Enqueue(static_cast<int>(AppEvent::dialogue_end));
             }
-            app->saet_tts_completed(false);
-            app->saet_dialogue_completed(false);
+            app->set_tts_completed(false);
+            app->set_dialogue_completed(false);
             break;
         }
     }

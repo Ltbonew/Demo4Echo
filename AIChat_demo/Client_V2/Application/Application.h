@@ -7,15 +7,9 @@
 #include "../Events/AppEvents.h"
 #include "../WebSocket/WebsocketClient.h"
 
-#include "../StateMachine/StateConfig.h"
-#include "Handler.h"
-
 #include <thread>
 #include <atomic>
 #include <string>
-
-// 前向声明 Handler 类
-class Handler;
 
 class Application {
 public:
@@ -66,7 +60,6 @@ public:
     }
 
 private:
-    Handler msg_handler_;
     bool tts_completed_ = false;
     bool dialogue_completed_ = false;
     std::string aliyun_api_key_;

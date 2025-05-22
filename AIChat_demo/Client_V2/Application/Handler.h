@@ -5,9 +5,6 @@
 #include "Application.h"
 #include <json/json.h>
 
-// 前向声明
-class Application;
-
 class Handler {
 public:
     // 处理 WebSocket 接收到的消息
