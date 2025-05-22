@@ -1,6 +1,6 @@
 #include "Application.h"
 #include "../Utils/user_log.h"
-#include "../StateMachine/StateConfig.h"
+#include "StateConfig.h"
 #include "Handler.h"
 
 Handler app_handler;
@@ -33,8 +33,7 @@ void Application::Run() {
 
     // 启动状态机事件处理线程
     state_trans_thread_ = std::thread([this]() {
-
-        // 添加状态
+        // initialize state machine and user states
         StateConfig::Configure(client_state_, this);
         // 主要执行state事件处理, 状态切换
         while(threads_stop_flag_.load() == false) {

@@ -6,6 +6,7 @@
 #include "../Events/EventQueue.h"
 #include "../Events/AppEvents.h"
 #include "../WebSocket/WebsocketClient.h"
+#include "../Intent/IntentHandler.h"
 
 #include <thread>
 #include <atomic>

@@ -50,17 +50,19 @@ include_directories(
 add_library(AIChatCore STATIC
     Audio/AudioProcess.cc
     WebSocket/WebsocketClient.cc
-    Application/Application.cc
-    Application/Handler.cc
-    StateMachine/StateConfig.cc
+    Intent/IntentHandler.cc
     StateMachine/StateMachine.cc
 
-    StateMachine/UserStates/Fault.cc
-    StateMachine/UserStates/Startup.cc
-    StateMachine/UserStates/Stop.cc
-    StateMachine/UserStates/Idle.cc
-    StateMachine/UserStates/Listening.cc
-    StateMachine/UserStates/Speaking.cc
+    Application/Application.cc
+    Application/Handler.cc
+    Application/StateConfig.cc
+
+    Application/UserStates/Fault.cc
+    Application/UserStates/Startup.cc
+    Application/UserStates/Stop.cc
+    Application/UserStates/Idle.cc
+    Application/UserStates/Listening.cc
+    Application/UserStates/Speaking.cc
 )
 
 # Link libraries for opus and websocketpp

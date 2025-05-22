@@ -20,6 +20,8 @@ void Handler::ws_msg_handle(const std::string& message, bool is_binary, Applicat
                 handle_vad_message(root, app);
             } else if (typeStr == "asr") {
                 handle_asr_message(root, app);
+            } else if (typeStr == "chat") {
+                handle_chat_message(root, app);
             } else if (typeStr == "tts") {
                 handle_tts_message(root, app);
             } else if (typeStr == "error") {
@@ -85,11 +87,15 @@ void Handler::handle_tts_message(const Json::Value& root, Application* app) {
             app->set_tts_completed(true);
         }
     }
-    const Json::Value conversation = root["conversation"];
-    if (conversation.isString()) {
-        std::string conversationStr = conversation.asString();
-        if (conversationStr == "end") {
-            USER_LOG_INFO("Received conversation end.");
+}
+
+// 处理Chat消息
+void Handler::handle_chat_message(const Json::Value& root, Application* app) {
+    const Json::Value dialogue = root["dialogue"];
+    if (dialogue.isString()) {
+        std::string dialogueStr = dialogue.asString();
+        if (dialogueStr == "end") {
+            USER_LOG_INFO("Received dialogue end.");
             app->set_dialogue_completed(true);
         }
     }

@@ -12,6 +12,7 @@ public:
 private:
     void handle_vad_message(const Json::Value& root, Application* app);
     void handle_asr_message(const Json::Value& root, Application* app);
+    void handle_chat_message(const Json::Value& root, Application* app);
     void handle_tts_message(const Json::Value& root, Application* app);
 };
 

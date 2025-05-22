@@ -1,8 +1,8 @@
 #ifndef STATE_CONFIG_H
 #define STATE_CONFIG_H
 
-#include "StateMachine.h"
-#include "../Application/Application.h"
+#include "../StateMachine/StateMachine.h"
+#include "Application.h"
 
 enum class AppState {
     fault,
