@@ -23,6 +23,7 @@ public:
     AudioProcess audio_processor_;
     StateMachine client_state_;
     EventQueue<int> eventQueue_;
+    EventQueue<Json::Value> IntentQueue_;
     // EventQueue<>;
     WebSocketClient ws_client_;
     IntentHandler intent_handler_;
