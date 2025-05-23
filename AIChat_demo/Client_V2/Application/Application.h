@@ -24,6 +24,7 @@ public:
     StateMachine client_state_;
     EventQueue<int> eventQueue_;
     WebSocketClient ws_client_;
+    IntentHandler intent_handler_;
     
     void set_tts_completed(bool flag) {
         tts_completed_ = flag;

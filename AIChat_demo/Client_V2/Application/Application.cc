@@ -1,9 +1,9 @@
 #include "Application.h"
 #include "../Utils/user_log.h"
 #include "StateConfig.h"
-#include "Handler.h"
+#include "WS_Handler.h"
 
-Handler app_handler;
+WSHandler app_handler;
 
 Application::Application(const std::string& address, int port, const std::string& token, const std::string& deviceId, const std::string& aliyun_api_key, 
                          int protocolVersion, int sample_rate, int channels, int frame_duration)

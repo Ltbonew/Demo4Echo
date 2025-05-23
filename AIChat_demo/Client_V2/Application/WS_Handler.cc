@@ -1,7 +1,7 @@
-#include "Handler.h"
+#include "WS_Handler.h"
 #include "../Utils/user_log.h"
 
-void Handler::ws_msg_handle(const std::string& message, bool is_binary, Application* app) {
+void WSHandler::ws_msg_handle(const std::string& message, bool is_binary, Application* app) {
     // 接收到json消息时的回调
     if(!is_binary) {
         Json::Value root;
@@ -32,7 +32,7 @@ void Handler::ws_msg_handle(const std::string& message, bool is_binary, Applicat
         USER_LOG_WARN("not event message type: %s", message.c_str());
     } else {    
         // 接收到二进制数据时的回调
-        USER_LOG_INFO("Received binary message.");
+        // USER_LOG_INFO("Received binary message.");
         BinProtocolInfo protocol_info;
         std::vector<uint8_t> opus_data;
         std::vector<int16_t> pcm_data;
@@ -55,7 +55,7 @@ void Handler::ws_msg_handle(const std::string& message, bool is_binary, Applicat
 }
 
 // 处理 VAD 消息
-void Handler::handle_vad_message(const Json::Value& root, Application* app) {
+void WSHandler::handle_vad_message(const Json::Value& root, Application* app) {
     const Json::Value state = root["state"];
     if (state.isString()) {
         std::string stateStr = state.asString();
@@ -66,7 +66,7 @@ void Handler::handle_vad_message(const Json::Value& root, Application* app) {
 }
 
 // 处理 ASR 消息
-void Handler::handle_asr_message(const Json::Value& root, Application* app) {
+void WSHandler::handle_asr_message(const Json::Value& root, Application* app) {
     const Json::Value text = root["text"];
     if (text.isString()) {
         std::string asr_text_ = text.asString();
@@ -78,7 +78,7 @@ void Handler::handle_asr_message(const Json::Value& root, Application* app) {
 }
 
 // 处理 TTS 消息
-void Handler::handle_tts_message(const Json::Value& root, Application* app) {
+void WSHandler::handle_tts_message(const Json::Value& root, Application* app) {
     const Json::Value state = root["state"];
     if (state.isString()) {
         std::string stateStr = state.asString();
@@ -90,7 +90,7 @@ void Handler::handle_tts_message(const Json::Value& root, Application* app) {
 }
 
 // 处理Chat消息
-void Handler::handle_chat_message(const Json::Value& root, Application* app) {
+void WSHandler::handle_chat_message(const Json::Value& root, Application* app) {
     const Json::Value dialogue = root["dialogue"];
     if (dialogue.isString()) {
         std::string dialogueStr = dialogue.asString();
