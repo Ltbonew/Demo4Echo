@@ -42,6 +42,12 @@ void WSHandler::ws_msg_handle(const std::string& message, bool is_binary, Applic
     } else {    
         // 接收到二进制数据时的回调
         // USER_LOG_INFO("Received binary message.");
+        // first time to receive binary message
+        if(app->get_first_audio_msg_received() == true) {
+            app->set_first_audio_msg_received(false);
+            app->eventQueue_.Enqueue(static_cast<int>(AppEvent::speaking_msg_received));
+        }
+
         BinProtocolInfo protocol_info;
         std::vector<uint8_t> opus_data;
         std::vector<int16_t> pcm_data;

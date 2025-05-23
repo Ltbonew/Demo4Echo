@@ -33,6 +33,13 @@ public:
     WebSocketClient ws_client_;
     IntentHandler intent_handler_;
     
+    void set_first_audio_msg_received(bool flag) {
+        first_audio_msg_received_ = flag;
+    }
+    bool get_first_audio_msg_received() {
+        return first_audio_msg_received_;
+    }
+
     void set_tts_completed(bool flag) {
         tts_completed_ = flag;
     }
@@ -73,6 +80,7 @@ public:
     }
 
 private:
+    bool first_audio_msg_received_ = false;
     bool tts_completed_ = false;
     bool dialogue_completed_ = false;
     std::string aliyun_api_key_;

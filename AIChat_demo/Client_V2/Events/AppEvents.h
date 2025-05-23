@@ -10,6 +10,7 @@ enum class AppEvent {
     vad_no_speech,
     vad_end,
     asr_received,
+    speaking_msg_received,
     speaking_end,
     dialogue_end,
     // Add more events here...
