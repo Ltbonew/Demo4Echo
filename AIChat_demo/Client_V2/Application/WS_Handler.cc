@@ -34,9 +34,8 @@ void WSHandler::ws_msg_handle(const std::string& message, bool is_binary, Applic
         }
 
         // 获取 JSON 对象中的 function_call 值
-        const Json::Value function_call = root["function_call"];
-        if (function_call.isObject()) {
-            USER_LOG_INFO("Received function call message: %s", message.c_str());
+        if (root.isMember("function_call") && root["function_call"].isObject()) {
+            handle_intent_message(root);
         }
 
     } else {    
@@ -107,5 +106,19 @@ void WSHandler::handle_chat_message(const Json::Value& root, Application* app) {
             USER_LOG_INFO("Received dialogue end.");
             app->set_dialogue_completed(true);
         }
+    }
+}
+
+// 处理意图消息
+void WSHandler::handle_intent_message(const Json::Value& root) {
+    // 处理 function_call 消息
+    const Json::Value function_call = root["function_call"];
+    // 检查 function_call 是否包含 "name" 和 "arguments"
+    if (function_call.isMember("name") && function_call["name"].isString() &&
+        function_call.isMember("arguments") && function_call["arguments"].isObject()) {
+        // 调用 HandleIntent 处理意图
+        IntentHandler::HandleIntent(root);
+    } else {
+        USER_LOG_ERROR("Invalid function_call structure in JSON: %s", root.toStyledString().c_str());
     }
 }
