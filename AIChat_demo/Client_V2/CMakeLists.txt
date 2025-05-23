@@ -84,7 +84,7 @@ add_executable(AIChatClient
 target_link_libraries(AIChatClient AIChatCore)
 
 # Add the C interface (cmake details in c_interface/CMakeLists.txt)
-# add_subdirectory(c_interface)
+add_subdirectory(c_interface)
 
 # Custom command to clean up generated files
 if(NOT TARGET clean-all)
