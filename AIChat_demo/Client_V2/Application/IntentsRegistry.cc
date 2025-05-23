@@ -21,8 +21,8 @@ Json::Value IntentsRegistry::GenerateRegisterMessage() {
     // 添加多个 arguments
     Json::Value arguments;
     arguments["direction"] = "字符数据,分别有forward,backward,left和right";
-    // arguments["speed"] = "整数数据,表示运动速度";
-    // arguments["duration"] = "浮点数,表示运动持续时间（秒）";
+    arguments["speed"] = "整数数据,表示运动速度";
+    arguments["duration"] = "浮点数,表示运动持续时间（秒）";
     robot_move["arguments"] = arguments;
 
     // 将 robot_move 添加到 functions 数组中
