@@ -156,3 +156,17 @@ make clean-all
     ]
 }
 ```
+
+6. 可能接收到的意图
+
+```json
+{
+    "function_call": {
+        "name": "robot_move",
+        "arguments": {
+            "direction": "forward",
+            "speed": "1"
+        }
+    }
+}
+```
