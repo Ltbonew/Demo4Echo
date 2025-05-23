@@ -3,7 +3,11 @@
 
 #include <string>
 #include "Application.h"
+#ifdef __arm__
 #include <json/json.h>
+#else
+#include <jsoncpp/json/json.h>
+#endif
 
 class WSHandler {
 public:

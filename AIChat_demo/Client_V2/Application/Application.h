@@ -23,6 +23,7 @@ public:
     AudioProcess audio_processor_;
     StateMachine client_state_;
     EventQueue<int> eventQueue_;
+    // EventQueue<>;
     WebSocketClient ws_client_;
     IntentHandler intent_handler_;
     
@@ -59,6 +60,10 @@ public:
     }
     int get_ws_protocolVersion() {
         return ws_protocolVersion_;
+    }
+
+    int getState() {
+        return client_state_.GetCurrentState();
     }
 
 private:

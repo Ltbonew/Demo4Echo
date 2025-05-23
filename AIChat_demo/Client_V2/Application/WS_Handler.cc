@@ -12,7 +12,7 @@ void WSHandler::ws_msg_handle(const std::string& message, bool is_binary, Applic
             USER_LOG_WARN("Error parsing message: %s", reader.getFormattedErrorMessages().c_str());
             app->eventQueue_.Enqueue(static_cast<int>(AppEvent::fault_happen));
         }
-        // 获取 JSON 对象中的值
+        // 获取 JSON 对象中的 type 值
         const Json::Value type = root["type"];
         if (type.isString()) {
             std::string typeStr = type.asString();
@@ -29,7 +29,14 @@ void WSHandler::ws_msg_handle(const std::string& message, bool is_binary, Applic
                 app->eventQueue_.Enqueue(static_cast<int>(AppEvent::fault_happen));
             }
         }
-        USER_LOG_WARN("not event message type: %s", message.c_str());
+        // USER_LOG_WARN("not event message type: %s", message.c_str());
+
+        // 获取 JSON 对象中的 function_call 值
+        const Json::Value function_call = root["function_call"];
+        if (function_call.isString()) {
+            std::string function_call_Str = function_call.asString();
+        }
+
     } else {    
         // 接收到二进制数据时的回调
         // USER_LOG_INFO("Received binary message.");

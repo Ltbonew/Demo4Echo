@@ -1,11 +1,14 @@
-// RobotControl.h
 #ifndef ROBOT_MOVE_H
 #define ROBOT_MOVE_H
 
-#include <nlohmann/json.hpp>
+#ifdef __arm__
+#include <json/json.h>
+#else
+#include <jsoncpp/json/json.h>
+#endif
 
 namespace RobotMove {
-    void Move(const nlohmann::json& arguments);
+    void Move(const Json::Value& arguments);
 }
 
 #endif // ROBOT_MOVE_H

@@ -5,17 +5,21 @@
 #include <string>
 #include <unordered_map>
 #include <functional>
-#include <nlohmann/json.hpp> // 使用 JSON 库处理数据
+#ifdef __arm__
+#include <json/json.h>
+#else
+#include <jsoncpp/json/json.h>
+#endif
 
 class IntentHandler {
 public:
-    using Callback = std::function<void(const nlohmann::json& arguments)>;
+    using Callback = std::function<void(const Json::Value& arguments)>;
 
     // 注册回调函数
     void RegisterFunction(const std::string& function_name, Callback callback);
 
     // 处理服务器发送的意图数据
-    void HandleIntent(const nlohmann::json& intent_data);
+    void HandleIntent(const Json::Value& intent_data);
 
 private:
     std::unordered_map<std::string, Callback> function_map_; // 存储 function_name 和回调函数的映射

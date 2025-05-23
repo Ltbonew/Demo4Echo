@@ -36,7 +36,9 @@ void StartupState::Enter(Application* app) {
         IntentsRegistry::RegisterAllFunctions(app->intent_handler_);
         // 生成注册消息并发送给服务器
         auto register_message = IntentsRegistry::GenerateRegisterMessage();
-        app->ws_client_.SendText(register_message.dump());
+        Json::StreamWriterBuilder writer;
+        std::string serialized_message = Json::writeString(writer, register_message);
+        app->ws_client_.SendText(serialized_message);
         // start up done
         app->eventQueue_.Enqueue(static_cast<int>(AppEvent::startup_done));
         USER_LOG_INFO("Startup done.");

@@ -2,7 +2,11 @@
 #define INTENTS_REGISTRY_H
 
 #include "../Intent/IntentHandler.h"
-#include <nlohmann/json.hpp>
+#ifdef __arm__
+#include <json/json.h>
+#else
+#include <jsoncpp/json/json.h>
+#endif
 #include <unordered_map>
 #include <string>
 
@@ -12,7 +16,7 @@ public:
     static void RegisterAllFunctions(IntentHandler& intent_handler);
 
     // 生成注册消息的 JSON
-    static nlohmann::json GenerateRegisterMessage();
+    static Json::Value GenerateRegisterMessage();
 };
 
 #endif // INTENTS_REGISTRY_H
