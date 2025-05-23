@@ -81,14 +81,24 @@ Server/
 
    ```json
    {
-       "type": "tts",
-       "state": "end",
-       "conversation": "end"
+      "type": "tts",
+      "state": "end"
    }
    ```
    "state"还包括: "continue"
 
-5. 打包发送的音频数据
+5. 对话结束
+
+   ```json
+   {
+      "type": "chat",
+      "dialogue": "end"
+   }
+   ```
+   "state"还包括: "continue"
+
+
+6. 打包发送的音频数据
 
    ```python
     version: 协议版本 (2 字节)
