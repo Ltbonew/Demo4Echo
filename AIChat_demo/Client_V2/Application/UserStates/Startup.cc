@@ -2,6 +2,7 @@
 #include "../../Utils/user_log.h"
 #include "../../Application/Application.h"
 #include "../../Events/AppEvents.h"
+#include "../IntentsRegistry.h"
 
 void StartupState::Enter(Application* app) {
     USER_LOG_INFO("Into startup state.");
@@ -17,6 +18,7 @@ void StartupState::Enter(Application* app) {
     }
     
     if (app->ws_client_.IsConnected()) {
+        // hello消息
         std::string json_message = 
         R"({
             "type": "hello",
@@ -28,8 +30,14 @@ void StartupState::Enter(Application* app) {
                 "frame_duration": )" + std::to_string(app->audio_processor_.get_frame_duration()) + R"(
             }
         })";
-
         app->ws_client_.SendText(json_message);
+        // 注册意图处理函数
+        // 注册所有函数到 IntentHandler
+        IntentsRegistry::RegisterAllFunctions(app->intent_handler_);
+        // 生成注册消息并发送给服务器
+        auto register_message = IntentsRegistry::GenerateRegisterMessage();
+        app->ws_client_.SendText(register_message.dump());
+        // start up done
         app->eventQueue_.Enqueue(static_cast<int>(AppEvent::startup_done));
         USER_LOG_INFO("Startup done.");
     }
