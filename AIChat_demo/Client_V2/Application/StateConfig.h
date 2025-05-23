@@ -10,6 +10,7 @@ enum class AppState {
     stopping,
     idle,
     listening,
+    thinking,
     speaking,
 };
 
