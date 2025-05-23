@@ -63,6 +63,7 @@ add_library(AIChatCore STATIC
     Application/UserStates/Stop.cc
     Application/UserStates/Idle.cc
     Application/UserStates/Listening.cc
+    Application/UserStates/Thinking.cc
     Application/UserStates/Speaking.cc
     # User defined intents
     Application/UserIntents/RobotMove.cc
