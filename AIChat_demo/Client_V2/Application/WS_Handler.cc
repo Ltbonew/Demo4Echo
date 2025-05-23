@@ -36,6 +36,7 @@ void WSHandler::ws_msg_handle(const std::string& message, bool is_binary, Applic
         // 获取 JSON 对象中的 function_call 值
         if (root.isMember("function_call") && root["function_call"].isObject()) {
             handle_intent_message(root);
+            app->IntentQueue_.Enqueue(root);
         }
 
     } else {    
