@@ -4,7 +4,7 @@
 
 #include "Application/Application.h"
 
-// 192.168.211.1 8000 123456
+// ./build/AIChatClient 192.168.211.1 8000 123456
 void print_usage(const char* progname) {
     std::cout << "Usage: " << progname << "<server_address> <port> <token>" << std::endl;
 }
