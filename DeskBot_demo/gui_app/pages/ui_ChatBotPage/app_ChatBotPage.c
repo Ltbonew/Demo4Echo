@@ -2,7 +2,7 @@
 #include <pthread.h>
 #include "ui_ChatBotPage.h"
 #include "app_ChatBotPage.h"
-#include "../../../../AIChat_demo/Client_V2/c_interface/AIchat_c_interface.h"
+#include "../../../../AIChat_demo/Client/c_interface/AIchat_c_interface.h"
 
 static void* app_instance = NULL; // AI Chat 应用实例
 static pthread_t ai_chat_thread;  // 线程 ID
