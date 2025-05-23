@@ -313,15 +313,7 @@ static void _ChatBotTimer_cb(void)
 
 static void _ChatBotMoveTimer_cb(void)
 {
-    if(chat_bot_move_dir)
-    {
-        chat_bot_move(chat_bot_move_dir);
-        chat_bot_move_dir = 0;
-    }
-    else
-    {
-        chat_bot_move(0);
-    }
+    chat_bot_get_intent_process();
 }
 
 ///////////////////// SCREEN init ////////////////////
