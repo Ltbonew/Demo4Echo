@@ -12,6 +12,7 @@ void WSHandler::ws_msg_handle(const std::string& message, bool is_binary, Applic
             USER_LOG_WARN("Error parsing message: %s", reader.getFormattedErrorMessages().c_str());
             app->eventQueue_.Enqueue(static_cast<int>(AppEvent::fault_happen));
         }
+        USER_LOG_INFO("Received JSON message: %s", message.c_str());
         // 获取 JSON 对象中的 type 值
         const Json::Value type = root["type"];
         if (type.isString()) {
@@ -27,14 +28,15 @@ void WSHandler::ws_msg_handle(const std::string& message, bool is_binary, Applic
             } else if (typeStr == "error") {
                 USER_LOG_ERROR("server erro msg: %s", message.c_str());
                 app->eventQueue_.Enqueue(static_cast<int>(AppEvent::fault_happen));
+            } else {
+                USER_LOG_WARN("Unknown type: %s", typeStr.c_str());
             }
         }
-        // USER_LOG_WARN("not event message type: %s", message.c_str());
 
         // 获取 JSON 对象中的 function_call 值
         const Json::Value function_call = root["function_call"];
-        if (function_call.isString()) {
-            std::string function_call_Str = function_call.asString();
+        if (function_call.isObject()) {
+            USER_LOG_INFO("Received function call message: %s", message.c_str());
         }
 
     } else {    
