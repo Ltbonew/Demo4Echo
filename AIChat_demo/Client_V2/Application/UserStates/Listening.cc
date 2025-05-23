@@ -9,6 +9,8 @@ std::thread ListeningState::state_running_thread_;
 void ListeningState::Enter(Application* app) {
     std::string json_message = R"({"type": "state", "state": "listening"})";
     app->ws_client_.SendText(json_message);
+    // clear首次接收server音频消息
+    app->set_first_audio_msg_received(true);
     // start录音
     app->audio_processor_.startRecording();
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
