@@ -48,10 +48,25 @@ include_directories(
 
 # Add the source files
 add_library(AIChatCore STATIC
-    src/AudioProcess.cc
-    src/WebsocketClient.cc
-    src/Application.cc
-    src/StateMachine.cc
+    Audio/AudioProcess.cc
+    WebSocket/WebsocketClient.cc
+    Intent/IntentHandler.cc
+    StateMachine/StateMachine.cc
+
+    Application/Application.cc
+    Application/WS_Handler.cc
+    Application/StateConfig.cc
+    Application/IntentsRegistry.cc
+    # User defined states
+    Application/UserStates/Fault.cc
+    Application/UserStates/Startup.cc
+    Application/UserStates/Stop.cc
+    Application/UserStates/Idle.cc
+    Application/UserStates/Listening.cc
+    Application/UserStates/Thinking.cc
+    Application/UserStates/Speaking.cc
+    # User defined intents
+    Application/UserIntents/RobotMove.cc
 )
 
 # Link libraries for opus and websocketpp
@@ -65,7 +80,7 @@ target_link_libraries(AIChatCore
 
 # Add the executable and link it to the core library
 add_executable(AIChatClient 
-    src/main.cc
+    main.cc
 )
 target_link_libraries(AIChatClient AIChatCore)
 

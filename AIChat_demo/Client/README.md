@@ -120,6 +120,7 @@ make clean-all
    }
    ```
     "state"还包括listening等，详见代码
+
 4. 打包发送的音频数据
 
    ```cpp
@@ -130,3 +131,42 @@ make clean-all
        uint8_t payload[];      //opus音频数据
    } __attribute__((packed));
    ```
+
+5. 函数注册
+
+```json
+{
+    "type": "reg_func",
+    "functions": [
+        {
+            "name": "robot_move",
+            "description": "让机器人运动",
+            "arguments": {
+                "direction": "字符数据,分别有forward,backward,left和right"
+            }
+        },
+        {
+            "name": "xxx",
+            "description": "描述xxxxx",
+            "arguments": {
+                "arg1": "描述xxx",
+                "arg2": "描述xxx"
+            }
+        }
+    ]
+}
+```
+
+6. 可能接收到的意图
+
+```json
+{
+    "function_call": {
+        "name": "robot_move",
+        "arguments": {
+            "direction": "forward",
+            "speed": "1"
+        }
+    }
+}
+```
