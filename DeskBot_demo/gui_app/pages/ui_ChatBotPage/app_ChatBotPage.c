@@ -2,7 +2,7 @@
 #include <pthread.h>
 #include "ui_ChatBotPage.h"
 #include "app_ChatBotPage.h"
-#include "../../../../AIChat_demo/Client/c_interface/AIchat_c_interface.h"
+#include "../../../../AIChat_demo/Client_V2/c_interface/AIchat_c_interface.h"
 
 static void* app_instance = NULL; // AI Chat 应用实例
 static pthread_t ai_chat_thread;  // 线程 ID
@@ -38,9 +38,6 @@ int start_ai_chat(const char* address, int port, const char* token, const char* 
         return -1;
     }
 
-    // 注册运动指令回调函数
-    set_cmd_callback(app_instance, move_cmd_callback);
-
     // 启动线程运行 AI Chat 应用
     is_running = 1; // 设置运行标志位
     if (pthread_create(&ai_chat_thread, NULL, ai_chat_thread_func, NULL) != 0) {
@@ -74,30 +71,40 @@ int get_ai_chat_state(void) {
     return get_aichat_app_state(app_instance);
 }
 
-// 0 none, 1 forward, 2 back, 3 left, 4 right.
-uint8_t chat_bot_move_dir = 0; 
-
-// cmd callback
-void move_cmd_callback(const char * str)
+// 专门处理Intent，目前只有运动
+void chat_bot_get_intent_process()
 {
-    if (strcmp(str, "__label__MoveForward") == 0) {
-        // function move forward
-        chat_bot_move_dir = 1;
-    }
-    else if (strcmp(str, "__label__MoveBackward") == 0) {
-        // function move backward
-        chat_bot_move_dir = 2;
-    }
-    else if (strcmp(str, "__label__MoveTurnLeft") == 0) {
-        // function move turn left
-        chat_bot_move_dir = 3;
-    }
-    else if (strcmp(str, "__label__MoveTurnright") == 0) {
-        // function move turn right
-        chat_bot_move_dir = 4;
+    IntentData intent_data;
+    uint8_t chat_bot_move_dir = 0;
+    if (get_aichat_app_intent(app_instance, &intent_data)) {
+        // 打印 function_name 和 arguments
+        printf("Function Name: %s\n", intent_data.function_name);
+        for (int i = 0; i < intent_data.argument_count; i++) {
+            printf("Argument %s: %s\n", intent_data.argument_keys[i], intent_data.argument_values[i]);
+        }
+        // 根据 function_name 和 arguments 执行相应逻辑
+        if (strcmp(intent_data.function_name, "robot_move") == 0) {
+            for (int i = 0; i < intent_data.argument_count; i++) {
+                if (strcmp(intent_data.argument_keys[i], "direction") == 0) {
+                    if (strcmp(intent_data.argument_values[i], "forward") == 0) {
+                        chat_bot_move_dir = 1;
+                    } else if (strcmp(intent_data.argument_values[i], "backward") == 0) {
+                        chat_bot_move_dir = 2;
+                    } else if (strcmp(intent_data.argument_values[i], "left") == 0) {
+                        chat_bot_move_dir = 3;
+                    } else if (strcmp(intent_data.argument_values[i], "right") == 0) {
+                        chat_bot_move_dir = 4;
+                    } else {
+                        chat_bot_move_dir = 0; // 停止
+                    }
+                    chat_bot_move(chat_bot_move_dir);
+                }
+            }
+        }
     }
 }
 
+// 0 none, 1 forward, 2 back, 3 left, 4 right.
 void chat_bot_move(int dir)
 {
     // forward

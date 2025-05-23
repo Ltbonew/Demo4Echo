@@ -16,9 +16,8 @@ int stop_ai_chat();
 // 获取 AI Chat 状态
 int get_ai_chat_state(void);
 
-void move_cmd_callback(const char * str);
-
-void chat_bot_move(int dir);
+// 专门处理Intent，目前只有运动
+void chat_bot_get_intent_process(void);
 
 #ifdef __cplusplus
 } /*extern "C"*/
