@@ -3,12 +3,16 @@
 #include <iostream>
 #include "../Utils/user_log.h"
 
+// 定义静态成员变量
+std::unordered_map<std::string, IntentHandler::Callback> IntentHandler::function_map_;
+
 void IntentHandler::RegisterFunction(const std::string& function_name, Callback callback) {
     if (function_map_.find(function_name) != function_map_.end()) {
         USER_LOG_WARN("Function %s is already registered.", function_name.c_str());
     }
     function_map_[function_name] = callback;
 }
+
 void IntentHandler::HandleIntent(const Json::Value& intent_data) {
     try {
         // 检查是否包含 "function_call"
