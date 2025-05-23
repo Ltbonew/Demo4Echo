@@ -102,6 +102,9 @@ void chat_bot_get_intent_process()
             }
         }
     }
+    else {
+        chat_bot_move(0);
+    }
 }
 
 // 0 none, 1 forward, 2 back, 3 left, 4 right.
