@@ -54,15 +54,18 @@ add_library(AIChatCore STATIC
     StateMachine/StateMachine.cc
 
     Application/Application.cc
-    Application/Handler.cc
+    Application/WS_Handler.cc
     Application/StateConfig.cc
-
+    Application/IntentsRegistry.cc
+    # User defined states
     Application/UserStates/Fault.cc
     Application/UserStates/Startup.cc
     Application/UserStates/Stop.cc
     Application/UserStates/Idle.cc
     Application/UserStates/Listening.cc
     Application/UserStates/Speaking.cc
+    # User defined intents
+    Application/UserIntents/RobotMove.cc
 )
 
 # Link libraries for opus and websocketpp
