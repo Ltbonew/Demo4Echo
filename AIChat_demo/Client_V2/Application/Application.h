@@ -18,7 +18,12 @@ public:
                 const std::string& aliyun_api_key, int protocolVersion, 
                 int sample_rate, int channels, int frame_duration);
     ~Application();
+
     void Run();
+
+    void Stop(void) {
+        eventQueue_.Enqueue(static_cast<int>(AppEvent::to_stop));
+    }
 
     AudioProcess audio_processor_;
     StateMachine client_state_;
