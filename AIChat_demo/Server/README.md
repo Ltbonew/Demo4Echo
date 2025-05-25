@@ -28,19 +28,21 @@ python ./main.py --access_token="123456" --aliyun_api_key="sk-your-api-key"
 
 ```sh
 Server/
-├── fasttext/       # fasttext相关内容
-|   ├── data        # 存放训练用的数据集
-|   ├── model       # 存放训练好的模型
-│   ├── cutdata.py  # 用于切割分词数据集
-│   ├── test.py     # 测试fasttext
-│   └── train.py    # 训练fasttext
-├── FunAudioLLM/    # FunAudioLLM相关内容
-│   ├── iic         # 存放了下载好的预训练模型
-│   └── SenseVoice  # SenceVoice API
-├── AudioProcessor.py      # 处理音频
-├── MessageHandler.py      # 处理消息
-├── ModelManager.py        # 模型管理
-├── WebsocketServer.py     # websocket server 业务
+├── config/                # 全局设置
+├── handle/                # ws接收内容的处理
+|   ├── audio_handle.py    # 音频数据处理
+|   ├── auth_handle.py     # 鉴权
+│   └── text_handle.py     # 文本数据处理
+├── models/                # 
+├── services/              # 
+├── test/                  # 单功能测试
+├── threads/               # 多线程相关
+├── tools/                 # 工具
+|   ├── audio_processor.py # 音频处理
+|   ├── logger.py          # log
+│   └── registry.py        # 意图注册
+├── ws_server.py           # websocket server 业务
+├── service_manager.py     # services 全局管理
 └── main.py
 ```
 

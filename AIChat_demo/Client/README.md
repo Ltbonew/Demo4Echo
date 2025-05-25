@@ -54,7 +54,7 @@ make
 ```
 然后运行即可, 这里的地址参数为Server端的IP地址, 按照你自己的设置改即可：
 ```sh
-./build/AIChatClient 192.168.211.1 8765 123456
+./build/AIChatClient 192.168.211.1 8000 123456
 ```
 
 #### 2. arm:
@@ -75,7 +75,7 @@ make install
 ```sh
 cd ./rv1106_AIChatClient_demo
 chmod +x ./bin/AIChatClient
-./bin/AIChatClient 172.32.0.100 8765 123456
+./bin/AIChatClient 172.32.0.100 8000 123456
 ```
 
 #### 3. 清除:
