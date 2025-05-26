@@ -16,8 +16,6 @@ void ListeningState::Enter(Application* app) {
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     // clear recorded audio queue
     app->audio_processor_.clearRecordedAudioQueue();
-    // clear playback audio queue
-    app->audio_processor_.clearPlaybackAudioQueue();
     // running
     state_running_.store(true);
     state_running_thread_ = std::thread([app]() { Run(app); });
