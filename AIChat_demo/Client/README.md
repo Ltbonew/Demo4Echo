@@ -1,6 +1,10 @@
 
 ## AI语言助手demo(Client端)
 
+<p align="center">
+    <img border="1px" width="100%" src="../assets/AIchat_states.png">
+</p>
+
 ### 库安装
 
 使用编译之前请安装CmakeList涉及到的库(如果不在电脑本地跑测试可以忽略):

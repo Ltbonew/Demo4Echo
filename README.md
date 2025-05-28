@@ -85,7 +85,11 @@ DeskBot_demo/
 
 **注意：** 如果需要自定义指令识别，可以重新改一下fastText的数据集，然后再训练得到自己的模型即可拿去用了，详见Sever端的文件夹中的内容。
 
-AI语音助手的运行流程大致如下图所示：
+AI语音助手的运行流程和状态机大致如下图所示：
+
+<p align="center">
+	<img border="1px" width="100%" src="./assets/AIchat_states.png">
+</p>
 
 <p align="center">
 	<img border="1px" width="30%" src="./assets/flow-chart.png">
