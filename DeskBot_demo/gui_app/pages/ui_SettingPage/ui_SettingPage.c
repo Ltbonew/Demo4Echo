@@ -171,7 +171,14 @@ static void adcode_set_confirm_cb(lv_event_t * e)
     }
     else {
         // show msg box
-        ui_msgbox_info("Error", "Location set failed.");
+        ui_msgbox_info("Error", "Location set failed. not in the location map.");
+        // default 110101
+        lv_roller_set_selected(ui_RollerLocation0, 1, LV_ANIM_OFF);
+        lv_roller_set_selected(ui_RollerLocation1, 1, LV_ANIM_OFF);
+        lv_roller_set_selected(ui_RollerLocation2, 0, LV_ANIM_OFF);
+        lv_roller_set_selected(ui_RollerLocation3, 1, LV_ANIM_OFF);
+        lv_roller_set_selected(ui_RollerLocation4, 0, LV_ANIM_OFF);
+        lv_roller_set_selected(ui_RollerLocation5, 1, LV_ANIM_OFF);
     }
 }
 
