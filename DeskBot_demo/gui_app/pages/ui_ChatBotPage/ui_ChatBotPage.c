@@ -16,6 +16,8 @@ lv_obj_t * ui_LabelInfo;
 lv_timer_t * ui_ChatBot_timer;
 lv_timer_t * ui_ChatBot_move_timer;
 
+#define CHAT_BOT_UI_TEST 0
+
 struct ui_chat_para_t{
     bool first_enter;
     bool anim_complete;
@@ -221,19 +223,23 @@ static void ui_event_ChatBotPage(lv_event_t * e)
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_active());
         ui_ChatBotPage_Objs_reinit();
-        stop_ai_chat();
+        if(!CHAT_BOT_UI_TEST)
+            stop_ai_chat();
         lv_lib_pm_OpenPrePage(&page_manager);
     }
 }
 
 static int ui_ai_chat_app_init(void)
 {
-    int errno = start_ai_chat(ui_system_para.aichat_app_info.addr, ui_system_para.aichat_app_info.port, ui_system_para.aichat_app_info.token, ui_system_para.aichat_app_info.device_id, ui_system_para.aichat_app_info.aliyun_api_key, ui_system_para.aichat_app_info.protocol_version, ui_system_para.aichat_app_info.sample_rate, ui_system_para.aichat_app_info.channels, ui_system_para.aichat_app_info.frame_duration);
-    if(errno)
+    if(!CHAT_BOT_UI_TEST) 
     {
-        // show msg box
-        ui_msgbox_info("Error", "AIChat App init failed, wait for a moment and try again.");
-        return -1;
+        int errno = start_ai_chat(ui_system_para.aichat_app_info.addr, ui_system_para.aichat_app_info.port, ui_system_para.aichat_app_info.token, ui_system_para.aichat_app_info.device_id, ui_system_para.aichat_app_info.aliyun_api_key, ui_system_para.aichat_app_info.protocol_version, ui_system_para.aichat_app_info.sample_rate, ui_system_para.aichat_app_info.channels, ui_system_para.aichat_app_info.frame_duration);
+        if(errno)
+        {
+            // show msg box
+            ui_msgbox_info("Error", "AIChat App init failed, wait for a moment and try again.");
+            return -1;
+        }
     }
     return 0;
 }
@@ -249,8 +255,14 @@ static void _ChatBotTimer_cb(void)
             lv_lib_pm_OpenPrePage(&page_manager);
         }
     }
+    
     // 0-fault, 1-startup, 2-stop, 3-idle, 4-listening, 5-thinking, 6-speaking
-    int state = get_ai_chat_state();
+    int state;
+    if(!CHAT_BOT_UI_TEST) 
+        state = get_ai_chat_state();
+    else
+        state = 3;
+    
     if(state != ui_chat_para.last_state)
     {
         ui_chat_para.last_state = state;
@@ -313,7 +325,8 @@ static void _ChatBotTimer_cb(void)
 
 static void _ChatBotMoveTimer_cb(void)
 {
-    chat_bot_get_intent_process();
+    if(!CHAT_BOT_UI_TEST)
+        chat_bot_get_intent_process();
 }
 
 ///////////////////// SCREEN init ////////////////////
