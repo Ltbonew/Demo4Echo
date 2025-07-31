@@ -464,7 +464,14 @@ void ui_ChatBotPage_init(void)
 
 void ui_ChatBotPage_deinit(void)
 {
-    lv_timer_delete(ui_ChatBot_timer);
-    lv_timer_delete(ui_ChatBot_move_timer);
+    if(ui_ChatBot_timer)
+    {
+        lv_timer_delete(ui_ChatBot_timer);
+    }    
+     if(ui_ChatBot_move_timer)
+    {
+        lv_timer_delete(ui_ChatBot_move_timer);
+    }
+    ui_chat_para.anim_complete = true;
     return;
 }
