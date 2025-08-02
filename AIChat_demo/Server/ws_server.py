@@ -49,9 +49,10 @@ class WebSocketServer:
         """
         # connected
         logger.info("Client connected")
+        process_task = None
         try:
             # 启动发送队列处理任务
-            asyncio.create_task(self.process_send_queue(websocket))
+            process_task = asyncio.create_task(self.process_send_queue(websocket))
 
             # 获取连接时的请求头
             headers = websocket.request_headers
@@ -81,9 +82,13 @@ class WebSocketServer:
                     await self.text_handler.handle_text_message(text)
 
         except websockets.exceptions.ConnectionClosed as e:
+            if process_task:
+                process_task.cancel()
             logger.warning(f"Connection closed: {e}")
             self.service_manager.reset_services()
         finally:
+            if process_task:
+                process_task.cancel()
             logger.info("Client disconnected")
             self.service_manager.reset_services()
 
